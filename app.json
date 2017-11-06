@@ -1,0 +1,24 @@
+{
+  "name": "Hull Close.io",
+  "description": "Sync data with Close.io",
+  "repository": "https://github.com/SMK1085/hull-closeio",
+  "website": "http://www.hull.io",
+  "success_url": "/readme",
+  "env": {
+  "SECRET": {
+  "description": "A Secret key",
+  "generator": "secret"
+  },
+  "OVERRIDE_FIREHOSE_URL": {
+  "description": "Firehose url"
+  },
+  "LOG_LEVEL": {
+  "description": "Logging level (emerg, alert, crit, error, warning, notice, info, debug)",
+  "value": "info"
+  },
+  "PORT": {
+  "description": "Port to start Connector"
+  }
+  },
+  "scripts": {}
+  }

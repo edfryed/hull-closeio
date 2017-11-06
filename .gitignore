@@ -57,3 +57,8 @@ typings/
 # dotenv environment variables file
 .env
 
+# package lock file from npm
+package-lock.json
+
+# workspace settings for VS code
+.vscode

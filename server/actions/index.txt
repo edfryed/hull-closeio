@@ -1,0 +1,1 @@
+export leadStatusList from "./schema-leadstatus";

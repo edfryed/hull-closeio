@@ -1,0 +1,112 @@
+{
+  "name": "Hull-Closeio",
+  "description": "Automate customer interactions with your close.io CRM",
+  "picture": "picture.png",
+  "version": "0.1.0",
+  "tags": [
+    "outgoing",
+    "batch",
+    "oneColumn",
+    "smart-notifier"
+  ],
+  "private_settings": [{
+      "name": "credentials_title",
+      "title": "Credentials",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "api_key",
+      "title": "Close.io API Key",
+      "type": "string",
+      "description": "Find it via <TBD>"
+    },
+    {
+      "name": "configuration_title",
+      "title": "Configuration",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_segments",
+      "title": "Send users to Close.io when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "synchronized_segments_hero",
+      "type": "string",
+      "headerTemplate": "The above list of segments is a whitelist. You need to *explicitely specify one or more segments* for which users and events shall be sent to Close.io.<br>If you do not specify any segment, no user or event will be sent to Close.io.",
+      "format": "information",
+      "title": "Whitelisted Segments"
+    },
+    {
+      "name": "events_filter",
+      "title": "Sends these events to Close.io",
+      "type": "array",
+      "format": "event"
+    },
+    {
+      "name": "send_events_hero",
+      "type": "string",
+      "headerTemplate": "The above list of events is a whitelist. You need to *explicitely specify one or more events* that shall be sent to Close.io.<br>If you do not specify any event, no event data will be sent to Close.io.",
+      "format": "information",
+      "title": "Whitelisted Events"
+    },
+    {
+      "name": "user_id_mapping",
+      "title": "Which user attribute to send as the customerId",
+      "type": "string",
+      "format": "trait",
+      "default": "external_id"
+    },
+    {
+      "name": "data_title",
+      "title": "Data Mapping",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_lead_attributes",
+      "title": "Send Attributes to Close.io",
+      "description": "Name and domain are sent automatically",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull_field_name" : {
+            "type" : "string",
+            "format" : "attributeTrait",
+            "title" : "Hull Attribute"
+          },
+          "closio_field_name" : {
+            "type" : "string",
+            "title" : "Close.io Field",
+            "format" : "select",
+            "options" : {
+              "loadOptions" : "/schema/lead"
+            }
+          },
+          "required" : [
+            "hull_field_name",
+            "closio_field_name"
+          ]
+        }
+      } 
+    }
+  ],
+  "resources": [],
+  "readme": "readme.md",
+  "admin": "admin.html",
+  "ui": false,
+  "subscriptions": [{
+    "url": "/smart-notifier"
+  }],
+  "schedules": [{
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *"
+  }]
+}
