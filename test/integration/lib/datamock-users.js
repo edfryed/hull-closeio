@@ -61,7 +61,7 @@ export function getUsersMeResponse(): any {
       date_created: "2013-02-01T00:54:51.097000+00:00",
       id: "orga_bwwWG475zqWiQGur0thQshwVXo8rIYecQHDWFanqhen",
       updated_by: null
-    }, ],
+    }],
     email_accounts: [{
       receive_attempts_count: 0,
       user_id: "user_MvDoAZA889UMrgsZbnXmHkJSomSi7qk2Iwc4JnGHTbo",
