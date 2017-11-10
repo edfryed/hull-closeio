@@ -63,12 +63,13 @@
     "collectCoverage": true,
     "coverageThreshold": {
       "global": {
-        "branches": 85,
-        "functions": 80,
-        "lines": 75,
-        "statements": 75
+        "branches": 75,
+        "functions": 95,
+        "lines": 90,
+        "statements": 95
       }
     },
+    "coveragePathIgnorePatterns": ["/node_modules/", "/test/"],
     "transform": {
       "^.+\\.js?$": "babel-jest"
     }

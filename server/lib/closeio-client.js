@@ -59,7 +59,8 @@ export class CloseIoClient {
   getLeadStatuses(): Promise<LeadStatus[]> {
     if (!this.hasValidApiKey()) {
       if (this.logger) {
-        // TODO: Log proper error
+        // TODO: Log proper error - consult with @michaloo
+        this.logger.debug("connector.auth.notconfigured");
       }
       return Promise.reject(getInvalidApiKeyError());
     }
@@ -67,15 +68,19 @@ export class CloseIoClient {
     const opts = {
       url: `${BASE_URL}/status/lead/`,
       method: "GET",
-      user: this.apiKey
+      auth: {
+        user: this.apiKey,
+        password: ""
+      }
     };
 
     this.incrementApiCalls(1);
 
     return new Promise((resolve, reject) => {
       request(opts, (err, response, body) => {
-        if (err) {
-          return reject(err);
+        if (err || response.statusCode >= 400) {
+          const msg = err ? err.message : response.statusMessage;
+          return reject(msg);
         }
 
         if (_.isString(body)) {
@@ -95,6 +100,47 @@ export class CloseIoClient {
   }
 
   /**
+   * Creates a new lead in close.io.
+   *
+   * @param {*} cioObject The close.io object data.
+   * @returns {Promise<any>} The data of the created close.io object.
+   * @memberof CloseIoClient
+   */
+  createLead(cioObject: any):Promise<any> {
+    if (!this.hasValidApiKey()) {
+      if (this.logger) {
+        // TODO: Log proper error - consult with @michaloo
+        this.logger.debug("connector.auth.notconfigured");
+      }
+      return Promise.reject(getInvalidApiKeyError());
+    }
+
+    const opts = {
+      url: `${BASE_URL}/lead/`,
+      method: "POST",
+      auth: {
+        user: this.apiKey,
+        password: ""
+      },
+      body: cioObject,
+      json: true
+    };
+
+    this.incrementApiCalls(1);
+
+    return new Promise((resolve, reject) => {
+      request(opts, (err, response, body) => {
+        if (err || response.statusCode >= 400) {
+          const msg = err ? err.message : response.statusMessage;
+          return reject(msg);
+        }
+
+        return resolve(body);
+      });
+    });
+  }
+
+  /**
    * Checks whether an API call can be successfully performed
    * with the specified API key.
    *
@@ -103,27 +149,31 @@ export class CloseIoClient {
    */
   isAuthenticated(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      if (_.isString(this.apiKey) && this.apiKey.length && this.apiKey.length > 5) {
+      if (this.hasValidApiKey()) {
         const opts = {
           url: `${BASE_URL}/me`,
           method: "GET",
-          user: this.apiKey
+          auth: {
+            user: this.apiKey,
+            password: ""
+          }
         };
 
         this.incrementApiCalls(1);
 
         request(opts, (err, response) => {
-          if (err) {
+          if (err || response.statusCode >= 400) {
             if (this.logger) {
-              this.logger.error("connector.auth.error", { details: err.message });
+              const msg = err ? err.message : response.statusMessage;
+              this.logger.error("connector.auth.error", { details: msg });
             }
-            resolve(false);
+            return resolve(false);
           }
-          // TODO: Check if the response could contain error information
+
           if (this.logger) {
             this.logger.debug("connector.auth.success", { status: response.statusCode });
           }
-          resolve(true);
+          return resolve(true);
         });
       } else {
         reject(getInvalidApiKeyError());
@@ -138,6 +188,10 @@ export class CloseIoClient {
    * @memberof CloseIoClient
    */
   hasValidApiKey(): boolean {
+    if (_.isNil(this.apiKey)) {
+      return false;
+    }
+    console.log("API Key", this.apiKey);
     if (_.isString(this.apiKey) && this.apiKey.length && this.apiKey.length > 5) {
       return true;
     }
