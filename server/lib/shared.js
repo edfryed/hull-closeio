@@ -13,6 +13,6 @@ export interface MetricClient {
 
 export interface ListResult {
   has_more: boolean;
-  total_results: number;
+  total_results?: number;
   data: any[];
 }

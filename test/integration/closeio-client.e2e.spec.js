@@ -1,21 +1,20 @@
-/* @flow */
 /* global describe, test, beforeEach, afterEach */
-
-import Mitm from "mitm";
+import _ from "lodash";
+import nock from "nock";
 
 import { getLeadStatusesReponseBody } from "./lib/datamock-leadstatuses";
 import { getUsersMeResponse } from "./lib/datamock-users";
 import { getLeadCreateResponse, getLeadUpdateResponse, getLeadListResponse } from "./lib/datamock-leads";
+import { getCreateContactResponse, getUpdateContactResponse, getListContactResponse } from "./lib/datamock-contacts";
 
 import { CloseIoClient } from "../../server/lib/closeio-client";
 
 describe("CloseIoClient", () => {
+  const BASE_URL = "https://app.close.io/api/v1";
   const API_KEY = "abcd12345z";
-  let mitm: Mitm;
-  let clnt: CloseIoClient;
+  let clnt;
 
   beforeEach(() => {
-    mitm = Mitm();
     clnt = new CloseIoClient(API_KEY);
   });
 
@@ -42,13 +41,13 @@ describe("CloseIoClient", () => {
   });
 
   test("should retrieve the current user profile upon authentication check", (done) => {
-    mitm.on("request", (req, res) => {
-      const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
-      expect(req.headers.authorization).toEqual(authHeader);
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify(getUsersMeResponse()));
-    });
+    nock(BASE_URL)
+      .get("/me")
+      .reply(200, function () { // eslint-disable-line func-names
+        const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+        expect(this.req.headers.authorization).toEqual(authHeader);
+        return getUsersMeResponse();
+      });
 
     clnt.isAuthenticated().then((result) => {
       expect(result).toBeTruthy();
@@ -65,13 +64,13 @@ describe("CloseIoClient", () => {
     loggerMock.debug = debugMock.bind(loggerMock);
     clnt.logger = loggerMock;
 
-    mitm.on("request", (req, res) => {
-      const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
-      expect(req.headers.authorization).toEqual(authHeader);
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify(getUsersMeResponse()));
-    });
+    nock(BASE_URL)
+      .get("/me")
+      .reply(200, function () { // eslint-disable-line func-names
+        const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+        expect(this.req.headers.authorization).toEqual(authHeader);
+        return getUsersMeResponse();
+      });
 
     clnt.isAuthenticated().then((result) => {
       expect(result).toBeTruthy();
@@ -81,10 +80,9 @@ describe("CloseIoClient", () => {
   });
 
   test("should resolve the Promise with false if authentication fails", (done) => {
-    mitm.on("request", (req, res) => {
-      res.statusCode = 401;
-      res.end();
-    });
+    nock(BASE_URL)
+      .get("/me")
+      .reply(401, {});
 
     clnt.isAuthenticated().then((authResult) => {
       expect(authResult).toBeFalsy();
@@ -113,10 +111,9 @@ describe("CloseIoClient", () => {
     loggerMock.error = errorMock.bind(loggerMock);
     clnt.logger = loggerMock;
 
-    mitm.on("request", (req, res) => {
-      res.statusCode = 401;
-      res.end();
-    });
+    nock(BASE_URL)
+      .get("/me")
+      .reply(401, {});
 
     clnt.isAuthenticated().then((authResult) => {
       expect(authResult).toBeFalsy();
@@ -126,13 +123,13 @@ describe("CloseIoClient", () => {
   });
 
   test("should retrieve the lead status upon success", (done) => {
-    mitm.on("request", (req, res) => {
-      const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
-      expect(req.headers.authorization).toEqual(authHeader);
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify(getLeadStatusesReponseBody()));
-    });
+    nock(BASE_URL)
+      .get("/status/lead/")
+      .reply(200, function () { // eslint-disable-line func-names
+        const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+        expect(this.req.headers.authorization).toEqual(authHeader);
+        return getLeadStatusesReponseBody();
+      });
 
     clnt.getLeadStatuses().then((statuses) => {
       expect(statuses).toHaveLength(4);
@@ -142,7 +139,7 @@ describe("CloseIoClient", () => {
   });
 
   test("should reject the Promise for retrieving lead status if no API key is configured", (done) => {
-    const clntNoApiKey = new CloseIoClient(null);
+    const clntNoApiKey = new CloseIoClient();
 
     const debugMock = jest.fn().mockImplementation(() => {
       console.log("logger.debug mocked function called");
@@ -164,12 +161,13 @@ describe("CloseIoClient", () => {
   });
 
   test("should reject the Promise to retrieve the lead status upon failure", (done) => {
-    mitm.on("request", (req, res) => {
-      const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
-      expect(req.headers.authorization).toEqual(authHeader);
-      res.statusCode = 500;
-      res.end();
-    });
+    nock(BASE_URL)
+      .get("/status/lead/")
+      .reply(500, function () { // eslint-disable-line func-names
+        const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+        expect(this.req.headers.authorization).toEqual(authHeader);
+        return {};
+      });
 
     clnt.getLeadStatuses().then(() => {
       expect(false).toEqual(true);
@@ -219,21 +217,14 @@ describe("CloseIoClient", () => {
         }
       ]
     };
-    mitm.on("request", (req, res) => {
-      const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
-      expect(req.headers.authorization).toEqual(authHeader);
-      // TODO: Compare body from IncomingMessage by using the native function
-      let body = [];
-      req.on("data", (chunk) => {
-        body.push(chunk);
-      }).on("end", () => {
-        body = Buffer.concat(body).toString();
-        // at this point, `body` has the entire request body stored in it as a string
-        expect(JSON.parse(body)).toEqual(leadData);
-        res.statusCode = 200;
-        res.end(JSON.stringify(getLeadCreateResponse()));
+    nock(BASE_URL)
+      .post("/lead/")
+      .reply(200, function (uri, requestBody) { // eslint-disable-line func-names
+        const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+        expect(this.req.headers.authorization).toEqual(authHeader);
+        expect(requestBody).toEqual(leadData);
+        return getLeadCreateResponse();
       });
-    });
 
     clnt.createLead(leadData).then((lead) => {
       const expected = getLeadCreateResponse();
@@ -281,12 +272,13 @@ describe("CloseIoClient", () => {
         }
       ]
     };
-    mitm.on("request", (req, res) => {
-      const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
-      expect(req.headers.authorization).toEqual(authHeader);
-      res.statusCode = 500;
-      res.end();
-    });
+    nock(BASE_URL)
+      .post("/lead/")
+      .reply(500, function () { // eslint-disable-line func-names
+        const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+        expect(this.req.headers.authorization).toEqual(authHeader);
+        return {};
+      });
 
     clnt.createLead(leadData).then(() => {
       expect(false).toEqual(true);
@@ -345,22 +337,6 @@ describe("CloseIoClient", () => {
     loggerMock.debug = debugMock.bind(loggerMock);
     clntNoApiKey.logger = loggerMock;
 
-    mitm.on("request", (req, res) => {
-      const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
-      expect(req.headers.authorization).toEqual(authHeader);
-      // TODO: Compare body from IncomingMessage by using the native function
-      let body = [];
-      req.on("data", (chunk) => {
-        body.push(chunk);
-      }).on("end", () => {
-        body = Buffer.concat(body).toString();
-        // at this point, `body` has the entire request body stored in it as a string
-        expect(JSON.parse(body)).toEqual(leadData);
-        res.statusCode = 200;
-        res.end(JSON.stringify(getLeadCreateResponse()));
-      });
-    });
-
     clntNoApiKey.createLead(leadData).then(() => {
       expect(false).toEqual(true);
       done();
@@ -378,21 +354,14 @@ describe("CloseIoClient", () => {
 
     const id = "lead_70jZ5hiVt5X31MZ3vJ0R0GJMqJEihkoF7TtSVFbN2ty";
 
-    mitm.on("request", (req, res) => {
-      const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
-      expect(req.headers.authorization).toEqual(authHeader);
-      expect(req.url).toEqual(`/api/v1/lead/${id}`);
-      let body = [];
-      req.on("data", (chunk) => {
-        body.push(chunk);
-      }).on("end", () => {
-        body = Buffer.concat(body).toString();
-        // at this point, `body` has the entire request body stored in it as a string
-        expect(JSON.parse(body)).toEqual(leadData);
-        res.statusCode = 200;
-        res.end(JSON.stringify(getLeadUpdateResponse()));
+    nock(BASE_URL)
+      .put(`/lead/${id}`)
+      .reply(200, function (uri, body) { // eslint-disable-line func-names
+        const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+        expect(this.req.headers.authorization).toEqual(authHeader);
+        expect(body).toEqual(leadData);
+        return getLeadUpdateResponse();
       });
-    });
 
     clnt.updateLead(id, leadData).then((lead) => {
       const expected = getLeadUpdateResponse();
@@ -408,21 +377,14 @@ describe("CloseIoClient", () => {
 
     const id = "lead_70jZ5hiVt5X31MZ3vJ0R0GJMqJEihkoF7TtSVFbN2ty";
 
-    mitm.on("request", (req, res) => {
-      const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
-      expect(req.headers.authorization).toEqual(authHeader);
-      expect(req.url).toEqual(`/api/v1/lead/${id}`);
-      let body = [];
-      req.on("data", (chunk) => {
-        body.push(chunk);
-      }).on("end", () => {
-        body = Buffer.concat(body).toString();
-        // at this point, `body` has the entire request body stored in it as a string
-        expect(JSON.parse(body)).toEqual(leadData);
-        res.statusCode = 500;
-        res.end();
+    nock(BASE_URL)
+      .put(`/lead/${id}`)
+      .reply(500, function (uri, body) { // eslint-disable-line func-names
+        const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+        expect(this.req.headers.authorization).toEqual(authHeader);
+        expect(body).toEqual(leadData);
+        return {};
       });
-    });
 
     clnt.updateLead(id, leadData).then(() => {
       expect(false).toEqual(true);
@@ -475,26 +437,36 @@ describe("CloseIoClient", () => {
     });
   });
 
-  test.only("should list all leads that match the query if the parameters are valid", () => {
+  test("should list leads that match the query if the parameters are valid", () => {
     const q = "company: Wayne Enterprises";
-    mitm.on("request", (req, res) => {
-      const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
-      expect(req.headers.authorization).toEqual(authHeader);
-      console.log(">>> Url:", req.url);
-      res.statusCode = 200;
-      res.end(JSON.stringify(getLeadListResponse()));
-    });
+    const fields = ["name", "description"];
+    nock(BASE_URL)
+      .get("/lead/")
+      .query({
+        query: q,
+        _fields: fields.join(","),
+        _limit: 100,
+        _skip: 0
+      })
+      .reply(200, function () { // eslint-disable-line func-names
+        const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+        expect(this.req.headers.authorization).toEqual(authHeader);
+        return getLeadListResponse();
+      });
 
-    clnt.listLeads(q, ["name", "description"]).then((result) => {
+    clnt.listLeads(q, fields).then((result) => {
+      if (_.isString(result)) {
+        result = JSON.parse(result);
+      }
       expect(result.has_more).toEqual(false);
       expect(result.total_results).toEqual(1);
-      expect(result.data).toEqual(getLeadListResponse());
+      expect(result.data).toEqual(getLeadListResponse().data);
     }, (err) => {
       console.log(">>> Error", err);
     });
   });
 
-  test("should reject the Promise to update an existing lead if no API key is configured", (done) => {
+  test("should reject the Promise to list leads if no API key is configured", (done) => {
     const q = "company: Wayne Enterprises";
     const debugMock = jest.fn().mockImplementation(() => {
       console.log("logger.debug mocked function called");
@@ -515,7 +487,283 @@ describe("CloseIoClient", () => {
     });
   });
 
-  afterEach(() => {
-    mitm.disable();
+  test("should reject the Promise to list leads if the request fails", (done) => {
+    const q = "company: Wayne Enterprises";
+    const fields = ["name", "description"];
+    nock(BASE_URL)
+      .get("/lead/")
+      .query({
+        query: q,
+        _fields: fields.join(","),
+        _limit: 100,
+        _skip: 0
+      })
+      .reply(500, {});
+
+    clnt.listLeads(q, ["name", "description"]).then(() => {
+      expect(false).toEqual(true);
+      done();
+    }, (err) => {
+      expect(err).toBeDefined();
+      done();
+    });
+  });
+
+  test("should create a contact if the data is valid", (done) => {
+    const contactData = {
+      lead_id: "lead_QyNaWw4fdSwxl5Mc5daMFf3Y27PpIcH0awPbC9l7uyo",
+      name: "John Smith",
+      title: "President",
+      phones: [
+        { phone: "9045551234", type: "mobile" }
+      ],
+      emails: [
+        { email: "john@example.com", type: "office" }
+      ],
+      urls: [
+        { url: "http://twitter.com/google/", type: "url" }
+      ]
+    };
+    nock(BASE_URL)
+      .post("/contact/")
+      .reply(200, function (uri, requestBody) { // eslint-disable-line func-names
+        const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+        expect(this.req.headers.authorization).toEqual(authHeader);
+        expect(requestBody).toEqual(contactData);
+        return getCreateContactResponse();
+      });
+
+    clnt.createContact(contactData).then((lead) => {
+      const expected = getCreateContactResponse();
+      expect(lead).toEqual(expected);
+      done();
+    });
+  });
+
+  test("should reject the Promise to create a lead if an error occurs", (done) => {
+    const contactData = {
+      lead_id: "lead_QyNaWw4fdSwxl5Mc5daMFf3Y27PpIcH0awPbC9l7uyo",
+      name: "John Smith",
+      title: "President",
+      phones: [
+        { phone: "9045551234", type: "mobile" }
+      ],
+      emails: [
+        { email: "john@example.com", type: "office" }
+      ],
+      urls: [
+        { url: "http://twitter.com/google/", type: "url" }
+      ]
+    };
+    nock(BASE_URL)
+      .post("/contact/")
+      .reply(500, function () { // eslint-disable-line func-names
+        const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+        expect(this.req.headers.authorization).toEqual(authHeader);
+        return {};
+      });
+
+    clnt.createContact(contactData).then(() => {
+      expect(false).toEqual(true);
+      done();
+    }, (err) => {
+      expect(err).toBeDefined();
+      done();
+    });
+  });
+
+  test("should reject the Promise to create a contact if no API key is configured", (done) => {
+    const contactData = {
+      lead_id: "lead_QyNaWw4fdSwxl5Mc5daMFf3Y27PpIcH0awPbC9l7uyo",
+      name: "John Smith",
+      title: "President",
+      phones: [
+        { phone: "9045551234", type: "mobile" }
+      ],
+      emails: [
+        { email: "john@example.com", type: "office" }
+      ],
+      urls: [
+        { url: "http://twitter.com/google/", type: "url" }
+      ]
+    };
+    const debugMock = jest.fn().mockImplementation(() => {
+      console.log("logger.debug mocked function called");
+    });
+
+    const clntNoApiKey = new CloseIoClient();
+    const loggerMock = {};
+    loggerMock.debug = debugMock.bind(loggerMock);
+    clntNoApiKey.logger = loggerMock;
+
+    clntNoApiKey.createContact(contactData).then(() => {
+      expect(false).toEqual(true);
+      done();
+    }, (err) => {
+      expect(err).toBeDefined();
+      expect(debugMock.mock.calls[0][0]).toEqual("connector.auth.notconfigured");
+      done();
+    });
+  });
+
+  test("should update an existing contact if the data is valid", (done) => {
+    const contactData = {
+      name: "Johnny Smith",
+    };
+
+    const id = "cont_sNIdBgngvbdTTEN1mspKgUqKAWfbul4IITvnWoRw1T7";
+
+    nock(BASE_URL)
+      .put(`/contact/${id}`)
+      .reply(200, function (uri, body) { // eslint-disable-line func-names
+        const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+        expect(this.req.headers.authorization).toEqual(authHeader);
+        expect(body).toEqual(contactData);
+        return getUpdateContactResponse();
+      });
+
+    clnt.updateContact(id, contactData).then((lead) => {
+      const expected = getUpdateContactResponse();
+      expect(lead).toEqual(expected);
+      done();
+    });
+  });
+
+  test("should reject the Promise to update an existing contact if an error occurs", (done) => {
+    const contactData = {
+      name: "Johnny Smith",
+    };
+
+    const id = "cont_sNIdBgngvbdTTEN1mspKgUqKAWfbul4IITvnWoRw1T7";
+
+    nock(BASE_URL)
+      .put(`/contact/${id}`)
+      .reply(500, function (uri, body) { // eslint-disable-line func-names
+        const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+        expect(this.req.headers.authorization).toEqual(authHeader);
+        expect(body).toEqual(contactData);
+        return {};
+      });
+
+    clnt.updateContact(id, contactData).then(() => {
+      expect(false).toEqual(true);
+      done();
+    }, (err) => {
+      expect(err).toBeDefined();
+      done();
+    });
+  });
+
+  test("should reject the Promise to update an existing contact if the identifier is less than 5 characters", (done) => {
+    const contactData = {
+      name: "Johnny Smith",
+    };
+
+    const id = "cont";
+
+    clnt.updateContact(id, contactData).then(() => {
+      expect(false).toEqual(true);
+      done();
+    }, (err) => {
+      expect(err).toBeDefined();
+      done();
+    });
+  });
+
+  test("should reject the Promise to update an existing contact if no API key is configured", (done) => {
+    const contactData = {
+      name: "Johnny Smith",
+    };
+
+    const id = "cont_sNIdBgngvbdTTEN1mspKgUqKAWfbul4IITvnWoRw1T7";
+
+    const debugMock = jest.fn().mockImplementation(() => {
+      console.log("logger.debug mocked function called");
+    });
+
+    const clntNoApiKey = new CloseIoClient();
+    const loggerMock = {};
+    loggerMock.debug = debugMock.bind(loggerMock);
+    clntNoApiKey.logger = loggerMock;
+
+    clntNoApiKey.updateContact(id, contactData).then(() => {
+      expect(false).toEqual(true);
+      done();
+    }, (err) => {
+      expect(err).toBeDefined();
+      expect(debugMock.mock.calls[0][0]).toEqual("connector.auth.notconfigured");
+      done();
+    });
+  });
+
+  test("should list contacts that match the query if the parameters are valid", () => {
+    const q = "has: name";
+    const fields = ["name", "title"];
+    nock(BASE_URL)
+      .get("/contact/")
+      .query({
+        query: q,
+        _fields: fields.join(","),
+        _limit: 100,
+        _skip: 0
+      })
+      .reply(200, function () { // eslint-disable-line func-names
+        const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+        expect(this.req.headers.authorization).toEqual(authHeader);
+        return getListContactResponse();
+      });
+
+    clnt.listContacts(q, fields).then((result) => {
+      if (_.isString(result)) {
+        result = JSON.parse(result);
+      }
+      expect(result.has_more).toEqual(false);
+      expect(result.data).toEqual(getListContactResponse().data);
+    }, (err) => {
+      console.log(">>> Error", err);
+    });
+  });
+
+  test("should reject the Promise to list contacts if no API key is configured", (done) => {
+    const q = "has: name";
+    const debugMock = jest.fn().mockImplementation(() => {
+      console.log("logger.debug mocked function called");
+    });
+
+    const clntNoApiKey = new CloseIoClient();
+    const loggerMock = {};
+    loggerMock.debug = debugMock.bind(loggerMock);
+    clntNoApiKey.logger = loggerMock;
+
+    clntNoApiKey.listContacts(q, ["name", "title"]).then(() => {
+      expect(false).toEqual(true);
+      done();
+    }, (err) => {
+      expect(err).toBeDefined();
+      expect(debugMock.mock.calls[0][0]).toEqual("connector.auth.notconfigured");
+      done();
+    });
+  });
+
+  test("should reject the Promise to list contacts if the request fails", (done) => {
+    const q = "has: name";
+    const fields = ["name", "description"];
+    nock(BASE_URL)
+      .get("/contact/")
+      .query({
+        query: q,
+        _fields: fields.join(","),
+        _limit: 100,
+        _skip: 0
+      })
+      .reply(500, {});
+
+    clnt.listContacts(q, ["name", "title"]).then(() => {
+      expect(false).toEqual(true);
+      done();
+    }, (err) => {
+      expect(err).toBeDefined();
+      done();
+    });
   });
 });
