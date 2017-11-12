@@ -69,7 +69,10 @@
         "statements": 95
       }
     },
-    "coveragePathIgnorePatterns": ["/node_modules/", "/test/"],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/"
+    ],
     "transform": {
       "^.+\\.js?$": "babel-jest"
     }

@@ -1,8 +1,11 @@
+/* @flow */
+/* global describe, test, before, beforeEach, afterEach */
+
 import Mitm from "mitm";
 
 import { getLeadStatusesReponseBody } from "./lib/datamock-leadstatuses";
 import { getUsersMeResponse } from "./lib/datamock-users";
-import { getLeadCreateResponse } from "./lib/datamock-leads";
+import { getLeadCreateResponse, getLeadUpdateResponse, getLeadListResponse } from "./lib/datamock-leads";
 
 import { CloseIoClient } from "../../server/lib/closeio-client";
 
@@ -294,7 +297,7 @@ describe("CloseIoClient", () => {
     });
   });
 
-  test("should reject the Promise to create a lead if an error occurs", (done) => {
+  test("should reject the Promise to create a lead if no API key is configured", (done) => {
     const leadData = {
       name: "Bluth Company",
       url: "http://thebluthcompany.tumblr.com/",
@@ -363,10 +366,154 @@ describe("CloseIoClient", () => {
       done();
     }, (err) => {
       expect(err).toBeDefined();
+      expect(debugMock.mock.calls[0][0]).toEqual("connector.auth.notconfigured");
       done();
     });
   });
 
+  test("should update an existing lead if the data is valid", (done) => {
+    const leadData = {
+      description: "Best show ever canceled.  Sad."
+    };
+
+    const id = "lead_70jZ5hiVt5X31MZ3vJ0R0GJMqJEihkoF7TtSVFbN2ty";
+
+    mitm.on("request", (req, res) => {
+      const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+      expect(req.headers.authorization).toEqual(authHeader);
+      expect(req.url).toEqual(`/api/v1/lead/${id}`);
+      let body = [];
+      req.on("data", (chunk) => {
+        body.push(chunk);
+      }).on("end", () => {
+        body = Buffer.concat(body).toString();
+        // at this point, `body` has the entire request body stored in it as a string
+        expect(JSON.parse(body)).toEqual(leadData);
+        res.statusCode = 200;
+        res.end(JSON.stringify(getLeadUpdateResponse()));
+      });
+    });
+
+    clnt.updateLead(id, leadData).then((lead) => {
+      const expected = getLeadUpdateResponse();
+      expect(lead).toEqual(expected);
+      done();
+    });
+  });
+
+  test("should reject the Promise to update an existing lead if an error occurs", (done) => {
+    const leadData = {
+      description: "Best show ever canceled.  Sad."
+    };
+
+    const id = "lead_70jZ5hiVt5X31MZ3vJ0R0GJMqJEihkoF7TtSVFbN2ty";
+
+    mitm.on("request", (req, res) => {
+      const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+      expect(req.headers.authorization).toEqual(authHeader);
+      expect(req.url).toEqual(`/api/v1/lead/${id}`);
+      let body = [];
+      req.on("data", (chunk) => {
+        body.push(chunk);
+      }).on("end", () => {
+        body = Buffer.concat(body).toString();
+        // at this point, `body` has the entire request body stored in it as a string
+        expect(JSON.parse(body)).toEqual(leadData);
+        res.statusCode = 500;
+        res.end();
+      });
+    });
+
+    clnt.updateLead(id, leadData).then(() => {
+      expect(false).toEqual(true);
+      done();
+    }, (err) => {
+      expect(err).toBeDefined();
+      done();
+    });
+  });
+
+  test("should reject the Promise to update an existing lead if the identifier is less than 5 characters", (done) => {
+    const leadData = {
+      description: "Best show ever canceled.  Sad."
+    };
+
+    const id = "lead";
+
+    clnt.updateLead(id, leadData).then(() => {
+      expect(false).toEqual(true);
+      done();
+    }, (err) => {
+      expect(err).toBeDefined();
+      done();
+    });
+  });
+
+  test("should reject the Promise to update an existing lead if no API key is configured", (done) => {
+    const leadData = {
+      description: "Best show ever canceled.  Sad."
+    };
+
+    const id = "lead_70jZ5hiVt5X31MZ3vJ0R0GJMqJEihkoF7TtSVFbN2ty";
+
+    const debugMock = jest.fn().mockImplementation(() => {
+      console.log("logger.debug mocked function called");
+    });
+
+    const clntNoApiKey = new CloseIoClient();
+    const loggerMock = {};
+    loggerMock.debug = debugMock.bind(loggerMock);
+    clntNoApiKey.logger = loggerMock;
+
+    clntNoApiKey.updateLead(id, leadData).then(() => {
+      expect(false).toEqual(true);
+      done();
+    }, (err) => {
+      expect(err).toBeDefined();
+      expect(debugMock.mock.calls[0][0]).toEqual("connector.auth.notconfigured");
+      done();
+    });
+  });
+
+  test.only("should list all leads that match the query if the parameters are valid", () => {
+    const q = "company: Wayne Enterprises";
+    mitm.on("request", (req, res) => {
+      const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+      expect(req.headers.authorization).toEqual(authHeader);
+      console.log(">>> Url:", req.url);
+      res.statusCode = 200;
+      res.end(JSON.stringify(getLeadListResponse()));
+    });
+
+    clnt.listLeads(q, ["name", "description"]).then((result) => {
+      expect(result.has_more).toEqual(false);
+      expect(result.total_results).toEqual(1);
+      expect(result.data).toEqual(getLeadListResponse());
+    }, (err) => {
+      console.log(">>> Error", err);
+    });
+  });
+
+  test("should reject the Promise to update an existing lead if no API key is configured", (done) => {
+    const q = "company: Wayne Enterprises";
+    const debugMock = jest.fn().mockImplementation(() => {
+      console.log("logger.debug mocked function called");
+    });
+
+    const clntNoApiKey = new CloseIoClient();
+    const loggerMock = {};
+    loggerMock.debug = debugMock.bind(loggerMock);
+    clntNoApiKey.logger = loggerMock;
+
+    clntNoApiKey.listLeads(q, ["name", "description"]).then(() => {
+      expect(false).toEqual(true);
+      done();
+    }, (err) => {
+      expect(err).toBeDefined();
+      expect(debugMock.mock.calls[0][0]).toEqual("connector.auth.notconfigured");
+      done();
+    });
+  });
 
   afterEach(() => {
     mitm.disable();

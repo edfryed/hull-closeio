@@ -3,13 +3,17 @@ import _ from "lodash";
 import request from "request";
 import Promise from "bluebird";
 
-import { HullLogger, MetricClient } from "./shared";
+import { HullLogger, MetricClient, ListResult } from "./shared";
 
 const BASE_URL = "https://app.close.io/api/v1";
 
 /* Helper functions */
 function getInvalidApiKeyError(): Error {
   return new Error("The API key is either not present or not considerd a valid key because it is less than 5 characters.");
+}
+
+function getInvalidIdentifierError(minLength: number): Error {
+  return new Error(`Invalid ID: The identifier is not specified or has less than ${minLength} characters.`);
 }
 
 export class CloseIoClient {
@@ -99,6 +103,56 @@ export class CloseIoClient {
     });
   }
 
+
+  /**
+   * List all leads matching the given search parameters
+   *
+   * @param {string} query The query to execute.
+   * @param {string []} fields The fields to return.
+   * @param {number} [limit=100] The number of records per page.
+   * @param {number} [skip=0] The number of records to skip.
+   * @returns {Promise<ListResult>} A list result containing the data and information for pagination.
+   * @memberof CloseIoClient
+   */
+  listLeads(query: string, fields: string [], limit: number = 100, skip: number = 0): Promise<ListResult> {
+    if (!this.hasValidApiKey()) {
+      if (this.logger) {
+        // TODO: Log proper error - consult with @michaloo
+        this.logger.debug("connector.auth.notconfigured");
+      }
+      return Promise.reject(getInvalidApiKeyError());
+    }
+
+    const opts = {
+      url: `${BASE_URL}/lead/`,
+      method: "GET",
+      auth: {
+        user: this.apiKey,
+        password: ""
+      },
+      qs: {
+        query,
+        _fields: fields.join(","),
+        _limit: limit,
+        _skip: skip
+      }
+    };
+
+    console.log("Ops query", opts);
+    this.incrementApiCalls(1);
+
+    return new Promise((resolve, reject) => {
+      request(opts, (err, response, body) => {
+        if (err || response.statusCode >= 400) {
+          const msg = err ? err.message : response.statusMessage;
+          return reject(msg);
+        }
+
+        return resolve(body);
+      });
+    });
+  }
+
   /**
    * Creates a new lead in close.io.
    *
@@ -118,6 +172,52 @@ export class CloseIoClient {
     const opts = {
       url: `${BASE_URL}/lead/`,
       method: "POST",
+      auth: {
+        user: this.apiKey,
+        password: ""
+      },
+      body: cioObject,
+      json: true
+    };
+
+    this.incrementApiCalls(1);
+
+    return new Promise((resolve, reject) => {
+      request(opts, (err, response, body) => {
+        if (err || response.statusCode >= 400) {
+          const msg = err ? err.message : response.statusMessage;
+          return reject(msg);
+        }
+
+        return resolve(body);
+      });
+    });
+  }
+
+  /**
+   * Updates an existing lead in close.io.
+   *
+   * @param {string} id The identifier of the close.io lead object.
+   * @param {*} cioObject On object containing all properties to update.
+   * @returns {Promise<any>} The updated close.io object.
+   * @memberof CloseIoClient
+   */
+  updateLead(id: string, cioObject: any): Promise<any> {
+    if (!this.hasValidApiKey()) {
+      if (this.logger) {
+        // TODO: Log proper error - consult with @michaloo
+        this.logger.debug("connector.auth.notconfigured");
+      }
+      return Promise.reject(getInvalidApiKeyError());
+    }
+
+    if (_.isNil(id) || id.length < 5) {
+      return Promise.reject(getInvalidIdentifierError(5));
+    }
+
+    const opts = {
+      url: `${BASE_URL}/lead/${id}`,
+      method: "PUT",
       auth: {
         user: this.apiKey,
         password: ""

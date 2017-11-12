@@ -10,3 +10,9 @@ export interface MetricClient {
   value(name: string, value: number): void;
   increment(name: string, value: number): void;
 }
+
+export interface ListResult {
+  has_more: boolean;
+  total_results: number;
+  data: any[];
+}
