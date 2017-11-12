@@ -1,5 +1,5 @@
 /* @flow */
-/* global describe, test, before, beforeEach, afterEach */
+/* global describe, test, beforeEach, afterEach */
 
 import Mitm from "mitm";
 
