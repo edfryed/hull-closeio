@@ -2,10 +2,10 @@
 import _ from "lodash";
 import nock from "nock";
 
-import { getLeadStatusesReponseBody } from "./lib/datamock-leadstatuses";
-import { getUsersMeResponse } from "./lib/datamock-users";
-import { getLeadCreateResponse, getLeadUpdateResponse, getLeadListResponse } from "./lib/datamock-leads";
-import { getCreateContactResponse, getUpdateContactResponse, getListContactResponse } from "./lib/datamock-contacts";
+import { getLeadStatusesReponseBody } from "../helper/datamock-leadstatuses";
+import { getUsersMeResponse } from "../helper/datamock-users";
+import { getLeadCreateResponse, getLeadUpdateResponse, getLeadListResponse } from "../helper/datamock-leads";
+import { getCreateContactResponse, getUpdateContactResponse, getListContactResponse } from "../helper/datamock-contacts";
 
 import { CloseIoClient } from "../../server/lib/closeio-client";
 

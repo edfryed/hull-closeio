@@ -42,17 +42,14 @@
       "title": "Whitelisted Segments"
     },
     {
-      "name": "events_filter",
-      "title": "Sends these events to Close.io",
-      "type": "array",
-      "format": "event"
-    },
-    {
-      "name": "send_events_hero",
+      "name": "lead_status",
+      "title": "The lead status to use for creating new leads. If set to None the default status will be applied by close.io",
       "type": "string",
-      "headerTemplate": "The above list of events is a whitelist. You need to *explicitely specify one or more events* that shall be sent to Close.io.<br>If you do not specify any event, no event data will be sent to Close.io.",
-      "format": "information",
-      "title": "Whitelisted Events"
+      "format": "select",
+      "default": "none",
+      "options": {
+        "loadOptions": "/leadstatuses"
+      } 
     },
     {
       "name": "user_id_mapping",
@@ -95,6 +92,15 @@
           ]
         }
       } 
+    },
+    {
+      "name" : "lead_attributes_inbound",
+      "title" : "List of Lead fields to fetch from Close.io",
+      "type" : "array",
+      "format" : "select",
+      "options" : {
+        "loadOptions" : "/schema/lead"
+      }
     }
   ],
   "resources": [],

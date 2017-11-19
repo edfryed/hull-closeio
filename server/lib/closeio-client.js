@@ -3,7 +3,7 @@ import _ from "lodash";
 import request from "request";
 import Promise from "bluebird";
 
-import { HullLogger, MetricClient, ListResult } from "./shared";
+import { ILogger, MetricClient, ListResult } from "./shared";
 
 const BASE_URL = "https://app.close.io/api/v1";
 
@@ -29,10 +29,10 @@ export class CloseIoClient {
   /**
    * Gets or sets the logger to for logging purposes.
    *
-   * @type {HullLogger}
+   * @type {ILogger}
    * @memberof CloseIoClient
    */
-  logger: HullLogger;
+  logger: ILogger;
 
   /**
    * Gets or sets the client to use for metrics collection.

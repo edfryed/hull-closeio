@@ -1386,7 +1386,7 @@ cookie@0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.3.1.tgz#e7e0a1f9ef43b4c8ba925c5c5a96e806d16873bb"
 
-core-js@^2.4.0, core-js@^2.5.0:
+core-js@^2.4.0, core-js@^2.5.0, core-js@latest:
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.5.1.tgz#ae6874dc66937789b80754ff5428df66819ca50b"
 
@@ -3432,6 +3432,12 @@ lru-cache@^4.0.1:
 lsmod@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/lsmod/-/lsmod-1.0.0.tgz#9a00f76dca36eb23fa05350afe1b585d4299e64b"
+
+luxon@^0.0.18:
+  version "0.0.18"
+  resolved "https://registry.yarnpkg.com/luxon/-/luxon-0.0.18.tgz#4b77e1bdf3f7a385759ace5afade035056c5303c"
+  dependencies:
+    core-js latest
 
 makeerror@1.0.x:
   version "1.0.11"
