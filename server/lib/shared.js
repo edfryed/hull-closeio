@@ -16,3 +16,21 @@ export interface ListResult {
   total_results?: number;
   data: any[];
 }
+
+export interface IUserUpdateEnvelope {
+  message: Object,
+  currentCloseLead? : Object;
+  currentCloseContact?: Object;
+  skipReason?: string;
+}
+
+export interface IFilterResult {
+  toInsert: Array<IUserUpdateEnvelope>;
+  toUpdate: Array<IUserUpdateEnvelope>;
+  toSkip: Array<IUserUpdateEnvelope>;
+}
+
+export interface IFilterUtil {
+  filterAccounts(envelopes: Array<IUserUpdateEnvelope>): IFilterResult;
+  filterUsers(envelopes: Array<IUserUpdateEnvelope>): IFilterResult;
+}

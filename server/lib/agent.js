@@ -95,15 +95,18 @@ export class Agent {
         const totalPages = Math.ceil(res.total_results / 100);
         const apiOps = [];
         for (let index = 1; index < totalPages; index++) { // eslint-disable-line no-plusplus
-          apiOps.push(this.closeClient.listLeads(q, this.leadFieldsInbound), 100, index);
+          apiOps.push(this.closeClient.listLeads(q, this.leadFieldsInbound, 100, index));
         }
         return Promise.all(apiOps).then((results) => {
           results.forEach((result) => {
             data.push((result: any).data);
           });
+
+          // TODO: Process results
           return Promise.resolve(_.flatten(data));
         });
       }
+      // TODO: Process results
       return Promise.resolve(_.flatten(data));
     }, (err) => {
       this.logger.error("incoming.job.error", { reason: err });

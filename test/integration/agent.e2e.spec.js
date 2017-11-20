@@ -112,8 +112,8 @@ describe("Agent", () => {
     agent.connector.private_settings.last_sync_at = `${dt.valueOf()}`;
 
     let expectedLeads = [];
-    expectedLeads.push(getLeadListResponseForPagination(0, 100, 200));
-    expectedLeads.push(getLeadListResponseForPagination(1, 100, 200));
+    expectedLeads.push(getLeadListResponseForPagination(0, 100, 200).data);
+    expectedLeads.push(getLeadListResponseForPagination(1, 100, 200).data);
     expectedLeads = _.flatten(expectedLeads);
 
     agent.fetchUpdatedLeads().then((res) => {
