@@ -16,7 +16,7 @@
     "test:unit": "NODE_ENV=test jest ./test/unit",
     "test:integration": "NODE_ENV=test jest ./test/integration",
     "test:manifest": "jsonlint manifest.json -q",
-    "start": "node -r newrelic build",
+    "start": "node build",
     "start:dev": "NODE_ENV=development babel-watch -L server",
     "clean": "rimraf build",
     "postinstall": "npm run build"
