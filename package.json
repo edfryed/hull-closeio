@@ -42,8 +42,6 @@
   },
   "homepage": "https://github.com/hull-ships/hull-closeio#readme",
   "dependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
     "bluebird": "^3.5.1",
     "cache-manager": "^2.5.0",
     "cors": "^2.8.4",
@@ -57,6 +55,8 @@
     "request": "^2.83.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-flow": "^6.23.0",
     "babel-eslint": "^8.0.1",
