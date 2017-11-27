@@ -1,5 +1,4 @@
 /* global describe, test, expect */
-import _ from "lodash";
 import { AttributesMapper } from "../../server/lib/utils/attributes-mapper";
 import { getListCustomFieldsReponseBody } from "../helper/datamock-customfields";
 import { getLeadCreateResponse } from "../helper/datamock-leads";
