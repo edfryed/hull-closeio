@@ -47,6 +47,7 @@
     "hull": "^0.13.4",
     "lodash": "^4.17.4",
     "luxon": "^0.0.18",
+    "newrelic": "^2.4.0",
     "querystring": "^0.2.0",
     "request": "^2.83.0"
   },
