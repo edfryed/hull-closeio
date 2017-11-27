@@ -227,8 +227,12 @@ export class AttributesMapper implements IAttributesMapper {
    * @memberof AttributesMapper
    */
   normalizeUrl(original: string): string {
-    const closeUrl = new URL(original);
-    return closeUrl.hostname;
+    try {
+      const closeUrl = new URL(original);
+      return closeUrl.hostname;
+    } catch (error) {
+      return original;
+    }
   }
 }
 

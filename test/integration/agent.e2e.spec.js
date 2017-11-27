@@ -9,6 +9,7 @@ import { HullClientMock } from "../helper/hullclientmock";
 import { MetricsClientMock } from "../helper/metricsclientmock";
 import { getLeadStatusesReponseBody } from "../helper/datamock-leadstatuses";
 import { getLeadListResponse, getLeadListResponseForPagination } from "../helper/datamock-leads";
+import { AttributesMapper } from "../../server/lib/utils/attributes-mapper";
 
 describe("Agent", () => {
   const private_settings = {
@@ -86,10 +87,11 @@ describe("Agent", () => {
     const q = `updated > ${dt.minus({ days: 1 }).toISODate()}`;
     agent.connector.private_settings.last_sync_at = `${dt.valueOf()}`;
 
+    agent.attributesMapper = new AttributesMapper(connectorMock.private_settings, []);
     agent.fetchUpdatedLeads().then((res) => {
       expect(res).toEqual(getLeadListResponse().data);
       expect(listLeadsMock.mock.calls[0][0]).toEqual(q);
-      expect(listLeadsMock.mock.calls[0][1]).toEqual(["name", "url"]);
+      expect(listLeadsMock.mock.calls[0][1]).toEqual(["id", "name", "url"]);
       expect(listLeadsMock.mock.calls[0][2]).toEqual(100);
       expect(listLeadsMock.mock.calls[0][3]).toEqual(0);
       expect(listLeadsMock.mock.calls.length).toEqual(1);
@@ -116,14 +118,15 @@ describe("Agent", () => {
     expectedLeads.push(getLeadListResponseForPagination(1, 100, 200).data);
     expectedLeads = _.flatten(expectedLeads);
 
+    agent.attributesMapper = new AttributesMapper(connectorMock.private_settings, []);
     agent.fetchUpdatedLeads().then((res) => {
       expect(res).toEqual(expectedLeads);
       expect(listLeadsMock.mock.calls[0][0]).toEqual(q);
-      expect(listLeadsMock.mock.calls[0][1]).toEqual(["name", "url"]);
+      expect(listLeadsMock.mock.calls[0][1]).toEqual(["id", "name", "url"]);
       expect(listLeadsMock.mock.calls[0][2]).toEqual(100);
       expect(listLeadsMock.mock.calls[0][3]).toEqual(0);
       expect(listLeadsMock.mock.calls[1][0]).toEqual(q);
-      expect(listLeadsMock.mock.calls[1][1]).toEqual(["name", "url"]);
+      expect(listLeadsMock.mock.calls[1][1]).toEqual(["id", "name", "url"]);
       expect(listLeadsMock.mock.calls[1][2]).toEqual(100);
       expect(listLeadsMock.mock.calls[1][3]).toEqual(1);
       expect(listLeadsMock.mock.calls.length).toEqual(2);

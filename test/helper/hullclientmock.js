@@ -3,6 +3,13 @@ import Promise from "bluebird";
 export class HullClientMock {
   constructor() {
     this.configuration = {};
+    this.utils = {
+      settings: {
+        update: () => {
+          return Promise.resolve({});
+        }
+      }
+    };
     this.logger = {
       info: (msg, data) => console.log(msg, data),
       error: (msg, data) => console.log(msg, data),
@@ -23,6 +30,9 @@ export class HullClientMock {
     };
     this.asAccount = () => {
       return new HullClientMock();
+    };
+    this.traits = () => {
+      return Promise.resolve({});
     };
   }
 }

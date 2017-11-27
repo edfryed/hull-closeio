@@ -75,7 +75,9 @@ export class Agent {
     this.closeClient.listCustomFields(100, 0).then((cf) => {
       this.attributesMapper = new AttributesMapper(connector.private_settings, cf);
     }, (err) => {
-      this.logger.error("connector.metadata.error", err);
+      if (this.logger) {
+        this.logger.error("connector.metadata.error", err);
+      }
       this.attributesMapper = new AttributesMapper(connector.private_settings, []);
     });
   }

@@ -356,7 +356,7 @@ describe("CloseIoClient", () => {
     const id = "lead_70jZ5hiVt5X31MZ3vJ0R0GJMqJEihkoF7TtSVFbN2ty";
 
     nock(BASE_URL)
-      .put(`/lead/${id}`)
+      .put(`/lead/${id}/`)
       .reply(200, function (uri, body) { // eslint-disable-line func-names
         const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
         expect(this.req.headers.authorization).toEqual(authHeader);
@@ -379,7 +379,7 @@ describe("CloseIoClient", () => {
     const id = "lead_70jZ5hiVt5X31MZ3vJ0R0GJMqJEihkoF7TtSVFbN2ty";
 
     nock(BASE_URL)
-      .put(`/lead/${id}`)
+      .put(`/lead/${id}/`)
       .reply(500, function (uri, body) { // eslint-disable-line func-names
         const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
         expect(this.req.headers.authorization).toEqual(authHeader);

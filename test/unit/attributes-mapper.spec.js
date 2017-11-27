@@ -195,7 +195,7 @@ describe("AttributesMapper", () => {
     const sObject = getLeadCreateResponse();
 
     const expectedIdentObject = {
-      domain: sObject.url
+      domain: "thebluthcompany.tumblr.com"
     };
 
     const customFields = getListCustomFieldsReponseBody().data;
