@@ -1,7 +1,7 @@
 {
   "name": "Hull Close.io",
   "description": "Sync data with Close.io",
-  "repository": "https://github.com/SMK1085/hull-closeio",
+  "repository": "https://github.com/hull-ships/hull-closeio",
   "website": "http://www.hull.io",
   "success_url": "/readme",
   "env": {

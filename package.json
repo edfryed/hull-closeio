@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SMK1085/hull-closeio.git"
+    "url": "git+https://github.com/hull-ships/hull-closeio.git"
   },
   "keywords": [
     "hull",
@@ -29,15 +29,15 @@
     "connector"
   ],
   "author": {
-    "name": "SMK1085",
-    "email": "sven.maschek@outlook.de",
-    "url": "https://github.com/SMK1085"
+    "name": "Hull",
+    "email": "contact@hull.io",
+    "url": "https://github.com/hull"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/SMK1085/hull-closeio/issues"
+    "url": "https://github.com/hull-ships/hull-closeio/issues"
   },
-  "homepage": "https://github.com/SMK1085/hull-closeio#readme",
+  "homepage": "https://github.com/hull-ships/hull-closeio#readme",
   "dependencies": {
     "bluebird": "^3.5.1",
     "cache-manager": "^2.5.0",
