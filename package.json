@@ -17,7 +17,8 @@
     "test:integration": "NODE_ENV=test jest ./test/integration",
     "test:manifest": "jsonlint manifest.json -q",
     "start": "node -r newrelic build",
-    "start:dev": "NODE_ENV=development babel-watch -L server"
+    "start:dev": "NODE_ENV=development babel-watch -L server",
+    "clean": "rimraf build"
   },
   "repository": {
     "type": "git",
@@ -40,6 +41,7 @@
   },
   "homepage": "https://github.com/hull-ships/hull-closeio#readme",
   "dependencies": {
+    "babel-cli": "^6.26.0",
     "bluebird": "^3.5.1",
     "cache-manager": "^2.5.0",
     "cors": "^2.8.4",

@@ -62,3 +62,6 @@ package-lock.json
 
 # workspace settings for VS code
 .vscode
+
+# build directory
+build
