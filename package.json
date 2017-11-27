@@ -1,7 +1,7 @@
 {
   "name": "hull-closeio",
   "version": "0.1.0",
-  "description": "An integration for close.io",
+  "description": "A Connector to integrate Close.io and Hull",
   "engines": {
     "node": "8.x",
     "npm": "3.x"
