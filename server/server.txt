@@ -1,8 +1,0 @@
-/* @flow */
-import express from "express";
-import { notifHandler, smartNotifierHandler } from "hull/lib/utils";
-
-export default function server(app: express, { hostSecret }: Object) {
-
-}
-

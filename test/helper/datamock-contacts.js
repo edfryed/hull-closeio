@@ -17,7 +17,8 @@ export function getCreateContactResponse() {
     ],
     urls: [
       { url: "http://twitter.com/google/", type: "url" }
-    ]
+    ],
+    lead_id: "lead_QyNaWw4fdSwxl5Mc5daMFf3Y27PpIcH0awPbC9l7uyo"
   };
 }
 

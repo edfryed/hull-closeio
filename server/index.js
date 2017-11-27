@@ -2,7 +2,7 @@ import Hull from "hull";
 import express from "express";
 
 import { middleware } from "./lib/crypto";
-// import server from "./server";
+import server from "./server";
 
 const {
   LOG_LEVEL,
@@ -27,6 +27,6 @@ const connector = new Hull.Connector(options);
 app.use(middleware(connector.hostSecret));
 connector.setupApp(app);
 
-// server(app, { hostSecret: options.hostSecret });
+server(app);
 connector.startApp(app);
 

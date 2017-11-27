@@ -6,6 +6,7 @@ import { getLeadStatusesReponseBody } from "../helper/datamock-leadstatuses";
 import { getUsersMeResponse } from "../helper/datamock-users";
 import { getLeadCreateResponse, getLeadUpdateResponse, getLeadListResponse } from "../helper/datamock-leads";
 import { getCreateContactResponse, getUpdateContactResponse, getListContactResponse } from "../helper/datamock-contacts";
+import { getListCustomFieldsReponseBody } from "../helper/datamock-customfields";
 
 import { CloseIoClient } from "../../server/lib/closeio-client";
 
@@ -759,6 +760,68 @@ describe("CloseIoClient", () => {
       .reply(500, {});
 
     clnt.listContacts(q, ["name", "title"]).then(() => {
+      expect(false).toEqual(true);
+      done();
+    }, (err) => {
+      expect(err).toBeDefined();
+      done();
+    });
+  });
+
+  test("should list leads that match the query if the parameters are valid", () => {
+    nock(BASE_URL)
+      .get("/custom_fields/lead/")
+      .query({
+        _limit: 100,
+        _skip: 0
+      })
+      .reply(200, function () { // eslint-disable-line func-names
+        const authHeader = `Basic ${Buffer.from(`${API_KEY}:`).toString("base64")}`;
+        expect(this.req.headers.authorization).toEqual(authHeader);
+        return getListCustomFieldsReponseBody();
+      });
+
+    clnt.listCustomFields().then((result) => {
+      if (_.isString(result)) {
+        result = JSON.parse(result);
+      }
+      expect(result.has_more).toEqual(false);
+      expect(result.data).toEqual(getListCustomFieldsReponseBody().data);
+    }, (err) => {
+      console.log(">>> Error", err);
+    });
+  });
+
+  test("should reject the Promise to list leads if no API key is configured", (done) => {
+    const debugMock = jest.fn().mockImplementation(() => {
+      console.log("logger.debug mocked function called");
+    });
+
+    const clntNoApiKey = new CloseIoClient();
+    const loggerMock = {};
+    loggerMock.debug = debugMock.bind(loggerMock);
+    clntNoApiKey.logger = loggerMock;
+
+    clntNoApiKey.listCustomFields().then(() => {
+      expect(false).toEqual(true);
+      done();
+    }, (err) => {
+      expect(err).toBeDefined();
+      expect(debugMock.mock.calls[0][0]).toEqual("connector.auth.notconfigured");
+      done();
+    });
+  });
+
+  test("should reject the Promise to list custom fields if the request fails", (done) => {
+    nock(BASE_URL)
+      .get("/custom_fields/lead/")
+      .query({
+        _limit: 100,
+        _skip: 0
+      })
+      .reply(500, {});
+
+    clnt.listCustomFields().then(() => {
       expect(false).toEqual(true);
       done();
     }, (err) => {

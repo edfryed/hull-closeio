@@ -75,7 +75,8 @@ export class CloseIoClient {
       auth: {
         user: this.apiKey,
         password: ""
-      }
+      },
+      json: true
     };
 
     this.incrementApiCalls(1);
@@ -135,7 +136,8 @@ export class CloseIoClient {
         _fields: fields.join(","),
         _limit: limit,
         _skip: skip
-      }
+      },
+      json: true
     };
 
     this.incrementApiCalls(1);
@@ -145,6 +147,10 @@ export class CloseIoClient {
         if (err || response.statusCode >= 400) {
           const msg = err ? err.message : response.statusMessage;
           return reject(msg);
+        }
+
+        if (_.isString(body)) {
+          body = JSON.parse(body);
         }
 
         return resolve(body);
@@ -215,7 +221,7 @@ export class CloseIoClient {
     }
 
     const opts = {
-      url: `${BASE_URL}/lead/${id}`,
+      url: `${BASE_URL}/lead/${id}/`,
       method: "PUT",
       auth: {
         user: this.apiKey,
@@ -225,6 +231,8 @@ export class CloseIoClient {
       json: true
     };
 
+    console.log("Update Lead Request Options", opts);
+
     this.incrementApiCalls(1);
 
     return new Promise((resolve, reject) => {
@@ -233,6 +241,8 @@ export class CloseIoClient {
           const msg = err ? err.message : response.statusMessage;
           return reject(msg);
         }
+
+        console.log("Update body", body);
 
         return resolve(body);
       });
@@ -270,7 +280,8 @@ export class CloseIoClient {
         _fields: fields.join(","),
         _limit: limit,
         _skip: skip
-      }
+      },
+      json: true
     };
 
     this.incrementApiCalls(1);
@@ -367,6 +378,55 @@ export class CloseIoClient {
         if (err || response.statusCode >= 400) {
           const msg = err ? err.message : response.statusMessage;
           return reject(msg);
+        }
+
+        return resolve(body);
+      });
+    });
+  }
+
+  /**
+   * List all custom fields of the organization.
+   *
+   * @param {number} [limit=100] The number of records per page.
+   * @param {number} [skip=0] The number of records to skip.
+   * @returns {Promise<any>} The response object having `has_more` and `data` properties.
+   * @memberof CloseIoClient
+   */
+  listCustomFields(limit: number = 100, skip: number = 0): Promise<any> {
+    if (!this.hasValidApiKey()) {
+      if (this.logger) {
+        // TODO: Log proper error - consult with @michaloo
+        this.logger.debug("connector.auth.notconfigured");
+      }
+      return Promise.reject(getInvalidApiKeyError());
+    }
+
+    const opts = {
+      url: `${BASE_URL}/custom_fields/lead/`,
+      method: "GET",
+      auth: {
+        user: this.apiKey,
+        password: ""
+      },
+      qs: {
+        _limit: limit,
+        _skip: skip
+      },
+      json: true
+    };
+
+    this.incrementApiCalls(1);
+
+    return new Promise((resolve, reject) => {
+      request(opts, (err, response, body) => {
+        if (err || response.statusCode >= 400) {
+          const msg = err ? err.message : response.statusMessage;
+          return reject(msg);
+        }
+
+        if (_.isString(body)) {
+          body = JSON.parse(body);
         }
 
         return resolve(body);

@@ -7,11 +7,16 @@
     "npm": "3.x"
   },
   "scripts": {
+    "build": "npm run clean && npm run build:server",
+    "build:server": "babel server -d build",
     "test": "npm run test:lint && npm run test:flow && npm run test:integration && npm run test:unit",
     "test:lint": "eslint server",
     "test:flow": "flow check",
     "test:unit": "NODE_ENV=test jest ./test/unit",
-    "test:integration": "NODE_ENV=test jest ./test/integration"
+    "test:integration": "NODE_ENV=test jest ./test/integration",
+    "test:manifest": "jsonlint manifest.json -q",
+    "start": "node -r newrelic build",
+    "start:dev": "NODE_ENV=development babel-watch -L server"
   },
   "repository": {
     "type": "git",
@@ -36,6 +41,7 @@
   "dependencies": {
     "bluebird": "^3.5.1",
     "cache-manager": "^2.5.0",
+    "cors": "^2.8.4",
     "crypto": "^1.0.1",
     "express": "^4.16.2",
     "hull": "^0.13.4",
@@ -56,6 +62,7 @@
     "eslint-plugin-import": "^2.8.0",
     "flow-bin": "^0.58.0",
     "jest": "^21.2.1",
+    "jsonlint": "^1.6.2",
     "nock": "^9.1.0",
     "rimraf": "^2.6.2"
   },

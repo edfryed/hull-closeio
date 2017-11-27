@@ -100,4 +100,154 @@ describe("FiterUtil", () => {
     expect(filterResult.toInsert).toHaveLength(0);
     expect(filterResult.toUpdate).toHaveLength(0);
   });
+
+  test("should filter users to insert", () => {
+    const envelope = {
+      message: {
+        user: {
+          id: "1234",
+          first_name: "John",
+          last_name: "Doe",
+          email: "johndoe@test.io"
+        },
+        account: {
+          id: "abc-123",
+          domain: "test.io",
+          name: "Test Co.",
+          "closeio/id": "lead_123"
+        },
+        segments: [
+          { id: "Close.io - Leads", name: "Close.io - Leads" }
+        ],
+      }
+    };
+    const segments = ["Close.io - Leads", "Leads"];
+    const util = new FilterUtil({ synchronized_segments: segments });
+    const filterResult = util.filterUsers([envelope]);
+
+    expect(filterResult.toInsert).toEqual([envelope]);
+    expect(filterResult.toSkip).toHaveLength(0);
+    expect(filterResult.toUpdate).toHaveLength(0);
+  });
+
+  test("should filter users to update", () => {
+    const envelope = {
+      message: {
+        user: {
+          id: "1234",
+          first_name: "John",
+          last_name: "Doe",
+          email: "johndoe@test.io",
+          "closeio/id": "cont_abc123"
+        },
+        account: {
+          id: "abc-123",
+          domain: "test.io",
+          name: "Test Co.",
+          "closeio/id": "lead_123"
+        },
+        segments: [
+          { id: "Close.io - Leads", name: "Close.io - Leads" }
+        ],
+      }
+    };
+    const segments = ["Close.io - Leads", "Leads"];
+    const util = new FilterUtil({ synchronized_segments: segments });
+    const filterResult = util.filterUsers([envelope]);
+
+    expect(filterResult.toUpdate).toEqual([envelope]);
+    expect(filterResult.toSkip).toHaveLength(0);
+    expect(filterResult.toInsert).toHaveLength(0);
+  });
+
+  test("should filter users to skip because not in segments", () => {
+    const envelope = {
+      message: {
+        user: {
+          id: "1234",
+          first_name: "John",
+          last_name: "Doe",
+          email: "johndoe@test.io",
+          "closeio/id": "cont_abc123"
+        },
+        account: {
+          id: "abc-123",
+          domain: "test.io",
+          name: "Test Co.",
+          "closeio/id": "lead_123"
+        },
+        segments: [
+          { id: "SFDC Accounts", name: "SFDC Accounts" }
+        ],
+      }
+    };
+    const segments = ["Close.io - Leads", "Leads"];
+    const util = new FilterUtil({ synchronized_segments: segments });
+    const filterResult = util.filterUsers([envelope]);
+
+    const envResult = _.cloneDeep(envelope);
+    envResult.skipReason = "User doesn't belong to synchronized segments";
+
+    expect(filterResult.toSkip).toEqual([envResult]);
+    expect(filterResult.toUpdate).toHaveLength(0);
+  });
+
+  test("should filter users to skip because no account associated", () => {
+    const envelope = {
+      message: {
+        user: {
+          id: "1234",
+          first_name: "John",
+          last_name: "Doe",
+          email: "johndoe@test.io",
+          "closeio/id": "cont_abc123"
+        },
+        segments: [
+          { id: "Close.io - Leads", name: "Close.io - Leads" }
+        ],
+      }
+    };
+    const segments = ["Close.io - Leads", "Leads"];
+    const util = new FilterUtil({ synchronized_segments: segments });
+    const filterResult = util.filterUsers([envelope]);
+
+    const envResult = _.cloneDeep(envelope);
+    envResult.skipReason = "User not associated with account. Cannot create contact without lead in close.io";
+
+    expect(filterResult.toSkip).toEqual([envResult]);
+    expect(filterResult.toUpdate).toHaveLength(0);
+    expect(filterResult.toInsert).toHaveLength(0);
+  });
+
+  test("should filter users to skip because no account with `closeio/id` associated", () => {
+    const envelope = {
+      message: {
+        user: {
+          id: "1234",
+          first_name: "John",
+          last_name: "Doe",
+          email: "johndoe@test.io",
+          "closeio/id": "cont_abc123"
+        },
+        account: {
+          id: "abc-123",
+          domain: "test.io",
+          name: "Test Co."
+        },
+        segments: [
+          { id: "Close.io - Leads", name: "Close.io - Leads" }
+        ],
+      }
+    };
+    const segments = ["Close.io - Leads", "Leads"];
+    const util = new FilterUtil({ synchronized_segments: segments });
+    const filterResult = util.filterUsers([envelope]);
+
+    const envResult = _.cloneDeep(envelope);
+    envResult.skipReason = "User not associated with account. Cannot create contact without lead in close.io";
+
+    expect(filterResult.toSkip).toEqual([envResult]);
+    expect(filterResult.toUpdate).toHaveLength(0);
+    expect(filterResult.toInsert).toHaveLength(0);
+  });
 });

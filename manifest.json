@@ -9,7 +9,9 @@
     "oneColumn",
     "smart-notifier"
   ],
-  "private_settings": [{
+  "settings": [],
+  "private_settings": [
+    {
       "name": "credentials_title",
       "title": "Credentials",
       "format": "title",
@@ -19,7 +21,7 @@
       "name": "api_key",
       "title": "Close.io API Key",
       "type": "string",
-      "description": "Find it via <TBD>"
+      "description": "Find it via your close.io dashboard: Settings > Your API Keys"
     },
     {
       "name": "configuration_title",
@@ -46,51 +48,47 @@
       "title": "The lead status to use for creating new leads. If set to None the default status will be applied by close.io",
       "type": "string",
       "format": "select",
-      "default": "none",
+      "default": "hull-default",
       "options": {
         "loadOptions": "/leadstatuses"
       } 
     },
     {
-      "name": "user_id_mapping",
-      "title": "Which user attribute to send as the customerId",
-      "type": "string",
-      "format": "trait",
-      "default": "external_id"
-    },
-    {
-      "name": "data_title",
-      "title": "Data Mapping",
+      "name": "leadsync_title",
+      "title": "Leads Data Mapping",
       "format": "title",
       "type": "string"
     },
     {
-      "name": "synchronized_lead_attributes",
-      "title": "Send Attributes to Close.io",
+      "name": "lead_attributes_outbound",
+      "title": "Send Account Attributes to Close.io",
       "description": "Name and domain are sent automatically",
       "type": "array",
       "format": "table",
+      "default": [
+        { "hull_field_name": "account.name", "closeio_field_name": "name" }
+      ],
       "items": {
         "type": "object",
         "properties": {
           "hull_field_name" : {
             "type" : "string",
-            "format" : "attributeTrait",
+            "format" : "accountTrait",
             "title" : "Hull Attribute"
           },
-          "closio_field_name" : {
+          "closeio_field_name" : {
             "type" : "string",
             "title" : "Close.io Field",
             "format" : "select",
             "options" : {
-              "loadOptions" : "/schema/lead"
+              "loadOptions" : "/fields-lead"
             }
-          },
-          "required" : [
-            "hull_field_name",
-            "closio_field_name"
-          ]
-        }
+          }
+        },
+        "required" : [
+          "hull_field_name",
+          "closeio_field_name"
+        ]
       } 
     },
     {
@@ -99,20 +97,56 @@
       "type" : "array",
       "format" : "select",
       "options" : {
-        "loadOptions" : "/schema/lead"
+        "loadOptions" : "/fields-lead"
+      }
+    },
+    {
+      "name": "contactsync_title",
+      "title": "Contacts Data Mapping",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "contact_attributes_outbound",
+      "title": "Send User Attributes to Close.io",
+      "description": "Name is sent automatically",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull_field_name" : {
+            "type" : "string",
+            "format" : "trait",
+            "title" : "Hull Attribute"
+          },
+          "closeio_field_name" : {
+            "type" : "string",
+            "title" : "Close.io Field",
+            "format" : "select",
+            "options" : {
+              "loadOptions" : "/fields-contact-out"
+            }
+          }
+        },
+        "required" : [
+          "hull_field_name",
+          "closeio_field_name"
+        ]
+      }
+    },
+    {
+      "name" : "contact_attributes_inbound",
+      "title" : "List of Contact fields to fetch from Close.io",
+      "type" : "array",
+      "format" : "select",
+      "options" : {
+        "loadOptions" : "/fields-contact-in"
       }
     }
   ],
-  "resources": [],
   "readme": "readme.md",
-  "admin": "admin.html",
+  "admin": "admin",
   "ui": false,
-  "subscriptions": [{
-    "url": "/smart-notifier"
-  }],
-  "schedules": [{
-    "url": "/status",
-    "type": "cron",
-    "value": "*/30 * * * *"
-  }]
+  "subscriptions": [{"url": "/smart-notifier"}]
 }
