@@ -9,6 +9,7 @@ import leadStatusList from "./actions/schema-leadstatus";
 import adminHandler from "./actions/admin-handler";
 import leadFields from "./actions/lead-fields";
 import { contactSendFieldsAction, contactFetchFieldsAction } from "./actions/contact-fields";
+import statusCheck from "./actions/status-check";
 
 export default function server(app: express) {
   app.post("/fetch", fetch);
@@ -40,7 +41,7 @@ export default function server(app: express) {
   app.get("/fields-contact-out", cors(), contactSendFieldsAction);
   app.get("/fields-contact-in", cors(), contactFetchFieldsAction);
   app.get("/fields-lead", cors(), leadFields);
-  // app.all("/status", actions.statusCheck);
+  app.all("/status", statusCheck);
 
   return app;
 }
