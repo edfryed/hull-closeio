@@ -1,5 +1,5 @@
 /* @flow */
-export class ShipMock {
+class ShipMock {
   id: string;
   settings: any;
   private_settings:any;
@@ -11,4 +11,4 @@ export class ShipMock {
   }
 }
 
-export default { ShipMock };
+module.exports = { ShipMock };

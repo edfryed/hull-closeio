@@ -1,22 +1,23 @@
 /* @flow */
-import _ from "lodash";
-import { DateTime } from "luxon";
-
-import { FilterUtil } from "./utils/filter-util";
-import { AttributesMapper } from "./utils/attributes-mapper";
-import { CloseIoClient } from "./closeio-client";
 import { MetricClient, LeadStatus, ILogger, IUserUpdateEnvelope, IFilterUtil, IAttributesMapper, IDropdownEntry } from "./shared";
+
+const _ = require("lodash");
+const { DateTime } = require("luxon");
+
+const FilterUtil = require("./utils/filter-util");
+const AttributesMapper = require("./utils/attributes-mapper");
+const CloseIoClient = require("./closeio-client");
+
 
 /**
  * Calculates the timestamp to fetch changes from.
  *
- * @export
  * @param {*} connector The connector instance.
  * @param {number} safetyInterval The safety interval in milliseconds.
  * @param {number} The current unix date.
  * @returns {Date} The timestamp since when to fetch changed leads.
  */
-export function calculateUpdatedSinceTimestamp(connector: any, safetyInterval: number, nowUnix: number): Date {
+function calculateUpdatedSinceTimestamp(connector: any, safetyInterval: number, nowUnix: number): Date {
   let lastSyncAt = parseInt(_.get(connector, "private_settings.last_sync_at"), 10);
   if (_.isNaN(lastSyncAt)) {
     lastSyncAt = new Date(nowUnix - (1000 * 60 * 60 * 60 * 48));
@@ -30,17 +31,16 @@ export function calculateUpdatedSinceTimestamp(connector: any, safetyInterval: n
  * Composes the query to fetch updated leads. Note close.io can
  * only handle dates, not timestamps.
  *
- * @export
  * @param {Date} since The timestamp from which on to fetch updated leads.
  * @returns {string} The query that can be passed to the close.io client.
  */
-export function composeUpdatedAfterQuery(since: Date): string {
+function composeUpdatedAfterQuery(since: Date): string {
   const dt = DateTime.fromJSDate(since);
   const updatedAfter = dt.minus({ days: 1 }).toISODate();
   return `updated > ${updatedAfter}`;
 }
 
-export class Agent {
+class Agent {
   synchronizedSegments: string[];
 
   hullClient: any;
@@ -263,4 +263,9 @@ export class Agent {
   }
 }
 
-export default { Agent };
+module.exports = {
+  calculateUpdatedSinceTimestamp,
+  composeUpdatedAfterQuery,
+  Agent
+};
+

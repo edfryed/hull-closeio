@@ -1,5 +1,5 @@
 
-export function getListCustomFieldsReponseBody() {
+function getListCustomFieldsReponseBody() {
   return {
     has_more: false,
     data: [
@@ -73,4 +73,4 @@ export function getListCustomFieldsReponseBody() {
   };
 }
 
-export default { getListCustomFieldsReponseBody };
+module.exports = { getListCustomFieldsReponseBody };

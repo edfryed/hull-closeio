@@ -1,8 +1,8 @@
-import Hull from "hull";
-import express from "express";
+const Hull = require("hull");
+const express = require("express");
 
-import { middleware } from "./lib/crypto";
-import server from "./server";
+const { middleware } = require("./lib/crypto");
+const server = require("./server");
 
 const {
   LOG_LEVEL,

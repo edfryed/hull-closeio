@@ -5,10 +5,9 @@
  * API: GET /status/lead/
  * https://developer.close.io/#lead-statuses-list-lead-statuses-for-your-organization
  *
- * @export
  * @returns {*} An object that is the success response body.
  */
-export function getLeadStatusesReponseBody(): any {
+function getLeadStatusesReponseBody(): any {
   return {
     has_more: false,
     data: [
@@ -32,4 +31,4 @@ export function getLeadStatusesReponseBody(): any {
   };
 }
 
-export default { getLeadStatusesReponseBody };
+module.exports = { getLeadStatusesReponseBody };

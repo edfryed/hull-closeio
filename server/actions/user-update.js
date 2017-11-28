@@ -1,10 +1,10 @@
 // @flow
-import _ from "lodash";
-import Promise from "bluebird";
+const _ = require("lodash");
+const Promise = require("bluebird");
 
-import { Agent } from "../lib/agent";
+const { Agent } = require("../lib/agent");
 
-export default function userUpdateHandlerFactory(options: Object = {}): Function {
+function userUpdateHandlerFactory(options: Object = {}): Function {
   const {
     flowControl = null
   } = options;
@@ -27,3 +27,5 @@ export default function userUpdateHandlerFactory(options: Object = {}): Function
     return Promise.resolve();
   };
 }
+
+module.exports = userUpdateHandlerFactory;

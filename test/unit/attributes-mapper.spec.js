@@ -1,8 +1,8 @@
 /* global describe, test, expect */
-import { AttributesMapper } from "../../server/lib/utils/attributes-mapper";
-import { getListCustomFieldsReponseBody } from "../helper/datamock-customfields";
-import { getLeadCreateResponse } from "../helper/datamock-leads";
-import { getCreateContactResponse } from "../helper/datamock-contacts";
+const AttributesMapper = require("../../server/lib/utils/attributes-mapper");
+const { getListCustomFieldsReponseBody } = require("../helper/datamock-customfields");
+const { getLeadCreateResponse } = require("../helper/datamock-leads");
+const { getCreateContactResponse } = require("../helper/datamock-contacts");
 
 describe("AttributesMapper", () => {
   const CONNECTOR_SETTINGS = {

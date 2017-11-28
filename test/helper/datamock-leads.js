@@ -1,4 +1,4 @@
-export function getLeadCreateResponse() {
+function getLeadCreateResponse() {
   return {
     status_id: "stat_1ZdiZqcSIkoGVnNOyxiEY58eTGQmFNG3LPlEVQ4V7Nk",
     status_label: "Potential",
@@ -57,7 +57,7 @@ export function getLeadCreateResponse() {
   };
 }
 
-export function getLeadUpdateResponse() {
+function getLeadUpdateResponse() {
   return {
     status_id: "stat_1ZdiZqcSIkoGVnNOyxiEY58eTGQmFNG3LPlEVQ4V7Nk",
     status_label: "Potential",
@@ -104,7 +104,7 @@ export function getLeadUpdateResponse() {
   };
 }
 
-export function getLeadListResponse() {
+function getLeadListResponse() {
   return {
     has_more: false,
     total_results: 1,
@@ -205,7 +205,7 @@ export function getLeadListResponse() {
   };
 }
 
-export function getLeadListResponseForPagination(page, size, total) {
+function getLeadListResponseForPagination(page, size, total) {
   const result = {
     has_more: page * size < total,
     total_results: total,
@@ -311,4 +311,9 @@ export function getLeadListResponseForPagination(page, size, total) {
   return result;
 }
 
-export default { getLeadCreateResponse };
+module.exports = {
+  getLeadCreateResponse,
+  getLeadUpdateResponse,
+  getLeadListResponse,
+  getLeadListResponseForPagination
+};

@@ -1,7 +1,4 @@
 {
-  "presets": [["env", {
-    "targets": {
-      "node": "8.9.1"
-    }
-  }], "flow"]
+  "presets": ["env", "flow"],
+  "plugins": ["transform-flow-strip-types"]
 }

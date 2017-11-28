@@ -10,6 +10,7 @@
   "scripts": {
     "build": "npm run clean && npm run build:server",
     "build:server": "babel server -d build",
+    "clean": "rimraf build",
     "test": "npm run test:lint && npm run test:flow && npm run test:integration && npm run test:unit",
     "test:lint": "eslint server",
     "test:flow": "flow check",
@@ -18,7 +19,6 @@
     "test:manifest": "jsonlint manifest.json -q",
     "start": "node build",
     "start:dev": "NODE_ENV=development babel-watch -L server",
-    "clean": "rimraf build",
     "postinstall": "npm run build"
   },
   "repository": {
@@ -42,6 +42,8 @@
   },
   "homepage": "https://github.com/hull-ships/hull-closeio#readme",
   "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "bluebird": "^3.5.1",
     "cache-manager": "^2.5.0",
     "cors": "^2.8.4",
@@ -50,17 +52,16 @@
     "hull": "^0.13.4",
     "lodash": "^4.17.4",
     "luxon": "^0.0.18",
-    "newrelic": "^2.0.2",
+    "newrelic": "^2.4.0",
     "querystring": "^0.2.0",
     "request": "^2.83.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
+    "babel-eslint": "^8.0.2",
+    "babel-jest": "^21.2.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-flow": "^6.23.0",
-    "babel-eslint": "^8.0.1",
-    "babel-jest": "^21.2.0",
     "babel-watch": "^2.0.7",
     "eslint": "^4.10.0",
     "eslint-config-airbnb-base": "^12.1.0",

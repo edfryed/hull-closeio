@@ -1,11 +1,11 @@
 // @flow
-import _ from "lodash";
-import { URL } from "url";
-
 import type { TResourceType } from "../shared";
 import { IAttributesMapper, SUPPORTED_RESOURCETYPES } from "../shared";
 
-export class AttributesMapper implements IAttributesMapper {
+const _ = require("lodash");
+const { URL } = require("url");
+
+class AttributesMapper implements IAttributesMapper {
   /**
    * Gets or sets the outbound mappings.
    *
@@ -236,4 +236,4 @@ export class AttributesMapper implements IAttributesMapper {
   }
 }
 
-export default { AttributesMapper };
+module.exports = AttributesMapper;

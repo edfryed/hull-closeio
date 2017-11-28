@@ -1,14 +1,14 @@
 /* global describe, test, beforeEach, afterEach */
-import _ from "lodash";
-import nock from "nock";
+const _ = require("lodash");
+const nock = require("nock");
 
-import { getLeadStatusesReponseBody } from "../helper/datamock-leadstatuses";
-import { getUsersMeResponse } from "../helper/datamock-users";
-import { getLeadCreateResponse, getLeadUpdateResponse, getLeadListResponse } from "../helper/datamock-leads";
-import { getCreateContactResponse, getUpdateContactResponse, getListContactResponse } from "../helper/datamock-contacts";
-import { getListCustomFieldsReponseBody } from "../helper/datamock-customfields";
+const { getLeadStatusesReponseBody } = require("../helper/datamock-leadstatuses");
+const { getUsersMeResponse } = require("../helper/datamock-users");
+const { getLeadCreateResponse, getLeadUpdateResponse, getLeadListResponse } = require("../helper/datamock-leads");
+const { getCreateContactResponse, getUpdateContactResponse, getListContactResponse } = require("../helper/datamock-contacts");
+const { getListCustomFieldsReponseBody } = require("../helper/datamock-customfields");
 
-import { CloseIoClient } from "../../server/lib/closeio-client";
+const CloseIoClient = require("../../server/lib/closeio-client");
 
 describe("CloseIoClient", () => {
   const BASE_URL = "https://app.close.io/api/v1";
