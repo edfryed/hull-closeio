@@ -54,7 +54,7 @@ class FilterUtil implements IFilterUtil {
     envelopes.forEach((envelope) => {
       if (this.matchesWhitelistedSegments(envelope)) {
         if (_.has(envelope.message, "account.closeio/id")) {
-          if (_.has(envelope.message, "user.closeio/id")) {
+          if (_.has(envelope.message, "user.traits_closeio/id")) {
             return results.toUpdate.push(envelope);
           }
           return results.toInsert.push(envelope);

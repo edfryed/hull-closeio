@@ -113,8 +113,6 @@ class AttributesMapper implements IAttributesMapper {
       }
     });
 
-    console.log("Mapping Input", hullObject);
-    console.log("Mapping Result", sObject);
     return sObject;
   }
 

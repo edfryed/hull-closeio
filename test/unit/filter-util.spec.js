@@ -138,7 +138,7 @@ describe("FiterUtil", () => {
           first_name: "John",
           last_name: "Doe",
           email: "johndoe@test.io",
-          "closeio/id": "cont_abc123"
+          "traits_closeio/id": "cont_abc123"
         },
         account: {
           id: "abc-123",
@@ -168,7 +168,7 @@ describe("FiterUtil", () => {
           first_name: "John",
           last_name: "Doe",
           email: "johndoe@test.io",
-          "closeio/id": "cont_abc123"
+          "traits_closeio/id": "cont_abc123"
         },
         account: {
           id: "abc-123",
@@ -200,7 +200,7 @@ describe("FiterUtil", () => {
           first_name: "John",
           last_name: "Doe",
           email: "johndoe@test.io",
-          "closeio/id": "cont_abc123"
+          "traits_closeio/id": "cont_abc123"
         },
         segments: [
           { id: "Close.io - Leads", name: "Close.io - Leads" }
@@ -227,7 +227,7 @@ describe("FiterUtil", () => {
           first_name: "John",
           last_name: "Doe",
           email: "johndoe@test.io",
-          "closeio/id": "cont_abc123"
+          "traits_closeio/id": "cont_abc123"
         },
         account: {
           id: "abc-123",

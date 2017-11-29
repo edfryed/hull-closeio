@@ -231,8 +231,6 @@ class CloseIoClient {
       json: true
     };
 
-    console.log("Update Lead Request Options", opts);
-
     this.incrementApiCalls(1);
 
     return new Promise((resolve, reject) => {
@@ -241,8 +239,6 @@ class CloseIoClient {
           const msg = err ? err.message : response.statusMessage;
           return reject(msg);
         }
-
-        console.log("Update body", body);
 
         return resolve(body);
       });
@@ -361,7 +357,7 @@ class CloseIoClient {
     }
 
     const opts = {
-      url: `${BASE_URL}/contact/${id}`,
+      url: `${BASE_URL}/contact/${id}/`,
       method: "PUT",
       auth: {
         user: this.apiKey,
@@ -485,7 +481,6 @@ class CloseIoClient {
     if (_.isNil(this.apiKey)) {
       return false;
     }
-    console.log("API Key", this.apiKey);
     if (_.isString(this.apiKey) && this.apiKey.length && this.apiKey.length > 5) {
       return true;
     }

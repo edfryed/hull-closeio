@@ -1,13 +1,15 @@
 # Hull Close.io Connector
 
- The Close.io Connector enables your team to synchronize accounts and users from Hull to leads and contacts in your close.io system.
+The Close.io Connector enables your team to synchronize accounts and users from Hull to leads and contacts in your close.io system.
 
 ## Getting Started
 
- Go to the Connectors page of your Hull organization, click the button “Add Connector” and click “Install” on the Close.io card. After installation, go to the Settings tab and enter your API Key:
- ![Getting Started Step 1](./docs/gettingstarted01.png)
+Go to the Connectors page of your Hull organization, click the button “Add Connector” and click “Install” on the Close.io card. After installation, go to the Settings tab and enteryour API Key:
+![Getting Started Step 1](./docs/gettingstarted01.png)
 
- Press the Save button to securely store your key and refresh the page to allow the Connector to fetch all information from close.io.
+Press the Save button to securely store your key and refresh the page to allow the Connector to fetch all information from close.io.
+
+Please refer to the sections below for details about specific parts of the configuration.
 
 ## Specify the Accounts and Users to synchronize
 
