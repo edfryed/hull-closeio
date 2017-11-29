@@ -1,22 +1,16 @@
 /* @flow */
-import cors from "cors";
-import express from "express";
-import { notifHandler, smartNotifierHandler } from "hull/lib/utils";
+const cors = require("cors");
+const express = require("express");
+const { notifHandler, smartNotifierHandler } = require("hull/lib/utils");
 
-import fetch from "./actions/fetch";
-import userUpdate from "./actions/user-update";
-import leadStatusList from "./actions/schema-leadstatus";
-import adminHandler from "./actions/admin-handler";
-import leadFields from "./actions/lead-fields";
-import { contactSendFieldsAction, contactFetchFieldsAction } from "./actions/contact-fields";
-import statusCheck from "./actions/status-check";
+const actions = require("./actions/index");
 
-export default function server(app: express) {
-  app.post("/fetch", fetch);
+function server(app: express) {
+  app.post("/fetch", actions.fetch);
 
   app.post("/smart-notifier", smartNotifierHandler({
     handlers: {
-      "user:update": userUpdate({
+      "user:update": actions.userUpdateHandler({
         flowControl: {
           type: "next",
           size: parseInt(process.env.FLOW_CONTROL_SIZE, 10) || 200,
@@ -31,17 +25,19 @@ export default function server(app: express) {
       maxSize: 200
     },
     handlers: {
-      "user:update": userUpdate()
+      "user:update": actions.userUpdateHandler()
     }
   }));
 
-  app.get("/leadstatuses", cors(), leadStatusList);
+  app.get("/leadstatuses", cors(), actions.leadStatusList);
 
-  app.get("/admin", adminHandler);
-  app.get("/fields-contact-out", cors(), contactSendFieldsAction);
-  app.get("/fields-contact-in", cors(), contactFetchFieldsAction);
-  app.get("/fields-lead", cors(), leadFields);
-  app.all("/status", statusCheck);
+  app.get("/admin", actions.adminHandler);
+  app.get("/fields-contact-out", cors(), actions.contactSendFields);
+  app.get("/fields-contact-in", cors(), actions.contactFetchFields);
+  app.get("/fields-lead", cors(), actions.leadFields);
+  app.all("/status", actions.statusCheck);
 
   return app;
 }
+
+module.exports = server;

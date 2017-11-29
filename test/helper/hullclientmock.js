@@ -1,7 +1,8 @@
-import Promise from "bluebird";
+const Promise = require("bluebird");
 
-export class HullClientMock {
+class HullClientMock {
   constructor() {
+    this.emitLog = false;
     this.configuration = {};
     this.utils = {
       settings: {
@@ -11,10 +12,26 @@ export class HullClientMock {
       }
     };
     this.logger = {
-      info: (msg, data) => console.log(msg, data),
-      error: (msg, data) => console.log(msg, data),
-      debug: (msg, data) => console.log(msg, data),
-      log: (msg, data) => console.log(msg, data)
+      info: (msg, data) => {
+        if (this.emitLog === true) {
+          console.log(msg, data);
+        }
+      },
+      error: (msg, data) => {
+        if (this.emitLog === true) {
+          console.log(msg, data);
+        }
+      },
+      debug: (msg, data) => {
+        if (this.emitLog === true) {
+          console.log(msg, data);
+        }
+      },
+      log: (msg, data) => {
+        if (this.emitLog === true) {
+          console.log(msg, data);
+        }
+      }
     };
     this.get = () => {
       return Promise.resolve({});
@@ -37,4 +54,4 @@ export class HullClientMock {
   }
 }
 
-export default { HullClientMock };
+module.exports = { HullClientMock };

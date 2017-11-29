@@ -1,5 +1,5 @@
 
-export function getCreateContactResponse() {
+function getCreateContactResponse() {
   return {
     id: "cont_sNIdBgngvbdTTEN1mspKgUqKAWfbul4IITvnWoRw1T7",
     organization_id: "orga_bwwWG475zqWiQGur0thQshwVXo8rIYecQHDWFanqhen",
@@ -22,7 +22,7 @@ export function getCreateContactResponse() {
   };
 }
 
-export function getUpdateContactResponse() {
+function getUpdateContactResponse() {
   return {
     id: "cont_sNIdBgngvbdTTEN1mspKgUqKAWfbul4IITvnWoRw1T7",
     organization_id: "orga_bwwWG475zqWiQGur0thQshwVXo8rIYecQHDWFanqhen",
@@ -45,7 +45,7 @@ export function getUpdateContactResponse() {
   };
 }
 
-export function getListContactResponse() {
+function getListContactResponse() {
   return {
     has_more: false,
     data: [
@@ -227,4 +227,4 @@ export function getListContactResponse() {
   };
 }
 
-export default { getCreateContactResponse, getUpdateContactResponse };
+module.exports = { getCreateContactResponse, getUpdateContactResponse, getListContactResponse };

@@ -1,9 +1,9 @@
 /* @flow */
-import _ from "lodash";
-import request from "request";
-import Promise from "bluebird";
+import { ILogger, MetricClient, ListResult, ILeadStatus } from "./shared";
 
-import { ILogger, MetricClient, ListResult } from "./shared";
+const _ = require("lodash");
+const request = require("request");
+const Promise = require("bluebird");
 
 const BASE_URL = "https://app.close.io/api/v1";
 
@@ -16,7 +16,7 @@ function getInvalidIdentifierError(minLength: number): Error {
   return new Error(`Invalid ID: The identifier is not specified or has less than ${minLength} characters.`);
 }
 
-export class CloseIoClient {
+class CloseIoClient {
   /**
    * Gets or sets the API key to authenticate against
    * the close.io API.
@@ -57,10 +57,10 @@ export class CloseIoClient {
   /**
    * Returns the lead statuses from close.io.
    *
-   * @returns {Promise<LeadStatus[]>} A list of lead statuses.
+   * @returns {Promise<ILeadStatus[]>} A list of lead statuses.
    * @memberof CloseIoClient
    */
-  getLeadStatuses(): Promise<LeadStatus[]> {
+  getLeadStatuses(): Promise<ILeadStatus[]> {
     if (!this.hasValidApiKey()) {
       if (this.logger) {
         // TODO: Log proper error - consult with @michaloo
@@ -231,8 +231,6 @@ export class CloseIoClient {
       json: true
     };
 
-    console.log("Update Lead Request Options", opts);
-
     this.incrementApiCalls(1);
 
     return new Promise((resolve, reject) => {
@@ -241,8 +239,6 @@ export class CloseIoClient {
           const msg = err ? err.message : response.statusMessage;
           return reject(msg);
         }
-
-        console.log("Update body", body);
 
         return resolve(body);
       });
@@ -361,7 +357,7 @@ export class CloseIoClient {
     }
 
     const opts = {
-      url: `${BASE_URL}/contact/${id}`,
+      url: `${BASE_URL}/contact/${id}/`,
       method: "PUT",
       auth: {
         user: this.apiKey,
@@ -485,7 +481,6 @@ export class CloseIoClient {
     if (_.isNil(this.apiKey)) {
       return false;
     }
-    console.log("API Key", this.apiKey);
     if (_.isString(this.apiKey) && this.apiKey.length && this.apiKey.length > 5) {
       return true;
     }
@@ -506,15 +501,4 @@ export class CloseIoClient {
   }
 }
 
-/**
- * Represents a lead status in close.io
- *
- * @export
- * @interface LeadStatus
- */
-export interface LeadStatus {
-  id: string;
-  label: string;
-}
-
-export default { CloseIoClient };
+module.exports = CloseIoClient;

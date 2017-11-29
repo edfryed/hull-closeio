@@ -1,10 +1,11 @@
 /* @flow */
 
 import { Request, Response } from "express";
-import _ from "lodash";
-import { Agent } from "../lib/agent";
 
-export default function statusCheckAction(req: Request, res: Response) {
+const _ = require("lodash");
+const { Agent } = require("../lib/agent");
+
+function statusCheckAction(req: Request, res: Response) {
   if (req.hull && req.hull.ship && req.hull.ship.private_settings) {
     const { ship = {}, client = {}, metric = {} } = req.hull;
     const messages: Array<string> = [];
@@ -27,3 +28,5 @@ export default function statusCheckAction(req: Request, res: Response) {
 
   res.status(404).json({ status: 404, messages: ["Request doesn't contain data about the connector"] });
 }
+
+module.exports = statusCheckAction;

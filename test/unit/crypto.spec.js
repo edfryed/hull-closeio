@@ -1,4 +1,4 @@
-import { encrypt, decrypt, middleware } from "../../server/lib/crypto";
+const { encrypt, decrypt, middleware } = require("../../server/lib/crypto");
 
 describe("crypto", () => {
   const secret = "topsecret";

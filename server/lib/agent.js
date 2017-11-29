@@ -1,27 +1,28 @@
 /* @flow */
-import _ from "lodash";
-import { DateTime } from "luxon";
-
-import { FilterUtil } from "./utils/filter-util";
-import { AttributesMapper } from "./utils/attributes-mapper";
-import { CloseIoClient } from "./closeio-client";
 import { MetricClient, LeadStatus, ILogger, IUserUpdateEnvelope, IFilterUtil, IAttributesMapper, IDropdownEntry } from "./shared";
+
+const Promise = require("bluebird");
+const _ = require("lodash");
+const { DateTime } = require("luxon");
+
+const FilterUtil = require("./utils/filter-util");
+const AttributesMapper = require("./utils/attributes-mapper");
+const CloseIoClient = require("./closeio-client");
+
 
 /**
  * Calculates the timestamp to fetch changes from.
  *
- * @export
  * @param {*} connector The connector instance.
  * @param {number} safetyInterval The safety interval in milliseconds.
  * @param {number} The current unix date.
  * @returns {Date} The timestamp since when to fetch changed leads.
  */
-export function calculateUpdatedSinceTimestamp(connector: any, safetyInterval: number, nowUnix: number): Date {
+function calculateUpdatedSinceTimestamp(connector: any, safetyInterval: number, nowUnix: number): Date {
   let lastSyncAt = parseInt(_.get(connector, "private_settings.last_sync_at"), 10);
   if (_.isNaN(lastSyncAt)) {
     lastSyncAt = new Date(nowUnix - (1000 * 60 * 60 * 60 * 48));
   }
-  console.log("lastSyncAt", lastSyncAt);
   const since = new Date(lastSyncAt - safetyInterval);
   return since;
 }
@@ -30,17 +31,16 @@ export function calculateUpdatedSinceTimestamp(connector: any, safetyInterval: n
  * Composes the query to fetch updated leads. Note close.io can
  * only handle dates, not timestamps.
  *
- * @export
  * @param {Date} since The timestamp from which on to fetch updated leads.
  * @returns {string} The query that can be passed to the close.io client.
  */
-export function composeUpdatedAfterQuery(since: Date): string {
+function composeUpdatedAfterQuery(since: Date): string {
   const dt = DateTime.fromJSDate(since);
   const updatedAfter = dt.minus({ days: 1 }).toISODate();
   return `updated > ${updatedAfter}`;
 }
 
-export class Agent {
+class Agent {
   synchronizedSegments: string[];
 
   hullClient: any;
@@ -105,7 +105,6 @@ export class Agent {
 
     const data = [];
     return this.closeClient.listLeads(q, this.leadFieldsInbound, 100, 0).then((res) => {
-      console.log(res);
       data.push(res.data);
       if (res.has_more === true) {
         const totalPages = Math.ceil(res.total_results / 100);
@@ -140,7 +139,6 @@ export class Agent {
     const apiOps = _.map(envelopes, (e) => {
       const q = `lead_url in ("${e.message.account.domain}", "http://www.${e.message.account.domain}", "https://${e.message.account.domain}", "https://www.${e.message.account.domain}")`;
       return this.closeClient.listLeads(q, ["id", "url", "name", "contacts"]).then((leads) => {
-        console.log("Leads found", leads.data);
         if (leads.data.length > 0) {
           e.currentCloseLead = leads.data[0]; // eslint-disable-line
 
@@ -169,64 +167,115 @@ export class Agent {
       });
 
       const leadsFilterResult = this.filterUtil.filterAccounts(envelopes);
-
-      console.log("Filter result", JSON.stringify(leadsFilterResult));
+      const contactsFilterResult = this.filterUtil.filterUsers(envelopes);
 
       _.forEach(leadsFilterResult.toSkip, (e) => {
         this.hullClient.asAccount(e.message.user.account)
           .logger.info("outgoing.account.skip", { reason: e.skipReason });
       });
 
-      const leadOps = [];
+      _.forEach(contactsFilterResult.toSkip, (e) => {
+        this.hullClient.asUser(e.message.user)
+          .logger.info("outgoing.user.skip", { reason: e.skipReason });
+      });
+
+      const leadCreationOps = [];
+      const leadUpdateOps = [];
+
       _.forEach(leadsFilterResult.toInsert, (e) => {
         const cioObj = this.attributesMapper.mapToServiceObject("Lead", e.message.user);
         const createOps = this.closeClient.createLead(cioObj);
-        leadOps.push(createOps);
+        leadCreationOps.push(createOps);
       });
       _.forEach(leadsFilterResult.toUpdate, (e) => {
         const cioObj = this.attributesMapper.mapToServiceObject("Lead", e.message.user);
         const updateOps = this.closeClient.updateLead(cioObj.id, cioObj);
-        leadOps.push(updateOps);
+        leadUpdateOps.push(updateOps);
       });
 
-      return Promise.all(leadOps).then((responses) => {
-        _.forEach(responses, (r) => {
-          console.log(">>> Response", r);
-          const traitsObj = this.attributesMapper.mapToHullAttributeObject("Lead", r);
-          const identObj = this.attributesMapper.mapToHullIdentObject("Lead", r);
+      return Promise.map(leadCreationOps, (r) => {
+        const traitsObj = this.attributesMapper.mapToHullAttributeObject("Lead", r);
+        const identObj = this.attributesMapper.mapToHullIdentObject("Lead", r);
 
-          this.hullClient.asAccount(identObj).traits(traitsObj);
-          this.hullClient.asAccount(identObj).logger.info("outgoing.account.success", { data: r });
-
-          console.log("Contacts of lead", r.contacts);
-          // Only for created leads, handle the contact as user
-          if (r.contacts && r.contacts.length === 1) {
-            const userTraits = this.attributesMapper.mapToHullAttributeObject("Contact", r.contacts[0]);
-            const userEnvelope = _.find(envelopes, (e: IUserUpdateEnvelope) => {
-              console.log("Envelope find", identObj.domain, e.message.user);
-              return e.message.user.account.domain === identObj.domain;
-            });
-
-            console.log("User envelope", userEnvelope, identObj, envelopes);
-
-            if (userEnvelope) {
-              this.hullClient.asUser({ id: userEnvelope.message.user.id }).traits(userTraits);
-              this.hullClient.asUser({ id: userEnvelope.message.user.id })
-                .logger.info("outgoing.user.success", { data: r });
-            }
-          }
+        this.hullClient.asAccount(identObj).traits(traitsObj).then(() => {
+          this.hullClient.asAccount(identObj).logger.info("outgoing.account.success", {
+            data: r
+          });
         });
-      }, (err) => {
-        this.hullClient.logger.error("outgoing.account.error", { reason: err });
-      });
+
+        if (r.contacts && r.contacts.length === 1) {
+          const userTraits = this.attributesMapper.mapToHullAttributeObject("Contact", r.contacts[0]);
+          const userEnvelope = _.find(envelopes, (e: IUserUpdateEnvelope) => {
+            return e.message.user.account.domain === identObj.domain;
+          });
+
+          if (userEnvelope) {
+            this.hullClient.asUser({
+              id: userEnvelope.message.user.id
+            }).traits(userTraits).then(() => {
+              this.hullClient.asUser({
+                id: userEnvelope.message.user.id
+              }).logger.info("outgoing.user.success", {
+                data: r
+              });
+            });
+          }
+        }
+      }).catch((err) => {
+        this.hullClient.logger.error("outgoing.account.error", {
+          reason: err
+        });
+      }).map(leadUpdateOps, (r) => {
+        const traitsObj = this.attributesMapper.mapToHullAttributeObject("Lead", r);
+        const identObj = this.attributesMapper.mapToHullIdentObject("Lead", r);
+
+        this.hullClient.asAccount(identObj).traits(traitsObj).then(() => {
+          this.hullClient.asAccount(identObj).logger.info("outgoing.account.success", {
+            data: r
+          });
+        });
+      }).catch((err) => {
+        this.hullClient.logger.error("outgoing.account.error", {
+          reason: err
+        });
+      })
+        .then(() => {
+          // Handle the contactOps
+          const contactOps = [];
+          _.forEach(contactsFilterResult.toInsert, (e) => {
+            const cioObj = this.attributesMapper.mapToServiceObject("Contact", e.message.user);
+            const createOps = this.closeClient.createContact(cioObj);
+            contactOps.push(createOps);
+          });
+          _.forEach(contactsFilterResult.toUpdate, (e) => {
+            const cioObj = this.attributesMapper.mapToServiceObject("Contact", e.message.user);
+            const updateOps = this.closeClient.updateContact(cioObj.id, cioObj);
+            contactOps.push(updateOps);
+          });
+
+          return Promise.map(contactOps, (r) => {
+            const traitsObj = this.attributesMapper.mapToHullAttributeObject("Contact", r);
+            const identObj = this.attributesMapper.mapToHullIdentObject("Contact", r);
+
+            this.hullClient.asUser(identObj).traits(traitsObj).then(() => {
+              this.hullClient.asUser(identObj).logger.info("outgoing.user.success", {
+                data: r
+              });
+            });
+          }, {
+            concurrency: 1
+          }).catch((err) => {
+            this.hullClient.logger.error("outgoing.user.error", {
+              reason: err
+            });
+          });
+        });
     });
   }
 
   getLeadFields(): Promise<Array<IDropdownEntry>> {
     return this.closeClient.listCustomFields(100, 0).then((cfs) => {
-      console.log("Custom Fields Response", cfs.data);
       const customFields: Array<IDropdownEntry> = _.map(cfs.data, (cf) => {
-        console.log("Custom Field", cf);
         return { value: cf.id, label: cf.name };
       });
       const defaultFields: Array<IDropdownEntry> = [
@@ -263,4 +312,9 @@ export class Agent {
   }
 }
 
-export default { Agent };
+module.exports = {
+  calculateUpdatedSinceTimestamp,
+  composeUpdatedAfterQuery,
+  Agent
+};
+

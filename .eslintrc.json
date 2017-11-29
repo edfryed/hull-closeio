@@ -47,5 +47,5 @@
       0
     ]
   },
-  "extends": "airbnb-base"
+  "extends": ["airbnb-base"]
 }

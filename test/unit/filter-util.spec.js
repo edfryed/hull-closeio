@@ -1,6 +1,6 @@
 /* global describe, test, expect */
-import _ from "lodash";
-import { FilterUtil } from "../../server/lib/utils/filter-util";
+const _ = require("lodash");
+const FilterUtil = require("../../server/lib/utils/filter-util");
 
 describe("FiterUtil", () => {
   test("should default to an empty array if `synchronized_segments` is not present in settings", () => {
@@ -8,7 +8,7 @@ describe("FiterUtil", () => {
     expect(util.synchronizedSegments).toEqual([]);
   });
 
-  test("should have the list of segments from `synchronized_segments`", () => {
+  test("should have the list of segments = require(`synchronized_segments`", () => {
     const segments = ["Close.io - Leads", "Leads"];
     const util = new FilterUtil({ synchronized_segments: segments });
     expect(util.synchronizedSegments).toEqual(segments);
@@ -138,7 +138,7 @@ describe("FiterUtil", () => {
           first_name: "John",
           last_name: "Doe",
           email: "johndoe@test.io",
-          "closeio/id": "cont_abc123"
+          "traits_closeio/id": "cont_abc123"
         },
         account: {
           id: "abc-123",
@@ -168,7 +168,7 @@ describe("FiterUtil", () => {
           first_name: "John",
           last_name: "Doe",
           email: "johndoe@test.io",
-          "closeio/id": "cont_abc123"
+          "traits_closeio/id": "cont_abc123"
         },
         account: {
           id: "abc-123",
@@ -200,7 +200,7 @@ describe("FiterUtil", () => {
           first_name: "John",
           last_name: "Doe",
           email: "johndoe@test.io",
-          "closeio/id": "cont_abc123"
+          "traits_closeio/id": "cont_abc123"
         },
         segments: [
           { id: "Close.io - Leads", name: "Close.io - Leads" }
@@ -227,7 +227,7 @@ describe("FiterUtil", () => {
           first_name: "John",
           last_name: "Doe",
           email: "johndoe@test.io",
-          "closeio/id": "cont_abc123"
+          "traits_closeio/id": "cont_abc123"
         },
         account: {
           id: "abc-123",

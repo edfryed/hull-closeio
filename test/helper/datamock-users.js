@@ -1,6 +1,6 @@
 /* @flow */
 
-export function getUsersMeResponse(): any {
+function getUsersMeResponse(): any {
   return {
     id: "user_MvDoAZA889UMrgsZbnXmHkJSomSi7qk2Iwc4JnGHTbo",
     first_name: "Anthony",
@@ -97,4 +97,4 @@ export function getUsersMeResponse(): any {
   };
 }
 
-export default { getUsersMeResponse };
+module.exports = { getUsersMeResponse };

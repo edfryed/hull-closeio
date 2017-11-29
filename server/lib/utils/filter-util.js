@@ -1,7 +1,7 @@
 /* @flow */
-import _ from "lodash";
-
 import { IFilterResult, IUserUpdateEnvelope, IFilterUtil } from "../shared";
+
+const _ = require("lodash");
 
 class FilterResult implements IFilterResult {
   toInsert: Array<IUserUpdateEnvelope>;
@@ -15,7 +15,7 @@ class FilterResult implements IFilterResult {
   }
 }
 
-export class FilterUtil implements IFilterUtil {
+class FilterUtil implements IFilterUtil {
   synchronizedSegments: Array<string>;
 
   constructor(settings: Object) {
@@ -54,7 +54,7 @@ export class FilterUtil implements IFilterUtil {
     envelopes.forEach((envelope) => {
       if (this.matchesWhitelistedSegments(envelope)) {
         if (_.has(envelope.message, "account.closeio/id")) {
-          if (_.has(envelope.message, "user.closeio/id")) {
+          if (_.has(envelope.message, "user.traits_closeio/id")) {
             return results.toUpdate.push(envelope);
           }
           return results.toInsert.push(envelope);
@@ -79,4 +79,4 @@ export class FilterUtil implements IFilterUtil {
   }
 }
 
-export default { FilterUtil };
+module.exports = FilterUtil;

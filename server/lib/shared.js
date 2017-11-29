@@ -1,8 +1,61 @@
 export type TResourceType = "Lead" | "Contact";
 
-export const SUPPORTED_RESOURCETYPES: Array<TResourceType> = ["Lead", "Contact"];
+export interface ILogger {
+  info(message?: any, ...optionalParams: any[]): void;
+  error(message?: any, ...optionalParams: any[]): void;
+  warn(message?: any, ...optionalParams: any[]): void;
+  debug(message?: any, ...optionalParams: any[]): void;
+  log(message?: any, ...optionalParams: any[]): void;
+}
 
-export const CONTACT_FIELDS: Array<Object> = [
+export interface MetricClient {
+  value(name: string, value: number): void;
+  increment(name: string, value: number): void;
+}
+
+export interface IDropdownEntry {
+  value: string;
+  label: string;
+}
+
+export interface ListResult {
+  has_more: boolean;
+  total_results?: number;
+  data: any[];
+}
+
+export interface IUserUpdateEnvelope {
+  message: Object,
+  currentCloseLead?: Object;
+  currentCloseContact?: Object;
+  skipReason?: string;
+}
+
+export interface IFilterResult {
+  toInsert: Array<IUserUpdateEnvelope>;
+  toUpdate: Array<IUserUpdateEnvelope>;
+  toSkip: Array<IUserUpdateEnvelope>;
+}
+
+export interface IFilterUtil {
+  filterAccounts(envelopes: Array<IUserUpdateEnvelope>): IFilterResult;
+  filterUsers(envelopes: Array<IUserUpdateEnvelope>): IFilterResult;
+}
+
+export interface IAttributesMapper {
+  mapToServiceObject(resource: TResourceType, hullObject: any):any;
+  mapToHullAttributeObject(resource: TResourceType, sObject: any): any;
+  mapToHullIdentObject(resource: TResourceType, sObject: any): any;
+}
+
+export interface ILeadStatus {
+  id: string;
+  label: string;
+}
+
+const SUPPORTED_RESOURCETYPES: Array<TResourceType> = ["Lead", "Contact"];
+
+const CONTACT_FIELDS: Array<Object> = [
   {
     id: "name", label: "Name", in: true, out: true
   },
@@ -50,52 +103,7 @@ export const CONTACT_FIELDS: Array<Object> = [
   },
 ];
 
-export interface ILogger {
-  info(message?: any, ...optionalParams: any[]): void;
-  error(message?: any, ...optionalParams: any[]): void;
-  warn(message?: any, ...optionalParams: any[]): void;
-  debug(message?: any, ...optionalParams: any[]): void;
-  log(message?: any, ...optionalParams: any[]): void;
-}
-
-export interface MetricClient {
-  value(name: string, value: number): void;
-  increment(name: string, value: number): void;
-}
-
-export interface IDropdownEntry {
-  value: string;
-  label: string;
-}
-
-export interface ListResult {
-  has_more: boolean;
-  total_results?: number;
-  data: any[];
-}
-
-export interface IUserUpdateEnvelope {
-  message: Object,
-  currentCloseLead? : Object;
-  currentCloseContact?: Object;
-  skipReason?: string;
-}
-
-export interface IFilterResult {
-  toInsert: Array<IUserUpdateEnvelope>;
-  toUpdate: Array<IUserUpdateEnvelope>;
-  toSkip: Array<IUserUpdateEnvelope>;
-}
-
-export interface IFilterUtil {
-  filterAccounts(envelopes: Array<IUserUpdateEnvelope>): IFilterResult;
-  filterUsers(envelopes: Array<IUserUpdateEnvelope>): IFilterResult;
-}
-
-export interface IAttributesMapper {
-  mapToServiceObject(resource: TResourceType, hullObject: any):any;
-  mapToHullAttributeObject(resource: TResourceType, sObject: any): any;
-  mapToHullIdentObject(resource: TResourceType, sObject: any): any;
-}
-
-export default { CONTACT_FIELDS, SUPPORTED_RESOURCETYPES };
+module.exports = {
+  SUPPORTED_RESOURCETYPES,
+  CONTACT_FIELDS
+};

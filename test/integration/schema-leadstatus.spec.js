@@ -1,11 +1,11 @@
 /* global Request, Response */
-import nock from "nock";
+const nock = require("nock");
 
-import { getLeadStatusesReponseBody } from "../helper/datamock-leadstatuses";
+const { getLeadStatusesReponseBody } = require("../helper/datamock-leadstatuses");
 
-import leadStatusListAction from "../../server/actions/schema-leadstatus";
+const leadStatusListAction = require("../../server/actions/schema-leadstatus");
 
-import { ShipMock } from "../helper/shipmock";
+const { ShipMock } = require("../helper/shipmock");
 
 describe("leadStatusListAction", () => {
   const BASE_URL = "https://app.close.io/api/v1";

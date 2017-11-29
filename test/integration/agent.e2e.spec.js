@@ -1,15 +1,15 @@
 /* global describe, test, expect */
-import Promise from "bluebird";
-import _ from "lodash";
-import { DateTime } from "luxon";
+const Promise = require("bluebird");
+const _ = require("lodash");
+const { DateTime } = require("luxon");
 
-import { Agent, calculateUpdatedSinceTimestamp, composeUpdatedAfterQuery } from "../../server/lib/agent";
-import { ShipMock } from "../helper/shipmock";
-import { HullClientMock } from "../helper/hullclientmock";
-import { MetricsClientMock } from "../helper/metricsclientmock";
-import { getLeadStatusesReponseBody } from "../helper/datamock-leadstatuses";
-import { getLeadListResponse, getLeadListResponseForPagination } from "../helper/datamock-leads";
-import { AttributesMapper } from "../../server/lib/utils/attributes-mapper";
+const { Agent, calculateUpdatedSinceTimestamp, composeUpdatedAfterQuery } = require("../../server/lib/agent");
+const { ShipMock } = require("../helper/shipmock");
+const { HullClientMock } = require("../helper/hullclientmock");
+const { MetricsClientMock } = require("../helper/metricsclientmock");
+const { getLeadStatusesReponseBody } = require("../helper/datamock-leadstatuses");
+const { getLeadListResponse, getLeadListResponseForPagination } = require("../helper/datamock-leads");
+const AttributesMapper = require("../../server/lib/utils/attributes-mapper");
 
 describe("Agent", () => {
   const private_settings = {
@@ -21,31 +21,31 @@ describe("Agent", () => {
   const hullClientMock = new HullClientMock();
   const metricsClientMock = new MetricsClientMock();
 
-  test("should get synchronizedSegments from private_settings.synchronized_segments", () => {
+  test("should get synchronizedSegments = require(private_settings.synchronized_segments", () => {
     const agent = new Agent(hullClientMock, connectorMock, metricsClientMock);
 
     expect(agent.synchronizedSegments).toEqual(private_settings.synchronized_segments);
   });
 
-  test("should get leadStatusForCreate from private_settings.lead_status", () => {
+  test("should get leadStatusForCreate = require(private_settings.lead_status", () => {
     const agent = new Agent(hullClientMock, connectorMock, metricsClientMock);
 
     expect(agent.leadStatusForCreate).toEqual(private_settings.lead_status);
   });
 
-  test("should set hullClient from injected object", () => {
+  test("should set hullClient = require(injected object", () => {
     const agent = new Agent(hullClientMock, connectorMock, metricsClientMock);
 
     expect(agent.hullClient).toEqual(hullClientMock);
   });
 
-  test("should set metricClient from injected object", () => {
+  test("should set metricClient = require(injected object", () => {
     const agent = new Agent(hullClientMock, connectorMock, metricsClientMock);
 
     expect(agent.metricClient).toEqual(metricsClientMock);
   });
 
-  test("should instantiate a new CloseIoClient with the api key from private_settings.api_key", () => {
+  test("should instantiate a new CloseIoClient with the api key = require(private_settings.api_key", () => {
     const agent = new Agent(hullClientMock, connectorMock, metricsClientMock);
 
     expect(agent.closeClient.apiKey).toEqual(private_settings.api_key);
@@ -56,7 +56,7 @@ describe("Agent", () => {
     expect(agent.isAuthenticationConfigured()).toEqual(true);
   });
 
-  test("should fetch the lead statuses from the client", (done) => {
+  test("should fetch the lead statuses = require(the client", (done) => {
     const closeClientMock = {};
     const getLeadStatusesMock = jest.fn().mockImplementation(() => {
       return Promise.resolve(getLeadStatusesReponseBody().data);
@@ -73,7 +73,7 @@ describe("Agent", () => {
     });
   });
 
-  test("should fetch updated leads from the client", (done) => {
+  test("should fetch updated leads = require(the client", (done) => {
     const closeClientMock = {};
     const listLeadsMock = jest.fn().mockImplementation(() => {
       return Promise.resolve(getLeadListResponse());
@@ -99,7 +99,7 @@ describe("Agent", () => {
     });
   });
 
-  test("should fetch updated leads from the client with pagination", (done) => {
+  test("should fetch updated leads = require(the client with pagination", (done) => {
     const closeClientMock = {};
     const listLeadsMock = jest.fn().mockImplementation((q, f, size, skip) => {
       return Promise.resolve(getLeadListResponseForPagination(skip, size, 200));
@@ -146,7 +146,7 @@ describe("calculateUpdatedSinceTimestamp", () => {
     expect(actual).toEqual(expected);
   });
 
-  test("should default to 2 days from now if connector doesn't have last_sync_at in the private_settings", () => {
+  test("should default to 2 days = require(now if connector doesn't have last_sync_at in the private_settings", () => {
     const connectorMockNoDate = new ShipMock("1234", {}, {});
     const expected = new Date(nowUnix - (1000 * 60 * 60 * 60 * 48) - 5000);
     const actual = calculateUpdatedSinceTimestamp(connectorMockNoDate, 5000, nowUnix);
