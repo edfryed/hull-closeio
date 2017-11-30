@@ -1,4 +1,4 @@
-// @flow
+/* @flow */
 import type { IMetricsClient } from "../../server/lib/shared";
 
 
