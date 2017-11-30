@@ -1,5 +1,5 @@
 /* @flow */
-import type { Request, Response } from "express";
+import type { $Response } from "express";
 
 const { Agent } = require("../lib/agent");
 const cacheManager = require("cache-manager");
@@ -7,7 +7,7 @@ const cacheManager = require("cache-manager");
 const Cache = cacheManager.caching({ store: "memory", max: 100, ttl: 60 });
 
 
-function leadFieldsAction(req: Request, res: Response): void {
+function leadFieldsAction(req: Object, res: $Response): $Response {
   const { client, ship, metric } = req.hull;
   const { secret } = client.configuration();
   const cacheKey = [ship.id, ship.updated_at, secret, "lf"].join("/");

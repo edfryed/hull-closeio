@@ -1,7 +1,7 @@
-// @flow
-import { Request, Response } from "express";
+/* @flow */
+import type { $Request, $Response } from "express";
 
-function adminHandler(req: Request, res: Response) {
+function adminHandler(req: $Request, res: $Response) {
   res.render("home.html", {
     name: "Close.io"
   });

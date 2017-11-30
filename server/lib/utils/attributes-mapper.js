@@ -1,9 +1,10 @@
-// @flow
-import type { TResourceType } from "../shared";
-import { IAttributesMapper, SUPPORTED_RESOURCETYPES } from "../shared";
+/* @flow */
+import type { TResourceType, IAttributesMapper } from "../shared";
 
 const _ = require("lodash");
 const { URL } = require("url");
+
+const { SUPPORTED_RESOURCETYPES } = require("../shared");
 
 class AttributesMapper implements IAttributesMapper {
   /**
@@ -55,7 +56,7 @@ class AttributesMapper implements IAttributesMapper {
    * @returns {*} The mapped close.io Object.
    * @memberof AttributesMapper
    */
-  mapToServiceObject(resource: TResourceType, hullObject: any):any {
+  mapToServiceObject(resource: TResourceType, hullObject: any): any {
     const sObject = { };
     if (resource === "Contact") {
       // Contacts have some pre-defined mappings:

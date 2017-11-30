@@ -1,5 +1,5 @@
 /* @flow */
-import { MetricClient, LeadStatus, ILogger, IUserUpdateEnvelope, IFilterUtil, IAttributesMapper, IDropdownEntry } from "./shared";
+import type { IMetricsClient, ILeadStatus, ILogger, IUserUpdateEnvelope, IFilterUtil, IAttributesMapper, IDropdownEntry } from "./shared";
 
 const Promise = require("bluebird");
 const _ = require("lodash");
@@ -45,7 +45,7 @@ class Agent {
 
   hullClient: any;
 
-  metricClient: MetricClient;
+  metricClient: IMetricsClient;
 
   closeClient: CloseIoClient;
 
@@ -61,7 +61,7 @@ class Agent {
 
   attributesMapper: IAttributesMapper;
 
-  constructor(hullClient: any, connector: any, metricClient: MetricClient) {
+  constructor(hullClient: any, connector: any, metricClient: IMetricsClient) {
     this.connector = connector;
     this.synchronizedSegments = connector.private_settings.synchronized_segments;
     this.leadStatusForCreate = connector.private_settings.lead_status;
@@ -85,10 +85,10 @@ class Agent {
   /**
    * Fetches all lead statuses from close.io.
    *
-   * @returns {Promise<LeadStatus[]>} The list of lead statuses.
+   * @returns {Promise<ILeadStatus[]>} The list of lead statuses.
    * @memberof Agent
    */
-  fetchLeadStatuses(): Promise<LeadStatus[]> {
+  fetchLeadStatuses(): Promise<ILeadStatus[]> {
     return this.closeClient.getLeadStatuses();
   }
 

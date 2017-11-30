@@ -1,13 +1,12 @@
 /* @flow */
-
-import { Request, Response } from "express";
+import type { $Response } from "express";
 
 const _ = require("lodash");
 const { Agent } = require("../lib/agent");
 
-function statusCheckAction(req: Request, res: Response) {
+function statusCheckAction(req: Object, res: $Response) {
   if (req.hull && req.hull.ship && req.hull.ship.private_settings) {
-    const { ship = {}, client = {}, metric = {} } = req.hull;
+    const { ship = {}, client = {}, metric } = req.hull;
     const messages: Array<string> = [];
     let status: string = "ok";
     const agent = new Agent(client, ship, metric);

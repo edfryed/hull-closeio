@@ -1,5 +1,5 @@
 // @flow
-import { IMetricsClient } from "../../server/lib/shared";
+import type { IMetricsClient } from "../../server/lib/shared";
 
 
 class MetricsClientMock implements IMetricsClient {

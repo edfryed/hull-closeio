@@ -1,3 +1,4 @@
+/* @flow */
 export type TResourceType = "Lead" | "Contact";
 
 export interface ILogger {
@@ -8,7 +9,7 @@ export interface ILogger {
   log(message?: any, ...optionalParams: any[]): void;
 }
 
-export interface MetricClient {
+export interface IMetricsClient {
   value(name: string, value: number): void;
   increment(name: string, value: number): void;
 }
