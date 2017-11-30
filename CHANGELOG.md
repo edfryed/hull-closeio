@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.2
+
+- [feature] Instrument metrics client for Datadog to report usage
+
 ## v0.1.1
 
 - [feature] Add synchronization of contacts for already existing leads with no `closeio/id` attribute
