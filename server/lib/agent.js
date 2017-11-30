@@ -71,6 +71,7 @@ class Agent {
     this.logger = hullClient.logger;
     this.metricClient = metricClient;
     this.closeClient = new CloseIoClient(connector.private_settings.api_key);
+    this.closeClient.metrics = this.metricClient;
     this.filterUtil = new FilterUtil(connector.private_settings);
     this.closeClient.listCustomFields(100, 0).then((cf) => {
       this.attributesMapper = new AttributesMapper(connector.private_settings, cf);
