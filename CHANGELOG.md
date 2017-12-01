@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.3
+
+- [bugfix] Resolves issue with incorrect status check
+- [maintenance] Further code refactoring and latest development toolkit adjustments
+
 ## v0.1.2
 
 - [feature] Instrument metrics client for Datadog to report usage
