@@ -1,4 +1,3 @@
-/* global Request, Response */
 const nock = require("nock");
 
 const { getLeadStatusesReponseBody } = require("../helper/datamock-leadstatuses");
@@ -28,7 +27,7 @@ describe("leadStatusListAction", () => {
     });
     metricClientMock.increment = incrementMock.bind(metricClientMock);
 
-    const responseMock: Response = {};
+    const responseMock = {};
     const jsonMock = jest.fn().mockImplementation(() => {
       console.log("response.json mocked function called");
     });
@@ -40,7 +39,7 @@ describe("leadStatusListAction", () => {
     });
     clientMock.configuration = configMock.bind(clientMock);
 
-    const req: Request = {
+    const req = {
       url: "https://hull-closeio.herokuapp.com/",
       hull: {
         client: clientMock,
