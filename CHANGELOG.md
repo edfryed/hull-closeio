@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.4
+
+- [bugfix] Add email to ident claims to prevent anonymous users
+
 ## v0.1.3
 
 - [bugfix] Resolves issue with incorrect status check
