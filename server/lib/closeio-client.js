@@ -1,5 +1,5 @@
 /* @flow */
-import { ILogger, MetricClient, ListResult, ILeadStatus } from "./shared";
+import type { ILogger, IMetricsClient, ListResult, ILeadStatus } from "./shared";
 
 const _ = require("lodash");
 const request = require("request");
@@ -40,7 +40,7 @@ class CloseIoClient {
    * @type {MetricClient}
    * @memberof CloseIoClient
    */
-  metrics: MetricClient;
+  metrics: IMetricsClient;
 
   /**
    * Creates an instance of CloseIoClient.
@@ -48,7 +48,7 @@ class CloseIoClient {
    * @memberof CloseIoClient
    */
   constructor(apiKey?: string) {
-    if (apiKey) {
+    if (apiKey !== null && apiKey !== undefined) {
       this.apiKey = apiKey;
     }
   }
@@ -165,7 +165,7 @@ class CloseIoClient {
    * @returns {Promise<any>} The data of the created close.io object.
    * @memberof CloseIoClient
    */
-  createLead(cioObject: any):Promise<any> {
+  createLead(cioObject: any): Promise<any> {
     if (!this.hasValidApiKey()) {
       if (this.logger) {
         // TODO: Log proper error - consult with @michaloo
@@ -301,7 +301,7 @@ class CloseIoClient {
    * @returns {Promise<any>} The data of the created close.io object.
    * @memberof CloseIoClient
    */
-  createContact(cioObject: any):Promise<any> {
+  createContact(cioObject: any): Promise<any> {
     if (!this.hasValidApiKey()) {
       if (this.logger) {
         // TODO: Log proper error - consult with @michaloo

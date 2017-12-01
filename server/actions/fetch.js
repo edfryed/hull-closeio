@@ -1,10 +1,9 @@
-// @flow
+/* @flow */
+import type { $Response } from "express";
 
-import type { Request, Response } from "express";
+const { Agent } = require("../lib/agent");
 
-import { Agent } from "../lib/agent";
-
-function fetchAction(req: Request, res: Response): Promise<any[]> {
+function fetchAction(req: Object, res: $Response): Promise<any[]> {
   const { client, ship, metric } = req.hull;
   const agent = new Agent(client, ship, metric);
 
