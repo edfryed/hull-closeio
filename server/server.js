@@ -1,11 +1,12 @@
 /* @flow */
+import type { $Application } from "express";
+
 const cors = require("cors");
-const express = require("express");
 const { notifHandler, smartNotifierHandler } = require("hull/lib/utils");
 
 const actions = require("./actions/index");
 
-function server(app: express) {
+function server(app: $Application): $Application {
   app.post("/fetch", actions.fetch);
 
   app.post("/smart-notifier", smartNotifierHandler({
