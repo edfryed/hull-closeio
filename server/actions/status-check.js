@@ -1,12 +1,12 @@
 /* @flow */
-import type { $Response } from "express";
+import type { $Request, $Response } from "express";
 
 const _ = require("lodash");
 const { Agent } = require("../lib/agent");
 
-function statusCheckAction(req: Object, res: $Response) {
-  if (req.hull && req.hull.ship && req.hull.ship.private_settings) {
-    const { ship = {}, client = {}, metric } = req.hull;
+function statusCheckAction(req: $Request, res: $Response): void {
+  if (_.has(req, "hull.ship.private_settings")) {
+    const { ship = {}, client = {}, metric } = (req: any).hull;
     const messages: Array<string> = [];
     let status: string = "ok";
     const agent = new Agent(client, ship, metric);
@@ -23,6 +23,7 @@ function statusCheckAction(req: Object, res: $Response) {
 
     res.json({ status, messages });
     client.put(`${ship.id}/status`, { status, messages });
+    return;
   }
 
   res.status(404).json({ status: 404, messages: ["Request doesn't contain data about the connector"] });
