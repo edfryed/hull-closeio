@@ -226,7 +226,8 @@ describe("AttributesMapper", () => {
     const sObject = getCreateContactResponse();
 
     const expectedIdentObject = {
-      anonymous_id: `closeio:${sObject.id}`
+      anonymous_id: `closeio:${sObject.id}`,
+      "email": "john@example.com"
     };
 
     const customFields = getListCustomFieldsReponseBody().data;

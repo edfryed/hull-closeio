@@ -192,6 +192,10 @@ class AttributesMapper implements IAttributesMapper {
     if (resource === "Contact") {
       // We cannot say for sure which email address is the proper one,
       // so stick to anonymous_id
+      if (!_.isEmpty(_.get(sObject, "emails", []))) {
+        const email = _.get(_.first(_.get(sObject, "emails")), "email");
+        _.set(ident, "email", email);
+      }
       _.set(ident, "anonymous_id", `closeio:${_.get(sObject, "id")}`);
     } else if (resource === "Lead") {
       _.set(ident, "domain", this.normalizeUrl(_.get(sObject, "url")));
