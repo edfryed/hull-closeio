@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.5
+
+- [feature] Add schedules for auto-fetch and status endpoint
+
 ## v0.1.4
 
 - [bugfix] Add email to ident claims to prevent anonymous users
