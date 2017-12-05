@@ -2,7 +2,7 @@
   "name": "Hull-Closeio",
   "description": "Automate customer interactions with your close.io CRM",
   "picture": "picture.png",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "tags": [
     "outgoing",
     "batch",
