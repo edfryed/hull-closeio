@@ -1,4 +1,6 @@
 /* global describe, test, expect */
+const _ = require("lodash");
+
 const AttributesMapper = require("../../server/lib/utils/attributes-mapper");
 const { getListCustomFieldsReponseBody } = require("../helper/datamock-customfields");
 const { getLeadCreateResponse } = require("../helper/datamock-leads");
@@ -165,6 +167,59 @@ describe("AttributesMapper", () => {
     expect(actual).toEqual(expectedCloseObject);
   });
 
+  test("should map a hull object to a lead with status", () => {
+    const hullUser = {
+      account: {
+        created_at: "2017-10-25T10:06:00Z",
+        domain: "hullsfdc.io",
+        employees: 2,
+        external_id: "a9461ad518be40ba-b568-4729-a676-f9c55abd72c9",
+        industry: "Technology",
+        name: "Hull SFDC Testing",
+        plan: "Enterprise",
+        _sales_business_won: "2017-10-25T12:45:00Z"
+      },
+      id: "59f06a5f421a978e920643d7",
+      created_at: "2017-10-25T10:41:35Z",
+      is_approved: false,
+      has_password: false,
+      accepts_marketing: false,
+      email: "sven+sfdc4@hull.io",
+      domain: "hull.io",
+      name: "Sven4 SFDC",
+      last_name: "SFDC",
+      first_name: "Svn4",
+      traits_status: "Lead",
+      "traits_intercom/citygroup": "Stuttgart",
+      traits_company: "Hull Test SFDC GmbH & Co KG",
+      "traits_salesforce_lead/id": "abcdf",
+      "traits_salesforce_contact/id": "1234foo",
+      "traits_salesforce/id": "56789baz"
+    };
+
+    const expectedCloseObject = {
+      name: hullUser.account.name,
+      url: hullUser.account.domain,
+      contacts: [
+        {
+          name: hullUser.name,
+          emails: [
+            { email: hullUser.email, type: "office" }
+          ]
+        }
+      ],
+      status_id: "stat_6e5tChl9r4eyXWnKoCvMWClBsbcPuORMya1FEMtJoCl"
+    };
+
+    const leadStatusSettings = _.merge({ lead_status: "stat_6e5tChl9r4eyXWnKoCvMWClBsbcPuORMya1FEMtJoCl" }, CONNECTOR_SETTINGS);
+
+    const customFields = getListCustomFieldsReponseBody().data;
+    const mapper = new AttributesMapper(leadStatusSettings, customFields);
+    const actual = mapper.mapToServiceObject("Lead", hullUser);
+
+    expect(actual).toEqual(expectedCloseObject);
+  });
+
   test("should map a lead to a Hull traits object", () => {
     const sObject = getLeadCreateResponse();
 
@@ -227,7 +282,7 @@ describe("AttributesMapper", () => {
 
     const expectedIdentObject = {
       anonymous_id: `closeio:${sObject.id}`,
-      "email": "john@example.com"
+      email: "john@example.com"
     };
 
     const customFields = getListCustomFieldsReponseBody().data;

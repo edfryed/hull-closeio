@@ -31,6 +31,8 @@ class AttributesMapper implements IAttributesMapper {
    */
   customFields: Array<Object>;
 
+  leadCreationStatusId: string;
+
   /**
    * Creates an instance of AttributesMapper.
    * @param {Object} settings The connector settings that contain the attribute mappings.
@@ -45,6 +47,7 @@ class AttributesMapper implements IAttributesMapper {
       _.set(this.mappingsInbound, r, _.get(settings, `${r.toLowerCase()}_attributes_inbound`, []));
     });
     this.customFields = customFields;
+    this.leadCreationStatusId = _.get(settings, "lead_status", "n/a");
   }
 
   /**
@@ -81,6 +84,8 @@ class AttributesMapper implements IAttributesMapper {
       // Set the lead identifier, if present
       if (hullObject.account["closeio/id"]) {
         _.set(sObject, "id", _.get(hullObject, "account.closeio/id"));
+      } else if (!hullObject.account["closeio/id"] && this.leadCreationStatusId !== "n/a") {
+        _.set(sObject, "status_id", this.leadCreationStatusId);
       }
 
       // Set the url and name
