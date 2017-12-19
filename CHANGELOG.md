@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.6
+
+- [bugfix] Fix handling of custom lead creation status
+
 ## v0.1.5
 
 - [feature] Add schedules for auto-fetch and status endpoint
