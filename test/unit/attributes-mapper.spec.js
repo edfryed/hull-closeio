@@ -24,7 +24,7 @@ describe("AttributesMapper", () => {
       { hull_field_name: "email", closeio_field_name: "emails.office" }
     ],
     lead_attributes_inbound: [
-      "url", "name", "lcf_xUDvptVqoPQYv5tmRFDxemYOWFT9nlLRqJyQhpcNh4z", "addresses"
+      "url", "name", "lcf_bA7SU4vqaefQLuK5UjZMVpbfHK4SVujTJ9unKCIlTvI", "addresses"
     ],
     contact_attributes_inbound: [
       "name", "title", "emails"
@@ -67,7 +67,7 @@ describe("AttributesMapper", () => {
   test("should return the name of a custom field", () => {
     const customFields = getListCustomFieldsReponseBody().data;
     const mapper = new AttributesMapper(CONNECTOR_SETTINGS, customFields);
-    const actual = mapper.getHumanFieldName("lcf_xUDvptVqoPQYv5tmRFDxemYOWFT9nlLRqJyQhpcNh4z");
+    const actual = mapper.getHumanFieldName("custom.lcf_xUDvptVqoPQYv5tmRFDxemYOWFT9nlLRqJyQhpcNh4z");
     expect(actual).toEqual("language_preference");
   });
 

@@ -109,7 +109,7 @@ class CloseIoClient {
    * List all leads matching the given search parameters
    *
    * @param {string} query The query to execute.
-   * @param {string []} fields The fields to return.
+   * @param {string []} fields The fields to return. [deprecated]
    * @param {number} [limit=100] The number of records per page.
    * @param {number} [skip=0] The number of records to skip.
    * @returns {Promise<ListResult>} A list result containing the data and information for pagination.
@@ -133,7 +133,6 @@ class CloseIoClient {
       },
       qs: {
         query,
-        _fields: fields.join(","),
         _limit: limit,
         _skip: skip
       },
