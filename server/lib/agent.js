@@ -276,7 +276,7 @@ class Agent {
 
   getLeadFields(): Promise<Array<IDropdownEntry>> {
     return this.closeClient.listCustomFields(100, 0).then((cfs) => {
-      const customFields: Array<IDropdownEntry> = _.map(cfs.data, (cf) => {
+      const customFields: Array<IDropdownEntry> = _.map(cfs, (cf) => {
         return { value: cf.id, label: cf.name };
       });
       const defaultFields: Array<IDropdownEntry> = [
