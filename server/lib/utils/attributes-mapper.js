@@ -217,10 +217,10 @@ class AttributesMapper implements IAttributesMapper {
    * @memberof AttributesMapper
    */
   getHumanFieldName(field: string): string {
-    const fieldIds = _.map(this.customFields, (c) => { return `custom.${c.id}`; });
+    const fieldIds = _.map(this.customFields, (c) => { return c.id; });
     let humanName = field;
     if (_.includes(fieldIds, field)) {
-      const customField = _.find(this.customFields, (c) => { return `custom.${c.id}` === field; });
+      const customField = _.find(this.customFields, (c) => { return c.id === field; });
       humanName = _.get(customField, "name");
     }
     return _.snakeCase(humanName);

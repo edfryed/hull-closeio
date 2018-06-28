@@ -415,7 +415,7 @@ class CloseIoClient {
 
     return new Promise((resolve, reject) => {
       request(opts, (err, response, body) => {
-        if (err || response.statusCode >= 400) {
+        if (err || (response && response.statusCode >= 400)) {
           const msg = err ? err.message : response.statusMessage;
           return reject(msg);
         }
@@ -424,7 +424,12 @@ class CloseIoClient {
           body = JSON.parse(body);
         }
 
-        return resolve(body);
+        const mapped = _.isArray(body) ? _.map(body, (f) => {
+          f.id = `custom.${f.id}`;
+          return f;
+        }) : body;
+
+        return resolve(mapped);
       });
     });
   }
