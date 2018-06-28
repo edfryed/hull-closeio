@@ -97,7 +97,7 @@ class AttributesMapper implements IAttributesMapper {
     const mappings = _.cloneDeep(_.get(this.mappingsOutbound, resource));
 
     _.forEach(mappings, (m) => {
-      const hullAttribValue = _.get(hullObject, m.hull_field_name);
+      const hullAttribValue = _.get(hullObject, resource === "Lead" ? `account.${m.hull_field_name}` : m.hull_field_name);
       if (!_.isNil(hullAttribValue)) {
         const sAttribName = _.get(m, "closeio_field_name");
         if (_.startsWith(sAttribName, "emails") ||

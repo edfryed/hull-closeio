@@ -10,11 +10,11 @@ describe("AttributesMapper", () => {
   const CONNECTOR_SETTINGS = {
     lead_attributes_outbound: [
       {
-        hull_field_name: "account.domain",
+        hull_field_name: "domain",
         closeio_field_name: "url"
       },
       {
-        hull_field_name: "account.name",
+        hull_field_name: "name",
         closeio_field_name: "name"
       }
     ],

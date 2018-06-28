@@ -66,7 +66,7 @@
       "type": "array",
       "format": "table",
       "default": [
-        { "hull_field_name": "account.name", "closeio_field_name": "name" }
+        { "hull_field_name": "name", "closeio_field_name": "name" }
       ],
       "items": {
         "type": "object",

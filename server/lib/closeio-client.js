@@ -424,10 +424,16 @@ class CloseIoClient {
           body = JSON.parse(body);
         }
 
-        const mapped = _.isArray(body) ? _.map(body, (f) => {
-          f.id = `custom.${f.id}`;
-          return f;
-        }) : body;
+        let mapped = body;
+
+        if (body.data && _.isArray(body.data)) {
+          mapped = {
+            data: _.map(body.data, (f) => {
+              f.id = `custom.${f.id}`;
+              return f;
+            })
+          };
+        }
 
         return resolve(mapped);
       });
