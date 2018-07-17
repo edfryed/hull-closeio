@@ -31,15 +31,22 @@
     },
     {
       "name": "synchronized_segments",
-      "title": "Send users to Close.io when belonging to one of these segments",
+      "title": "Send *users* as contacts to Close.io when belonging to one of these segments",
       "type": "array",
       "default": [],
       "format": "segment"
     },
     {
+      "name": "synchronized_account_segments",
+      "title": "Send *accounts* as leads to Close.io when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "accountSegment"
+    },
+    {
       "name": "synchronized_segments_hero",
       "type": "string",
-      "headerTemplate": "The above list of segments is a whitelist. You need to *explicitely specify one or more segments* for which users and events shall be sent to Close.io.<br>If you do not specify any segment, no user or event will be sent to Close.io.",
+      "headerTemplate": "The above lists of segments are whitelists. You need to *explicitely specify one or more segments* for which users or accounts and events shall be sent to Close.io.<br>If you do not specify any segment, no user, account or event will be sent to Close.io.",
       "format": "information",
       "title": "Whitelisted Segments"
     },

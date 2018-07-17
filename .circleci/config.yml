@@ -2,6 +2,8 @@
 #
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
+# Install all dependencies, run `yarn test` and run hull-connector-tester
+#
 version: 2
 jobs:
   build:

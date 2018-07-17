@@ -1,5 +1,18 @@
 /* @flow */
-import type { IMetricsClient, ILeadStatus, ILogger, IUserUpdateEnvelope, IFilterUtil, IAttributesMapper, IDropdownEntry } from "./shared";
+import type { 
+  IMetricsClient, 
+  ILeadStatus, 
+  ILogger, 
+  IUserUpdateEnvelope, 
+  IFilterUtil, 
+  IAttributesMapper, 
+  IDropdownEntry 
+} from "./shared";
+
+import type {
+  THullMetrics,
+  THullClientLogger
+} from "./types";
 
 const Promise = require("bluebird");
 const _ = require("lodash");
@@ -43,7 +56,7 @@ function composeUpdatedAfterQuery(since: Date): string {
 class Agent {
   synchronizedSegments: string[];
 
-  hullClient: any;
+  hullClient: THullMetrics;
 
   metricClient: IMetricsClient;
 
@@ -55,7 +68,7 @@ class Agent {
 
   leadFieldsInbound: Array<string>;
 
-  logger: ILogger;
+  logger: THullClientLogger;
 
   filterUtil: IFilterUtil;
 

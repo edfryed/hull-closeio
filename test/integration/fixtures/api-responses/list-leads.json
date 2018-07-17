@@ -1,0 +1,183 @@
+{
+  "has_more": true,
+  "total_results": 7029,
+  "data": [
+      {
+          "tasks": [
+              {
+                  "date_updated": "2018-03-14T10:14:49.687000+00:00",
+                  "text": "Follow up",
+                  "object_type": "taskcompleted",
+                  "contact_id": null,
+                  "created_by": "user_GkAksuNHvIw76YDuPTaCiT1WokyDvk8WzPrAG7e3Wbf",
+                  "lead_name": "Medici",
+                  "contact_name": null,
+                  "id": "task_ZQzvxwLRuRzPpc86URKRIXerMYTsDAlvoegVdVQupNi",
+                  "object_id": "acti_dJna2c9TNHXwB6IqL1YE3NpTqvmCfuuHANP6jyKZEfP",
+                  "updated_by_name": "Laurent Griezman",
+                  "created_by_name": "John Dyer",
+                  "is_dateless": false,
+                  "due_date": "2018-01-09",
+                  "_type": "lead",
+                  "updated_by": "user_uqsys4szJ3Hg91PHMO8VwduKTIIdw1FIYwrFcvzXoA5",
+                  "organization_id": "orga_AhlASqO37spMANye0ASl1vld19XXvYbSexJc7vvnkby",
+                  "assigned_to_name": "Laurent Griezman",
+                  "date": "2018-01-09",
+                  "lead_id": "lead_ETEbLO2elBGOIVwcfO9tqU5Ul7T2C6OulOamZMfU7qN",
+                  "assigned_to": "user_uqsys4szJ3Hg91PHMO8VwduKTIIdw1FIYwrFcvzXoA5",
+                  "date_created": "2017-11-02T18:19:03.266000+00:00",
+                  "is_complete": true,
+                  "view": "archive"
+              }
+          ],
+          "addresses": [
+              {
+                  "city": "Berlin",
+                  "country": "DE",
+                  "zipcode": "10119",
+                  "label": "business",
+                  "state": "",
+                  "address_1": "Rheinthaler Straße 33",
+                  "address_2": ""
+              }
+          ],
+          "date_updated": "2018-07-16T18:13:50.723000+00:00",
+          "created_by_name": "John Dyer",
+          "opportunities": [
+              {
+                  "date_updated": "2018-06-14T08:41:34.024000+00:00",
+                  "created_by_name": "John Dyer",
+                  "value_currency": "EUR",
+                  "contact_id": "cont_qsavfDMwYxqAiGC7vIOKYyn1lXVEz8CwEVJmHrXUREk",
+                  "lead_name": "Medici",
+                  "contact_name": "Vincenzo Paliomi",
+                  "id": "oppo_ExXJvpw0ZLeqyQGHQ0djavXbTwEeGl5e53USol4mtu0",
+                  "confidence": 100,
+                  "user_id": "user_uqsys4szJ3Hg91PHMO8VwduKTIIdw1FIYwrFcvzXoA5",
+                  "value_period": "monthly",
+                  "created_by": "user_GkAksuNHvIw76YDuPTaCiT1WokyDvk8WzPrAG7e3Wbf",
+                  "note": "Mauvaise gestion des vacances",
+                  "updated_by_name": "Laurent Griezman",
+                  "user_name": "Laurent Griezman",
+                  "status_type": "active",
+                  "updated_by": "user_uqsys4szJ3Hg91PHMO8VwduKTIIdw1FIYwrFcvzXoA5",
+                  "status_id": "stat_k2VE2o4SjvxqsyaezlxU7uTpkmNDCQ3zb9TcRnHI03w",
+                  "value_formatted": "€89 monthly",
+                  "organization_id": "orga_AhlASqO37spMANye0ASl1vld19XXvYbSexJc7vvnkby",
+                  "integration_links": [],
+                  "date_won": "2018-06-12",
+                  "lead_id": "lead_ETEbLO2elBGOIVwcfO9tqU5Ul7T2C6OulOamZMfU7qN",
+                  "date_lost": null,
+                  "value": 8900,
+                  "status_label": "Activation",
+                  "date_created": "2017-03-23T16:23:47.061000+00:00"
+              }
+          ],
+          "custom.lcf_rbpfN3AmrbcLW9OjmSFEXc6qfYt5OXXBwiuhvGX8JsZ": "Health Care",
+          "custom.lcf_qdRtQD9yAqeFRyZ7Xw2yJ13EoxFPwnWlQaEl08lGWWU": "Benjamin",
+          "id": "lead_ETEbLO2elBGOIVwcfO9tqU5Ul7T2C6OulOamZMfU7qN",
+          "description": "Health Care - Medical Tourism & Health Care Services",
+          "display_name": "Medici",
+          "custom.lcf_cFdBsWLDCq8cu8J7YOZjDpN5dXCHyfCRX32Rwzc7Ck7": "No",
+          "contacts": [
+              {
+                  "display_name": "Vincenzo Paliomi",
+                  "name": "Vincenzo Paliomi",
+                  "title": "Financial Controller",
+                  "date_updated": "2018-06-12T12:14:38.696000+00:00",
+                  "phones": [
+                      {
+                          "phone": "+11234567890",
+                          "phone_formatted": "+1 123 456 7890",
+                          "type": "office"
+                      }
+                  ],
+                  "created_by": "user_uqsys4szJ3Hg91PHMO8VwduKTIIdw1FIYwrFcvzXoA5",
+                  "id": "cont_qsavfDMwYxqAiGC7vIOKYyn1lXVEz8CwEVJmHrXUREk",
+                  "organization_id": "orga_AhlASqO37spMANye0ASl1vld19XXvYbSexJc7vvnkby",
+                  "updated_by": "user_uqsys4szJ3Hg91PHMO8VwduKTIIdw1FIYwrFcvzXoA5",
+                  "urls": [],
+                  "date_created": "2018-06-11T15:17:07.177000+00:00",
+                  "integration_links": [],
+                  "emails": [
+                      {
+                          "type": "office",
+                          "email": "vincenzo.paliomi@Medici.com"
+                      }
+                  ],
+                  "lead_id": "lead_ETEbLO2elBGOIVwcfO9tqU5Ul7T2C6OulOamZMfU7qN"
+              },
+              {
+                  "display_name": "Pedro Garcia",
+                  "name": "Pedro Garcia",
+                  "title": "CFO",
+                  "date_updated": "2017-03-29T09:46:39.083000+00:00",
+                  "phones": [
+                      {
+                          "phone": "+495678901234",
+                          "phone_formatted": "+49 567 8901234",
+                          "type": "office"
+                      }
+                  ],
+                  "created_by": "user_GkAksuNHvIw76YDuPTaCiT1WokyDvk8WzPrAG7e3Wbf",
+                  "id": "cont_k8TXqQH9Zgo6PGveiJR56cJ4dbX7LFl9DxBIpiNPWdj",
+                  "organization_id": "orga_AhlASqO37spMANye0ASl1vld19XXvYbSexJc7vvnkby",
+                  "updated_by": "user_GkAksuNHvIw76YDuPTaCiT1WokyDvk8WzPrAG7e3Wbf",
+                  "urls": [],
+                  "date_created": "2016-08-09T09:01:44.807000+00:00",
+                  "integration_links": [],
+                  "emails": [
+                      {
+                          "type": "office",
+                          "email": "pedro.garcia@Medici.com"
+                      }
+                  ],
+                  "lead_id": "lead_ETEbLO2elBGOIVwcfO9tqU5Ul7T2C6OulOamZMfU7qN"
+              }
+          ],
+          "custom.lcf_8OLCB5q76FSxdxm3IVmO4Vpe9uIao8I6GDOcnBet4W8": "need",
+          "created_by": "user_GkAksuNHvIw76YDuPTaCiT1WokyDvk8WzPrAG7e3Wbf",
+          "custom": {
+              "phone_number": "yes",
+              "Salesloft": "No",
+              "Industry": "Health Care",
+              "Onboarding use case": "-",
+              "Reason of Loss": "need",
+              "FTEs": 60,
+              "Onboarding Manager": "-",
+              "Accounting Software": "-",
+              "Fit Score": "-",
+              "Campaign Active": "No",
+              "Customer Success": "Benjamin",
+              "Company ID": "H1CIUmZ6g7",
+              "Channel": "Manual",
+              "Plan": "Team"
+          },
+          "custom.lcf_cWL39IMQbZ5Yc3QezeDhMBk86yqwXsTuyT4Y1kGt8vo": "Team",
+          "updated_by_name": "Laurent Griezman",
+          "custom.lcf_BnhWfopv1iEafpTY2Lcm025IfMboHwWMEhfhh5qsiPQ": "-",
+          "updated_by": "user_uqsys4szJ3Hg91PHMO8VwduKTIIdw1FIYwrFcvzXoA5",
+          "status_id": "stat_TBkWcKMZ6ZYHiEbcSyRPtikUFdnyOG1JVrrDbBUZ099",
+          "html_url": "https://app.close.io/lead/lead_ETEbLO2elBGOIVwcfO9tqU5Ul7T2C6OulOamZMfU7qN/",
+          "custom.lcf_CpqzI0t50mc3P052ZlAy9YAx2iC2ofOPDUNUHPHCcrG": 60,
+          "organization_id": "orga_AhlASqO37spMANye0ASl1vld19XXvYbSexJc7vvnkby",
+          "custom.lcf_7TG4pCfaeSerIMcZQ0YxqnJi21H2CJeSsnSdkqDBDI8": "No",
+          "integration_links": [
+              {
+                  "url": "https://www.crunchbase.com/organization/Medici",
+                  "name": "CrunchBase"
+              }
+          ],
+          "custom.lcf_EjghJC1cIoV2aKEae5VuSitO0GAW0yUm9qs4yTKGxyJ": "yes",
+          "custom.lcf_r8z1pkUWzd86bNk3lXO7XmT88uOx6fTs97cjJY4OBLl": "Manual",
+          "name": "Medici",
+          "custom.lcf_WftiS3zC38jwJ0sEWJvc5qyNg5hTl5xas9bqHMBAIeS": "-",
+          "url": "http://medici.com",
+          "status_label": "Opportunity",
+          "custom.lcf_vsK94XEmkRDGLzvTcUgkDTyV36ett7mXu8J4HwXEBZa": "-",
+          "custom.lcf_9TB8XYocaq1GQMK5z7MVyOE7TXS1Cys5VycWwTlRBOZ": "H1CIUmZ6g7",
+          "date_created": "2016-07-20T07:34:53.871000+00:00",
+          "custom.lcf_S2kETLU0Xo5XfjwdL7nUTbMQqZXe7dx2Ci2qvfm0ex6": "-"
+      }
+  ]
+}
