@@ -63,7 +63,7 @@ class MappingUtil {
 
       if(_.get(hullObject, "closeio/id", null) !== null) {
         _.set(svcObject, "id", _.get(hullObject, "closeio/id"));
-      } else if (_.get(hullObject, "closeio/id", null) === null && this.leadCreationStatusId !== "N/A") {
+      } else if (_.get(hullObject, "closeio/id", null) === null && this.leadCreationStatusId !== "N/A" && this.leadCreationStatusId !== "hull-default") {
         _.set(svcObject, "status_id", this.leadCreationStatusId);
       }
     } else if (objType === "Contact") {

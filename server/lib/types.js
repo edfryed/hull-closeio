@@ -114,7 +114,9 @@ export type CioConnectorSettings = {
   lead_attributes_outbound: Array<CioOutboundMapping>,
   lead_attributes_inbound: Array<string>,
   contact_attributes_outbound: Array<CioOutboundMapping>,
-  contact_attributes_inbound: Array<string>
+  contact_attributes_inbound: Array<string>,
+  lead_identifier_hull: string,
+  lead_identifier_service: string
 };
 
 export type CioAttributesMapping = {
@@ -204,3 +206,52 @@ export type AccountUpdateEnvelope = {
   skipReason?: string,
   opsResult?: ConnectorOperationResult
 };
+
+export type FilterUtilConfiguration = {
+  synchronizedAccountSegments: Array<string>,
+  accountIdHull: string
+};
+
+export type CioServiceClientConfiguration = {
+  baseApiUrl: string,
+  metricsClient: HullMetrics,
+  loggerClient: HullClientLogger,
+  apiKey: string
+};
+
+export type CioLeadCustomField = {
+  id: string,
+  name: string,
+  type: string,
+  date_created?: Date,
+  date_updated?: Date,
+  created_by?: string,
+  updated_by?: string,
+  organization_id?: string,
+  choices?: Array<string>
+};
+
+export type CioLeadStatus = {
+  organization_id?: string,
+  id: string,
+  label: string
+}
+
+export type CioListResponse<T> = {
+  has_more: boolean,
+  data: Array<T>,
+  total_results?: number
+};
+
+export type CioContactFieldDefinition = {
+  id: string,
+  label: string,
+  in: boolean,
+  out: boolean
+};
+
+export type HullFieldDropdownItem = {
+  value: string,
+  label: string
+};
+
