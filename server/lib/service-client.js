@@ -20,7 +20,7 @@ const {
   superagentInstrumentationPlugin,
   superagentErrorPlugin
 } = require("hull/lib/utils");
-const { TransientError } = require("hull/lib/errors");
+const { ConfigurationError } = require("hull/lib/errors");
 
 const throttlePool = {};
 
@@ -119,7 +119,7 @@ class ServiceClient {
   ): Promise<CioListResponse<CioLead>> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
-        new TransientError("No API key specified in the Settings.")
+        new ConfigurationError("No API key specified in the Settings.", {})
       );
     }
 
@@ -140,7 +140,7 @@ class ServiceClient {
   createLead(data: CioLead): Promise<CioLead> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
-        new TransientError("No API key specified in the Settings.")
+        new ConfigurationError("No API key specified in the Settings.", {})
       );
     }
 
@@ -157,7 +157,7 @@ class ServiceClient {
   updateLead(data: CioLead): Promise<CioLead> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
-        new TransientError("No API key specified in the Settings.")
+        new ConfigurationError("No API key specified in the Settings.", {})
       );
     }
 
@@ -177,7 +177,7 @@ class ServiceClient {
   listLeadStatuses(): Promise<CioListResponse<CioLeadStatus>> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
-        new TransientError("No API key specified in the Settings.")
+        new ConfigurationError("No API key specified in the Settings.", {})
       );
     }
 
@@ -198,7 +198,7 @@ class ServiceClient {
   ): Promise<CioListResponse<CioLeadCustomField>> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
-        new TransientError("No API key specified in the Settings.")
+        new ConfigurationError("No API key specified in the Settings.", {})
       );
     }
 
@@ -223,7 +223,7 @@ class ServiceClient {
   ): Promise<CioListResponse<CioContact>> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
-        new TransientError("No API key specified in the Settings.")
+        new ConfigurationError("No API key specified in the Settings.", {})
       );
     }
 
@@ -244,7 +244,7 @@ class ServiceClient {
   createContact(data: CioContact): Promise<CioContact> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
-        new TransientError("No API key specified in the Settings.")
+        new ConfigurationError("No API key specified in the Settings.", {})
       );
     }
 
@@ -261,7 +261,7 @@ class ServiceClient {
   updateContact(data: CioContact): Promise<CioContact> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
-        new TransientError("No API key specified in the Settings.")
+        new ConfigurationError("No API key specified in the Settings.", {})
       );
     }
 

@@ -98,12 +98,6 @@
   dependencies:
     methods "^1.1.2"
 
-"@newrelic/native-metrics@^2.1.0":
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/@newrelic/native-metrics/-/native-metrics-2.1.2.tgz#9a595dc602654b717188a294507087a51e79fba3"
-  dependencies:
-    nan "^2.4.0"
-
 "@newrelic/native-metrics@^3.0.0":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@newrelic/native-metrics/-/native-metrics-3.0.0.tgz#973096ea8d9e8088c3e1b15f406614d8ca59a713"
@@ -205,10 +199,6 @@ agent-base@^4.1.0:
   resolved "https://registry.yarnpkg.com/agent-base/-/agent-base-4.2.0.tgz#9838b5c3392b962bad031e6a4c5e1024abec45ce"
   dependencies:
     es6-promisify "^5.0.0"
-
-agent-base@~1.0.1:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/agent-base/-/agent-base-1.0.2.tgz#6890d3fb217004b62b70f8928e0fae5f8952a706"
 
 ajv-keywords@^2.1.0:
   version "2.1.1"
@@ -3090,10 +3080,6 @@ extend-shallow@^3.0.0, extend-shallow@^3.0.2:
     assign-symbols "^1.0.0"
     is-extendable "^1.0.1"
 
-extend@3, extend@^3.0.0, extend@~3.0.0, extend@~3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.1.tgz#a755ea7bc1adfcc5a31ce7e762dbaadc5e636444"
-
 extend@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.0.tgz#5a474353b9f3353ddd8176dfd37b91c83a46f1d4"
@@ -3101,6 +3087,10 @@ extend@3.0.0:
 extend@^1.2.1:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/extend/-/extend-1.3.0.tgz#d1516fb0ff5624d2ebf9123ea1dac5a1994004f8"
+
+extend@^3.0.0, extend@~3.0.0, extend@~3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.1.tgz#a755ea7bc1adfcc5a31ce7e762dbaadc5e636444"
 
 extendible@0.1.x:
   version "0.1.1"
@@ -3880,14 +3870,6 @@ https-browserify@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/https-browserify/-/https-browserify-1.0.0.tgz#ec06c10e0a34c0f2faf199f7fd7fc78fffd03c73"
 
-https-proxy-agent@^0.3.6:
-  version "0.3.6"
-  resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-0.3.6.tgz#713fa38e5d353f50eb14a342febe29033ed1619b"
-  dependencies:
-    agent-base "~1.0.1"
-    debug "2"
-    extend "3"
-
 https-proxy-agent@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-2.2.1.tgz#51552970fa04d723e04c56d04178c3f92592bbc0"
@@ -3895,7 +3877,7 @@ https-proxy-agent@^2.2.1:
     agent-base "^4.1.0"
     debug "^3.1.0"
 
-hull-client@^1.2.0:
+hull-client@^1.2.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/hull-client/-/hull-client-1.2.2.tgz#9e75db326957513babd4c793482e7d0903cdf490"
   dependencies:
@@ -3906,12 +3888,13 @@ hull-client@^1.2.0:
     uuid "^3.0.1"
     winston "^2.2.0"
 
-hull@0.13.14:
-  version "0.13.14"
-  resolved "https://registry.yarnpkg.com/hull/-/hull-0.13.14.tgz#daa5acc5eb50b80f1a04fc49fe42785d44059a88"
+hull@0.13.16:
+  version "0.13.16"
+  resolved "https://registry.yarnpkg.com/hull/-/hull-0.13.16.tgz#5760f0de3477e5050e296913501a46ee90519a50"
   dependencies:
     JSONStream "^1.1.2"
     aws-sdk "^2.81.0"
+    babel-polyfill "^6.26.0"
     basic-auth "^1.1.0"
     batch-stream "^0.1.3"
     bluebird "^3.4.7"
@@ -3925,22 +3908,27 @@ hull@0.13.14:
     del "^2.2.1"
     dogapi "^2.6.0"
     ejs "^2.5.6"
-    hull-client "^1.2.0"
+    hull-client "^1.2.2"
     jsonwebtoken "^7.4.3"
     jwt-simple "^0.5.0"
     kue "^0.11.5"
     kue-ui "^0.1.0"
     lodash "^4.17.5"
-    newrelic "^2.4.1"
+    newrelic "^4.1.4"
     passport "^0.3.2"
+    progress-bar-webpack-plugin "^1.11.0"
     promise-streams "^1.0.1"
     raven "^2.4.2"
     raw-body "^2.1.7"
+    react-hot-loader "^4.2.0"
     request "^2.72.0"
     sns-validator "^0.3.0"
     sqs-consumer "^3.6.1"
     supply "0.0.4"
     urijs "^1.18.7"
+    webpack "^3.12.0"
+    webpack-dev-middleware "^2.0.6"
+    webpack-hot-middleware "^2.22.2"
 
 iconv-lite@0.2.11:
   version "0.2.11"
@@ -5550,10 +5538,6 @@ nan@^2.3.0:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.7.0.tgz#d95bf721ec877e08db276ed3fc6eb78f9083ad46"
 
-nan@^2.4.0:
-  version "2.8.0"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.8.0.tgz#ed715f3fe9de02b57a5e6252d90a96675e1f085a"
-
 nan@^2.8.0, nan@^2.9.2:
   version "2.10.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.10.0.tgz#96d0cd610ebd58d4b4de9cc0c6828cda99c7548f"
@@ -5606,22 +5590,24 @@ neo-async@^2.5.0:
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.5.1.tgz#acb909e327b1e87ec9ef15f41b8a269512ad41ee"
 
-newrelic@^2.4.1:
-  version "2.9.1"
-  resolved "https://registry.yarnpkg.com/newrelic/-/newrelic-2.9.1.tgz#dcd65dff7735eb0869202ac03b8611c6efd3d11d"
+newrelic@^4.0.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/newrelic/-/newrelic-4.2.0.tgz#088d712f550dec2d1289d9fb57f86ae7bad255fb"
   dependencies:
+    "@newrelic/koa" "^1.0.0"
+    "@tyriar/fibonacci-heap" "^2.0.7"
     async "^2.1.4"
     concat-stream "^1.5.0"
-    https-proxy-agent "^0.3.6"
+    https-proxy-agent "^2.2.1"
     json-stringify-safe "^5.0.0"
     readable-stream "^2.1.4"
     semver "^5.3.0"
   optionalDependencies:
-    "@newrelic/native-metrics" "^2.1.0"
+    "@newrelic/native-metrics" "^3.0.0"
 
-newrelic@^4.0.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/newrelic/-/newrelic-4.2.0.tgz#088d712f550dec2d1289d9fb57f86ae7bad255fb"
+newrelic@^4.1.4:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/newrelic/-/newrelic-4.5.0.tgz#0034b4e543f91b260b7aea4c8e8dd60e218a53e6"
   dependencies:
     "@newrelic/koa" "^1.0.0"
     "@tyriar/fibonacci-heap" "^2.0.7"
@@ -6824,7 +6810,7 @@ rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-hot-loader@^4.0.1:
+react-hot-loader@^4.0.1, react-hot-loader@^4.2.0:
   version "4.3.3"
   resolved "https://registry.yarnpkg.com/react-hot-loader/-/react-hot-loader-4.3.3.tgz#37409a3341c7787563d0972007ba02521f82f5d5"
   dependencies:
@@ -8443,7 +8429,7 @@ webidl-conversions@^4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-4.0.2.tgz#a855980b1f0b6b359ba1d5d9fb39ae941faa63ad"
 
-webpack-dev-middleware@^2.0.2:
+webpack-dev-middleware@^2.0.2, webpack-dev-middleware@^2.0.6:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/webpack-dev-middleware/-/webpack-dev-middleware-2.0.6.tgz#a51692801e8310844ef3e3790e1eacfe52326fd4"
   dependencies:
@@ -8458,6 +8444,15 @@ webpack-dev-middleware@^2.0.2:
 webpack-hot-middleware@^2.22.1:
   version "2.22.2"
   resolved "https://registry.yarnpkg.com/webpack-hot-middleware/-/webpack-hot-middleware-2.22.2.tgz#623b77ce591fcd4e1fb99f18167781443e50afac"
+  dependencies:
+    ansi-html "0.0.7"
+    html-entities "^1.2.0"
+    querystring "^0.2.0"
+    strip-ansi "^3.0.0"
+
+webpack-hot-middleware@^2.22.2:
+  version "2.22.3"
+  resolved "https://registry.yarnpkg.com/webpack-hot-middleware/-/webpack-hot-middleware-2.22.3.tgz#ae6025d57d656085c5b716b44e0bc0f796787776"
   dependencies:
     ansi-html "0.0.7"
     html-entities "^1.2.0"
@@ -8480,7 +8475,7 @@ webpack-sources@^1.0.1:
     source-list-map "^2.0.0"
     source-map "~0.6.1"
 
-webpack@^3.11.0:
+webpack@^3.11.0, webpack@^3.12.0:
   version "3.12.0"
   resolved "https://registry.yarnpkg.com/webpack/-/webpack-3.12.0.tgz#3f9e34360370602fcf639e97939db486f4ec0d74"
   dependencies:

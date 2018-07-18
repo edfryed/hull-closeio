@@ -1,4 +1,5 @@
 /* @flow */
+/* eslint-disable */
 import type {
   IFilterResult,
   IUserUpdateEnvelope,

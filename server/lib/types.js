@@ -225,7 +225,6 @@ export type FilterResults<T> = {
 
 export type UserUpdateEnvelope = {
   message: HullUserUpdateMessage,
-  hullUser: HullUser,
   contact: CioContact,
   skipReason?: string,
   opsResult?: ConnectorOperationResult
@@ -233,7 +232,6 @@ export type UserUpdateEnvelope = {
 
 export type AccountUpdateEnvelope = {
   message: HullAccountUpdateMessage,
-  hullAccount: HullAccount,
   lead: CioLead,
   skipReason?: string,
   opsResult?: ConnectorOperationResult

@@ -1,8 +1,8 @@
 /* @flow */
 import type {
-  THullReqContext
-  // THullUserUpdateMessage,
-  // THullAccountUpdateMessage
+  THullReqContext,
+  THullUserUpdateMessage,
+  THullAccountUpdateMessage
 } from "hull";
 
 import type {
@@ -13,7 +13,9 @@ import type {
   CioServiceClientConfiguration,
   CioOutboundMapping,
   CioConnectorSettings,
-  HullFieldDropdownItem
+  HullFieldDropdownItem,
+  UserUpdateEnvelope,
+  AccountUpdateEnvelope
 } from "./types";
 
 const _ = require("lodash");
@@ -198,6 +200,22 @@ class SyncAgent {
     finalSettings.lead_identifier_service = svcId;
 
     return finalSettings;
+  }
+
+  buildUserUpdateEnvelope(message: THullUserUpdateMessage): UserUpdateEnvelope {
+    return {
+      message,
+      contact: this.mappingUtil.mapToServiceObject("Contact", message.user)
+    };
+  }
+
+  buildAccountUpdateEnvelope(
+    message: THullAccountUpdateMessage
+  ): AccountUpdateEnvelope {
+    return {
+      message,
+      lead: this.mappingUtil.mapToServiceObject("Lead", message.account)
+    };
   }
 }
 
