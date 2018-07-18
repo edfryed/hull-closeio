@@ -1,4 +1,5 @@
 /* @flow */
+import type { Readable } from "stream";
 import type {
   UserUpdateEnvelope,
   HullMetrics,
@@ -12,9 +13,12 @@ import type {
 } from "./types";
 
 const _ = require("lodash");
+const { DateTime } = require("luxon");
+
 const superagent = require("superagent");
 const SuperagentThrottle = require("superagent-throttle");
 const prefixPlugin = require("superagent-prefix");
+const promiseToReadableStream = require("./support/promise-to-readable-stream");
 
 const {
   superagentUrlTemplatePlugin,
@@ -113,7 +117,7 @@ class ServiceClient {
    * @returns {Promise<CioListResponse<CioLead>>} The list response.
    * @memberof ServiceClient
    */
-  listLeads(
+  getLeads(
     query: string,
     limit: number = 100,
     skip: number = 0
@@ -132,13 +136,43 @@ class ServiceClient {
   }
 
   /**
+   * Fetches all updated leads from close.io.
+   *
+   * @returns {Promise<any[]>} The list of updated leads.
+   * @memberof Agent
+   */
+  getLeadsStream(since: DateTime): Readable {
+    const updatedAfter = since.minus({ days: 1 }).toISODate();
+    const q = `updated > ${updatedAfter}`;
+
+    return promiseToReadableStream(push => {
+      return this.getLeads(q, 100, 0).then(res => {
+        push(res.data);
+        const apiOps = [];
+        if (res.has_more === true) {
+          const totalPages = Math.ceil(res.total_results / 100);
+          for (let index = 1; index < totalPages; index += 1) {
+            // eslint-disable-line no-plusplus
+            apiOps.push(this.getLeads(q, 100, index));
+          }
+        }
+        return Promise.all(apiOps).then(results => {
+          results.forEach(result => {
+            push(result.data);
+          });
+        });
+      });
+    });
+  }
+
+  /**
    * Creates a new lead in close.io.
    *
    * @param {CioLead} data The close.io object data.
    * @returns {Promise<CioLead>} The data of the created close.io object.
    * @memberof ServiceClient
    */
-  createLead(data: CioLead): Promise<CioLead> {
+  postLead(data: CioLead): Promise<CioLead> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -155,7 +189,7 @@ class ServiceClient {
    * @returns {Promise<CioLead>} The data of the updated close.io object.
    * @memberof ServiceClient
    */
-  updateLead(data: CioLead): Promise<CioLead> {
+  putLead(data: CioLead): Promise<CioLead> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -175,7 +209,7 @@ class ServiceClient {
    * @returns {Promise<CioListResponse<CioLeadStatus>>} The list response.
    * @memberof ServiceClient
    */
-  listLeadStatuses(): Promise<CioListResponse<CioLeadStatus>> {
+  getLeadStatuses(): Promise<CioListResponse<CioLeadStatus>> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -193,7 +227,7 @@ class ServiceClient {
    * @returns {Promise<CioListResponse<CioLeadCustomField>>} The list response.
    * @memberof ServiceClient
    */
-  listCustomFields(
+  getLeadCustomFields(
     limit: number = 100,
     skip: number = 0
   ): Promise<CioListResponse<CioLeadCustomField>> {
@@ -217,7 +251,7 @@ class ServiceClient {
    * @returns {Promise<CioListResponse<CioContact>>} The list response.
    * @memberof ServiceClient
    */
-  listContacts(
+  getContacts(
     query: string,
     limit: number = 100,
     skip: number = 0
@@ -291,7 +325,7 @@ class ServiceClient {
     return this.agent.put(`/contact/${data.id}/`).send(data);
   }
 
-  updateContactEnvelope(
+  putContactEnvelope(
     envelope: UserUpdateEnvelope
   ): Promise<UserUpdateEnvelope> {
     const enrichedEnvelope = _.cloneDeep(envelope);

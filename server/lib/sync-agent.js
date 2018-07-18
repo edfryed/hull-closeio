@@ -19,11 +19,13 @@ import type {
 } from "./types";
 
 const _ = require("lodash");
+const { DateTime, Duration } = require("luxon");
 
 const MappingUtil = require("./sync-agent/mapping-util");
 const FilterUtil = require("./sync-agent/filter-util");
 const ServiceClient = require("./service-client");
 const CONTACT_FIELDDEFS = require("./sync-agent/contact-fielddefs");
+const pipeStreamToPromise = require("./support/pipe-stream-to-promise");
 
 const BASE_API_URL = "https://app.close.io/api/v1";
 
@@ -202,6 +204,38 @@ class SyncAgent {
     return finalSettings;
   }
 
+  /**
+   * Fetches all updated leads from close.io.
+   *
+   * @returns {Promise<any[]>} The list of updated leads.
+   * @memberof Agent
+   */
+  fetchUpdatedLeads(): Promise<any> {
+    const safetyInterval = Duration.fromObject({ minutes: 5 });
+    let lastSyncAtRaw = parseInt(
+      _.get(this.normalizedPrivateSettings, "private_settings.last_sync_at"),
+      10
+    );
+    if (_.isNaN(lastSyncAtRaw)) {
+      lastSyncAtRaw = Math.floor(
+        DateTime.utc()
+          .minus({ days: 2 })
+          .toMillis() / 1000
+      );
+    }
+    const since = DateTime.fromMillis(lastSyncAtRaw * 1000).minus(
+      safetyInterval
+    );
+
+    const streamOfUpdatedLeads = this.serviceClient.getLeadsStream(since);
+
+    return pipeStreamToPromise(streamOfUpdatedLeads, leads => {
+      return Promise.resolve(leads); // TODO: implement saving leads
+    }).catch(error => {
+      this.hullClient.logger.error("incoming.job.error", { reason: error });
+    });
+  }
+
   buildUserUpdateEnvelope(message: THullUserUpdateMessage): UserUpdateEnvelope {
     return {
       message,
@@ -245,7 +279,7 @@ class SyncAgent {
     );
 
     await Promise.all(
-      filterResults.toInser.map(envelope => {
+      filterResults.toInsert.map(envelope => {
         return this.serviceClient
           .postContactEnvelope(envelope)
           .then(updatedEnvelope => {
