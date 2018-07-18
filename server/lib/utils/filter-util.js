@@ -1,5 +1,9 @@
 /* @flow */
-import type { IFilterResult, IUserUpdateEnvelope, IFilterUtil } from "../shared";
+import type {
+  IFilterResult,
+  IUserUpdateEnvelope,
+  IFilterUtil
+} from "../shared";
 
 const _ = require("lodash");
 
@@ -25,7 +29,7 @@ class FilterUtil implements IFilterUtil {
   filterAccounts(envelopes: Array<IUserUpdateEnvelope>): IFilterResult {
     const results: IFilterResult = new FilterResult();
 
-    envelopes.forEach((envelope) => {
+    envelopes.forEach(envelope => {
       if (this.matchesWhitelistedSegments(envelope)) {
         if (_.has(envelope.message, "account.closeio/id")) {
           return results.toUpdate.push(envelope);
@@ -51,7 +55,7 @@ class FilterUtil implements IFilterUtil {
   filterUsers(envelopes: Array<IUserUpdateEnvelope>): IFilterResult {
     const results: IFilterResult = new FilterResult();
 
-    envelopes.forEach((envelope) => {
+    envelopes.forEach(envelope => {
       if (this.matchesWhitelistedSegments(envelope)) {
         if (_.has(envelope.message, "account.closeio/id")) {
           if (_.has(envelope.message, "user.traits_closeio/id")) {
@@ -59,7 +63,8 @@ class FilterUtil implements IFilterUtil {
           }
           return results.toInsert.push(envelope);
         }
-        envelope.skipReason = "User not associated with account. Cannot create contact without lead in close.io";
+        envelope.skipReason =
+          "User not associated with account. Cannot create contact without lead in close.io";
         return results.toSkip.push(envelope);
       }
 
@@ -72,7 +77,9 @@ class FilterUtil implements IFilterUtil {
 
   matchesWhitelistedSegments(envelope: IUserUpdateEnvelope): boolean {
     const messageSegmentIds = envelope.message.segments.map(s => s.id);
-    if (_.intersection(messageSegmentIds, this.synchronizedSegments).length > 0) {
+    if (
+      _.intersection(messageSegmentIds, this.synchronizedSegments).length > 0
+    ) {
       return true;
     }
     return false;

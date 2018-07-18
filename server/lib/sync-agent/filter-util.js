@@ -1,5 +1,5 @@
 /* @flow */
-import type { THullUserUpdateMessage, THullUser } from "hull";
+// import type { THullUserUpdateMessage, THullUser } from "hull";
 import type {
   UserUpdateEnvelope,
   AccountUpdateEnvelope,
@@ -35,7 +35,11 @@ class FilterUtil {
    */
   constructor(config: FilterUtilConfiguration) {
     // Configure the util with sensible defaults
-    this.synchronizedAccountSegments = _.get(config, "synchronizedAccountSegments", []);
+    this.synchronizedAccountSegments = _.get(
+      config,
+      "synchronizedAccountSegments",
+      []
+    );
     this.accountIdHull = _.get(config, "accountIdHull", "domain");
   }
 
@@ -46,7 +50,9 @@ class FilterUtil {
    * @returns {FilterResults<UserUpdateEnvelope>} The filter result.
    * @memberof FilterUtil
    */
-  filterUsers(envelopes: Array<UserUpdateEnvelope>): FilterResults<UserUpdateEnvelope> {
+  filterUsers(
+    envelopes: Array<UserUpdateEnvelope>
+  ): FilterResults<UserUpdateEnvelope> {
     const results: FilterResults<UserUpdateEnvelope> = {
       toSkip: [],
       toInsert: [],
@@ -62,7 +68,12 @@ class FilterUtil {
         return results.toSkip.push(envelope);
       }
       // Filter users not linked to accounts that match whitelisted segments
-      if (!this.matchesSynchronizedAccountSegments(envelope, "message.account_segments")) {
+      if (
+        !this.matchesSynchronizedAccountSegments(
+          envelope,
+          "message.account_segments"
+        )
+      ) {
         const skipMsg = SHARED_MESSAGES.OPERATION_SKIP_NOMATCHACCOUNTSEGMENTSUSER();
         envelope.skipReason = skipMsg.message;
         envelope.opsResult = "skip";
@@ -74,7 +85,7 @@ class FilterUtil {
         return results.toInsert.push(envelope);
       }
 
-      results.toUpdate.push(envelope);
+      return results.toUpdate.push(envelope);
     });
 
     return results;
@@ -87,7 +98,9 @@ class FilterUtil {
    * @returns {FilterResults<AccountUpdateEnvelope>} The filter result.
    * @memberof FilterUtil
    */
-  filterAccounts(envelopes: Array<AccountUpdateEnvelope>): FilterResults<AccountUpdateEnvelope> {
+  filterAccounts(
+    envelopes: Array<AccountUpdateEnvelope>
+  ): FilterResults<AccountUpdateEnvelope> {
     const results: FilterResults<AccountUpdateEnvelope> = {
       toSkip: [],
       toInsert: [],
@@ -97,14 +110,21 @@ class FilterUtil {
     envelopes.forEach((envelope: AccountUpdateEnvelope) => {
       // Filter out all accounts that have no identifier in Hull
       if (_.get(envelope, `hullAccount.${this.accountIdHull}`, null) === null) {
-        const skipMsg = SHARED_MESSAGES.OPERATION_SKIP_NOACCOUNTIDENT(this.accountIdHull);
+        const skipMsg = SHARED_MESSAGES.OPERATION_SKIP_NOACCOUNTIDENT(
+          this.accountIdHull
+        );
         envelope.skipReason = skipMsg.message;
         envelope.opsResult = "skip";
         return results.toSkip.push(envelope);
       }
 
       // Filter out all accounts that do not match the whitelisted account segments
-      if (!this.matchesSynchronizedAccountSegments(envelope, "message.account_segments")) {
+      if (
+        !this.matchesSynchronizedAccountSegments(
+          envelope,
+          "message.account_segments"
+        )
+      ) {
         const skipMsg = SHARED_MESSAGES.OPERATION_SKIP_NOMATCHACCOUNTSEGMENTS();
         envelope.skipReason = skipMsg.message;
         envelope.opsResult = "skip";
@@ -116,7 +136,7 @@ class FilterUtil {
         return results.toInsert.push(envelope);
       }
 
-      results.toUpdate.push(envelope);
+      return results.toUpdate.push(envelope);
     });
     return results;
   }
@@ -129,9 +149,18 @@ class FilterUtil {
    * @returns {boolean} True if the envelope matches; otherwise false.
    * @memberof FilterUtil
    */
-  matchesSynchronizedAccountSegments(envelope: UserUpdateEnvelope | AccountUpdateEnvelope, segmentPropertyName: string = "message.segments"): boolean {
-    const msgSegmentIds: Array<string> = _.get(envelope, segmentPropertyName, []).map(s => s.id);
-    if (_.intersection(msgSegmentIds, this.synchronizedAccountSegments).length > 0) {
+  matchesSynchronizedAccountSegments(
+    envelope: UserUpdateEnvelope | AccountUpdateEnvelope,
+    segmentPropertyName: string = "message.segments"
+  ): boolean {
+    const msgSegmentIds: Array<string> = _.get(
+      envelope,
+      segmentPropertyName,
+      []
+    ).map(s => s.id);
+    if (
+      _.intersection(msgSegmentIds, this.synchronizedAccountSegments).length > 0
+    ) {
       return true;
     }
     return false;

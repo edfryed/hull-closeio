@@ -1,20 +1,20 @@
 /* @flow */
 import type { $Response } from "express";
-import type { TReqContext } from "hull";
+import type { THullRequest } from "hull";
 
-const syncAgent = require("../lib/sync-agent");
+const SyncAgent = require("../lib/sync-agent");
 
-function fieldsContactInbound(ctx: TReqContext): $Response {
-  const syncAgent = new SyncAgent(ctx);
-  return res.json({ 
-    options: syncAgent.getContactFieldOptionsInbound() 
+function fieldsContactInbound(req: THullRequest, res: $Response): $Response {
+  const syncAgent = new SyncAgent(req.hull);
+  return res.json({
+    options: syncAgent.getContactFieldOptionsInbound()
   });
 }
 
-function fieldsContactOutbound(ctx: TReqContext): $Response {
-  const syncAgent = new SyncAgent(ctx);
-  return res.json({ 
-    options: syncAgent.getContactFieldOptionsOutbound() 
+function fieldsContactOutbound(req: THullRequest, res: $Response): $Response {
+  const syncAgent = new SyncAgent(req.hull);
+  return res.json({
+    options: syncAgent.getContactFieldOptionsOutbound()
   });
 }
 

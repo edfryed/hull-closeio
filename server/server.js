@@ -9,26 +9,32 @@ const actions = require("./actions/index");
 function server(app: $Application): $Application {
   app.post("/fetch", actions.fetch);
 
-  app.post("/smart-notifier", smartNotifierHandler({
-    handlers: {
-      "user:update": actions.userUpdateHandler({
-        flowControl: {
-          type: "next",
-          size: parseInt(process.env.FLOW_CONTROL_SIZE, 10) || 200,
-          in: parseInt(process.env.FLOW_CONTROL_IN, 10) || 5
-        }
-      })
-    }
-  }));
+  app.post(
+    "/smart-notifier",
+    smartNotifierHandler({
+      handlers: {
+        "user:update": actions.userUpdateHandler({
+          flowControl: {
+            type: "next",
+            size: parseInt(process.env.FLOW_CONTROL_SIZE, 10) || 200,
+            in: parseInt(process.env.FLOW_CONTROL_IN, 10) || 5
+          }
+        })
+      }
+    })
+  );
 
-  app.post("/batch", notifHandler({
-    userHandlerOptions: {
-      maxSize: 200
-    },
-    handlers: {
-      "user:update": actions.userUpdateHandler()
-    }
-  }));
+  app.post(
+    "/batch",
+    notifHandler({
+      userHandlerOptions: {
+        maxSize: 200
+      },
+      handlers: {
+        "user:update": actions.userUpdateHandler()
+      }
+    })
+  );
 
   app.get("/leadstatuses", cors(), actions.leadStatusList);
 

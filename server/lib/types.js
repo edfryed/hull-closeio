@@ -1,8 +1,13 @@
 /* @flow */
 import type {
-  HullAccount, HullUserIdent, HullAccountIdent,
-  HullUserAttributes, HullAccountAttributes, HullUser,
-  HullUserUpdateMessage, HullAccountUpdateMessage
+  HullAccount,
+  HullUserIdent,
+  HullAccountIdent,
+  HullUserAttributes,
+  HullAccountAttributes,
+  HullUser,
+  HullUserUpdateMessage,
+  HullAccountUpdateMessage
 } from "hull";
 
 /*
@@ -15,31 +20,31 @@ export type HullMetrics = {
 };
 
 export type HullClientLogger = {
-  log(message: ?any, ...optionalParams: any[]):void;
-  info(message: ?any, ...optionalParams: any[]):void;
-  warn(message: ?any, ...optionalParams: any[]):void;
-  error(message: ?any, ...optionalParams: any[]):void;
-  debug(message: ?any, ...optionalParams: any[]):void;
+  log(message: ?any, ...optionalParams: any[]): void,
+  info(message: ?any, ...optionalParams: any[]): void,
+  warn(message: ?any, ...optionalParams: any[]): void,
+  error(message: ?any, ...optionalParams: any[]): void,
+  debug(message: ?any, ...optionalParams: any[]): void
 };
 
 export type HullClientConfiguration = {
-  prefix: string;
-  domain: string;
-  protocol: string;
-  id: string;
-  secret: string;
-  organization: string;
-  version: string;
+  prefix: string,
+  domain: string,
+  protocol: string,
+  id: string,
+  secret: string,
+  organization: string,
+  version: string
 };
 
 export type HullClientApiOptions = {
-  timeout: number;
-  retry: number;
+  timeout: number,
+  retry: number
 };
 
 export type HullClientUtilTraits = {
-  group(user: HullUser | HullAccount): Object;
-  normalize(traits: Object): HullUserAttributes;
+  group(user: HullUser | HullAccount): Object,
+  normalize(traits: Object): HullUserAttributes
 };
 
 export type HullClientUtils = {
@@ -47,7 +52,7 @@ export type HullClientUtils = {
 };
 
 export type HullClientTraitsContext = {
-  source: string;
+  source: string
 };
 
 /**
@@ -79,20 +84,42 @@ export type HullEventContext = {
 };
 
 export type HullClient = {
-  configuration: HullClientConfiguration;
-  asUser(ident: HullUserIdent): HullClient;
-  asAccount(ident: HullAccountIdent): HullClient;
-  logger: HullClientLogger;
-  traits(attributes: HullUserAttributes | HullAccountAttributes, context: HullClientTraitsContext): Promise<any>; // Needs to be refined further
-  track(event: string, properties: HullEventProperties, context: HullEventContext): Promise<any>;
-  get(url: string, params?: Object, options?: HullClientApiOptions): Promise<any>;
-  post(url: string, params?: Object, options?: HullClientApiOptions): Promise<any>;
-  put(url: string, params?: Object, options?: HullClientApiOptions): Promise<any>;
-  del(url: string, params?: Object, options?: HullClientApiOptions): Promise<any>;
-  account(ident: HullAccountIdent): HullClient;
-  utils: HullClientUtils;
+  configuration: HullClientConfiguration,
+  asUser(ident: HullUserIdent): HullClient,
+  asAccount(ident: HullAccountIdent): HullClient,
+  logger: HullClientLogger,
+  traits(
+    attributes: HullUserAttributes | HullAccountAttributes,
+    context: HullClientTraitsContext
+  ): Promise<any>, // Needs to be refined further
+  track(
+    event: string,
+    properties: HullEventProperties,
+    context: HullEventContext
+  ): Promise<any>,
+  get(
+    url: string,
+    params?: Object,
+    options?: HullClientApiOptions
+  ): Promise<any>,
+  post(
+    url: string,
+    params?: Object,
+    options?: HullClientApiOptions
+  ): Promise<any>,
+  put(
+    url: string,
+    params?: Object,
+    options?: HullClientApiOptions
+  ): Promise<any>,
+  del(
+    url: string,
+    params?: Object,
+    options?: HullClientApiOptions
+  ): Promise<any>,
+  account(ident: HullAccountIdent): HullClient,
+  utils: HullClientUtils
 };
-
 
 /*
  *** Close.io Types, specific to this connector
@@ -100,7 +127,12 @@ export type HullClient = {
 
 export type CioObjectType = "Lead" | "Contact";
 
-export type CioCustomFieldType = string | number | Date | Array<string> | Array<number>;
+export type CioCustomFieldType =
+  | string
+  | number
+  | Date
+  | Array<string>
+  | Array<number>;
 
 export type CioOutboundMapping = {
   hull_field_name: string,
@@ -182,7 +214,7 @@ export type CioContact = {
   title?: string,
   phones?: Array<CioPhone>,
   emails?: Array<CioEmail>
-}
+};
 
 export type FilterResults<T> = {
   toSkip: Array<T>,
@@ -235,7 +267,7 @@ export type CioLeadStatus = {
   organization_id?: string,
   id: string,
   label: string
-}
+};
 
 export type CioListResponse<T> = {
   has_more: boolean,
@@ -254,4 +286,3 @@ export type HullFieldDropdownItem = {
   value: string,
   label: string
 };
-

@@ -5,20 +5,20 @@ const _ = require("lodash");
 const shared = require("../lib/shared");
 
 function contactSendFieldsAction(req: $Request, res: $Response): $Response {
-  const fields = _.filter(shared.CONTACT_FIELDS, (f) => {
+  const fields = _.filter(shared.CONTACT_FIELDS, f => {
     return f.out;
   });
-  const options = _.map(fields, (f) => {
+  const options = _.map(fields, f => {
     return { value: f.id, label: f.label };
   });
   return res.json({ options });
 }
 
 function contactFetchFieldsAction(req: $Request, res: $Response): $Response {
-  const fields = _.filter(shared.CONTACT_FIELDS, (f) => {
+  const fields = _.filter(shared.CONTACT_FIELDS, f => {
     return f.in;
   });
-  const options = _.map(fields, (f) => {
+  const options = _.map(fields, f => {
     return { value: f.id, label: f.label };
   });
   return res.json({ options });

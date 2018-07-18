@@ -1,6 +1,11 @@
 /* @flow */
 import type { THullUser, THullAccount } from "hull";
-import type { CioObjectType, CioLead, CioAttributesMapping, CioOutboundMapping, CioMappingUtilSettings } from "../types";
+import type {
+  CioObjectType,
+  CioAttributesMapping,
+  CioOutboundMapping,
+  CioMappingUtilSettings
+} from "../types";
 
 const _ = require("lodash");
 
@@ -8,7 +13,6 @@ const SHARED_MESSAGES = require("../shared-messages");
 const { LogicError } = require("hull/lib/errors");
 
 class MappingUtil {
-
   /**
    * Gets or set the attribute mappings for all object types.
    *
@@ -25,7 +29,6 @@ class MappingUtil {
    * @memberof MappingUtil
    */
   leadCreationStatusId: string;
-
 
   /**
    *Creates an instance of MappingUtil.
@@ -46,14 +49,38 @@ class MappingUtil {
    * @returns {T} The mapped close.io object.
    * @memberof MappingUtil
    */
-  mapToServiceObject<T>(objType: CioObjectType, hullObject: THullUser | THullAccount): T {
-    if (this.attributeMappings === null || 
-        _.get(this.attributeMappings, `${objType.toLowerCase()}_attributes_outbound`, []).length === 0 || 
-        (_.get(this.attributeMappings, `${objType.toLowerCase()}_attributes_outbound`, []).length === 1 && 
-         _.keys(_.first(_.get(this.attributeMappings, `${objType.toLowerCase()}_attributes_outbound`, []))).length === 0)
+  mapToServiceObject<T>(
+    objType: CioObjectType,
+    hullObject: THullUser | THullAccount
+  ): T {
+    if (
+      this.attributeMappings === null ||
+      _.get(
+        this.attributeMappings,
+        `${objType.toLowerCase()}_attributes_outbound`,
+        []
+      ).length === 0 ||
+      (_.get(
+        this.attributeMappings,
+        `${objType.toLowerCase()}_attributes_outbound`,
+        []
+      ).length === 1 &&
+        _.keys(
+          _.first(
+            _.get(
+              this.attributeMappings,
+              `${objType.toLowerCase()}_attributes_outbound`,
+              []
+            )
+          )
+        ).length === 0)
     ) {
       const errDetail = SHARED_MESSAGES.MAPPING_NOOUTBOUNDFIELDS();
-      throw new LogicError(errDetail.message, "MappingUtil.mapToServiceObject", { objType, hullObject });
+      throw new LogicError(
+        errDetail.message,
+        "MappingUtil.mapToServiceObject",
+        { objType, hullObject }
+      );
     }
     const svcObject = {};
     if (objType === "Lead") {
@@ -61,34 +88,54 @@ class MappingUtil {
       _.set(svcObject, "name", _.get(hullObject, "name"));
       _.set(svcObject, "url", _.get(hullObject, "domain"));
 
-      if(_.get(hullObject, "closeio/id", null) !== null) {
+      if (_.get(hullObject, "closeio/id", null) !== null) {
         _.set(svcObject, "id", _.get(hullObject, "closeio/id"));
-      } else if (_.get(hullObject, "closeio/id", null) === null && this.leadCreationStatusId !== "N/A" && this.leadCreationStatusId !== "hull-default") {
+      } else if (
+        _.get(hullObject, "closeio/id", null) === null &&
+        this.leadCreationStatusId !== "N/A" &&
+        this.leadCreationStatusId !== "hull-default"
+      ) {
         _.set(svcObject, "status_id", this.leadCreationStatusId);
       }
     } else if (objType === "Contact") {
       // Default properties
       _.set(svcObject, "name", _.get(hullObject, "name"));
-      _.set(svcObject, "lead_id", _.get(hullObject, "account.closeio/id", null));
+      _.set(
+        svcObject,
+        "lead_id",
+        _.get(hullObject, "account.closeio/id", null)
+      );
 
       if (_.has(hullObject, "traits_closeio/id")) {
         _.set(svcObject, "id", _.get(hullObject, "traits_closeio/id"));
       }
     } else {
-      const errDetail = SHARED_MESSAGES.MAPPING_UNSUPPORTEDTYPEOUTBOUND(objType);
-      throw new LogicError(errDetail.message, "MappingUtil.mapToServiceObject", { objType, hullObject });
+      const errDetail = SHARED_MESSAGES.MAPPING_UNSUPPORTEDTYPEOUTBOUND(
+        objType
+      );
+      throw new LogicError(
+        errDetail.message,
+        "MappingUtil.mapToServiceObject",
+        { objType, hullObject }
+      );
     }
 
     // Customized mapping
-    const mappings = _.get(this.attributeMappings, `${objType.toLowerCase()}_attributes_outbound`, []);
+    const mappings = _.get(
+      this.attributeMappings,
+      `${objType.toLowerCase()}_attributes_outbound`,
+      []
+    );
 
     _.forEach(mappings, (m: CioOutboundMapping) => {
       const hullAttribValue = _.get(hullObject, m.hull_field_name);
       if (!_.isNil(hullAttribValue)) {
         const svcAttribName = _.get(m, "closeio_field_name");
-        if (_.startsWith(svcAttribName, "emails") ||
+        if (
+          _.startsWith(svcAttribName, "emails") ||
           _.startsWith(svcAttribName, "phones") ||
-          _.startsWith(svcAttribName, "urls")) {
+          _.startsWith(svcAttribName, "urls")
+        ) {
           const arrayAttribName = _.split(svcAttribName, ".")[0];
           const typeValue = _.split(svcAttribName, ".")[1];
           if (!_.has(svcObject, arrayAttribName)) {
@@ -104,7 +151,7 @@ class MappingUtil {
         }
       }
     });
-    
+
     return svcObject;
   }
 }

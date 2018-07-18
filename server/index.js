@@ -4,11 +4,7 @@ const express = require("express");
 const { middleware } = require("./lib/crypto");
 const server = require("./server");
 
-const {
-  LOG_LEVEL,
-  SECRET,
-  PORT
-} = process.env;
+const { LOG_LEVEL, SECRET, PORT } = process.env;
 
 if (LOG_LEVEL) {
   Hull.logger.transports.console.level = LOG_LEVEL;
@@ -29,4 +25,3 @@ connector.setupApp(app);
 
 server(app);
 connector.startApp(app);
-

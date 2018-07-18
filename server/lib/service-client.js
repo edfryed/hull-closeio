@@ -1,12 +1,13 @@
 /* @flow */
-import type { 
+import type {
   HullMetrics,
   HullClientLogger,
   CioListResponse,
   CioLeadCustomField,
   CioLeadStatus,
   CioLead,
-  CioContact
+  CioContact,
+  CioServiceClientConfiguration
 } from "./types";
 
 const _ = require("lodash");
@@ -14,8 +15,14 @@ const superagent = require("superagent");
 const SuperagentThrottle = require("superagent-throttle");
 const prefixPlugin = require("superagent-prefix");
 
-const { superagentUrlTemplatePlugin, superagentInstrumentationPlugin, superagentErrorPlugin } = require("hull/lib/utils");
-const { TransientError } = require("hull/lib/errors")
+const {
+  superagentUrlTemplatePlugin,
+  superagentInstrumentationPlugin,
+  superagentErrorPlugin
+} = require("hull/lib/utils");
+const { TransientError } = require("hull/lib/errors");
+
+const throttlePool = {};
 
 class ServiceClient {
   /**
@@ -70,23 +77,30 @@ class ServiceClient {
     this.loggerClient = config.loggerClient;
     this.metricsClient = config.metricsClient;
 
-    throttlePool[this.apiKey] = throttlePool[this.apiKey] || new SuperagentThrottle({
-      rate: parseInt(process.env.THROTTLE_RATE, 10) || 40, // how many requests can be sent every `ratePer`
-      ratePer: parseInt(process.env.THROTTLE_RATE_PER, 10) || 1000, // number of ms in which `rate` requests may be sent
-    });
+    throttlePool[this.apiKey] =
+      throttlePool[this.apiKey] ||
+      new SuperagentThrottle({
+        rate: parseInt(process.env.THROTTLE_RATE, 10) || 40, // how many requests can be sent every `ratePer`
+        ratePer: parseInt(process.env.THROTTLE_RATE_PER, 10) || 1000 // number of ms in which `rate` requests may be sent
+      });
 
     const throttle = throttlePool[this.apiKey];
 
-    this.agent = superagent.agent()
+    this.agent = superagent
+      .agent()
       .use(prefixPlugin(this.urlPrefix))
       .use(throttle.plugin())
       .use(superagentErrorPlugin({ timeout: 10000 }))
       .use(superagentUrlTemplatePlugin())
-      .use(superagentInstrumentationPlugin({ logger: this.loggerClient, metric: this.metricsClient }))
+      .use(
+        superagentInstrumentationPlugin({
+          logger: this.loggerClient,
+          metric: this.metricsClient
+        })
+      )
       .set({ "Content-Type": "application/json" })
       .auth(this.apiKey, "")
       .ok(res => res.status === 200); // we reject the promise for all non 200 responses
-
   }
 
   /**
@@ -98,17 +112,22 @@ class ServiceClient {
    * @returns {Promise<CioListResponse<CioLead>>} The list response.
    * @memberof ServiceClient
    */
-  listLeads(query: string, limit: number = 100, skip: number = 0): Promise<CioListResponse<CioLead>> {
+  listLeads(
+    query: string,
+    limit: number = 100,
+    skip: number = 0
+  ): Promise<CioListResponse<CioLead>> {
     if (!this.hasValidApiKey()) {
-      return Promise.reject(new TransientError("No API key specified in the Settings.");
+      return Promise.reject(
+        new TransientError("No API key specified in the Settings.")
+      );
     }
 
-    return this.agent.get("/lead/")
-      .query({
-        query,
-        _limit: limit,
-        _skip: skip
-      });
+    return this.agent.get("/lead/").query({
+      query,
+      _limit: limit,
+      _skip: skip
+    });
   }
 
   /**
@@ -120,11 +139,12 @@ class ServiceClient {
    */
   createLead(data: CioLead): Promise<CioLead> {
     if (!this.hasValidApiKey()) {
-      return Promise.reject(new TransientError("No API key specified in the Settings.");
+      return Promise.reject(
+        new TransientError("No API key specified in the Settings.")
+      );
     }
 
-    return this.agent.post("/lead/")
-      .send(data);
+    return this.agent.post("/lead/").send(data);
   }
 
   /**
@@ -136,13 +156,13 @@ class ServiceClient {
    */
   updateLead(data: CioLead): Promise<CioLead> {
     if (!this.hasValidApiKey()) {
-      return Promise.reject(new TransientError("No API key specified in the Settings.");
+      return Promise.reject(
+        new TransientError("No API key specified in the Settings.")
+      );
     }
 
-    return this.agent.put(`/lead/${data.id}/`)
-      .send(data);
+    return this.agent.put(`/lead/${data.id}/`).send(data);
   }
-
 
   /**
    * List all lead statuses for the organization.
@@ -152,7 +172,9 @@ class ServiceClient {
    */
   listLeadStatuses(): Promise<CioListResponse<CioLeadStatus>> {
     if (!this.hasValidApiKey()) {
-      return Promise.reject(new TransientError("No API key specified in the Settings.");
+      return Promise.reject(
+        new TransientError("No API key specified in the Settings.")
+      );
     }
 
     return this.agent.get("/status/lead/");
@@ -166,12 +188,18 @@ class ServiceClient {
    * @returns {Promise<CioListResponse<CioLeadCustomField>>} The list response.
    * @memberof ServiceClient
    */
-  listCustomFields(limit: number = 100, skip: number = 0): Promise<CioListResponse<CioLeadCustomField>> {
+  listCustomFields(
+    limit: number = 100,
+    skip: number = 0
+  ): Promise<CioListResponse<CioLeadCustomField>> {
     if (!this.hasValidApiKey()) {
-      return Promise.reject(new TransientError("No API key specified in the Settings.");
+      return Promise.reject(
+        new TransientError("No API key specified in the Settings.")
+      );
     }
 
-    return this.agent.get("/custom_fields/lead")
+    return this.agent
+      .get("/custom_fields/lead")
       .query({ _limit: limit, _skip: skip });
   }
 
@@ -184,17 +212,22 @@ class ServiceClient {
    * @returns {Promise<CioListResponse<CioContact>>} The list response.
    * @memberof ServiceClient
    */
-  listContacts(query: string, limit: number = 100, skip: number = 0): Promise<CioListResponse<CioContact>> {
+  listContacts(
+    query: string,
+    limit: number = 100,
+    skip: number = 0
+  ): Promise<CioListResponse<CioContact>> {
     if (!this.hasValidApiKey()) {
-      return Promise.reject(new TransientError("No API key specified in the Settings.");
+      return Promise.reject(
+        new TransientError("No API key specified in the Settings.")
+      );
     }
 
-    return this.agent.get("/contact/")
-      .query({
-        query,
-        _limit: limit,
-        _skip: skip
-      });
+    return this.agent.get("/contact/").query({
+      query,
+      _limit: limit,
+      _skip: skip
+    });
   }
 
   /**
@@ -206,11 +239,12 @@ class ServiceClient {
    */
   createContact(data: CioContact): Promise<CioContact> {
     if (!this.hasValidApiKey()) {
-      return Promise.reject(new TransientError("No API key specified in the Settings.");
+      return Promise.reject(
+        new TransientError("No API key specified in the Settings.")
+      );
     }
 
-    return this.agent.post("/contact/")
-      .send(data);
+    return this.agent.post("/contact/").send(data);
   }
 
   /**
@@ -222,11 +256,12 @@ class ServiceClient {
    */
   updateContact(data: CioContact): Promise<CioContact> {
     if (!this.hasValidApiKey()) {
-      return Promise.reject(new TransientError("No API key specified in the Settings.");
+      return Promise.reject(
+        new TransientError("No API key specified in the Settings.")
+      );
     }
 
-    return this.agent.put(`/contact/${data.id}/`)
-      .send(data);
+    return this.agent.put(`/contact/${data.id}/`).send(data);
   }
 
   /**
@@ -239,7 +274,11 @@ class ServiceClient {
     if (_.isNil(this.apiKey)) {
       return false;
     }
-    if (_.isString(this.apiKey) && this.apiKey.length && this.apiKey.length > 5) {
+    if (
+      _.isString(this.apiKey) &&
+      this.apiKey.length &&
+      this.apiKey.length > 5
+    ) {
       return true;
     }
     return false;
@@ -257,12 +296,14 @@ class ServiceClient {
       return Promise.resolve(false);
     }
 
-    return this.agent.get("/me").then(() => {
-      return true;
-    })
-    .catch(err => {
-      return false;
-    });
+    return this.agent
+      .get("/me")
+      .then(() => {
+        return true;
+      })
+      .catch(() => {
+        return false;
+      });
   }
 }
 

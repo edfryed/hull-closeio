@@ -1,12 +1,22 @@
 /* @flow */
-import type { THullReqContext, THullUserUpdateMessage, THullAccountUpdateMessage } from "hull";
+import type {
+  THullReqContext
+  // THullUserUpdateMessage,
+  // THullAccountUpdateMessage
+} from "hull";
 
 import type {
-  THullMetrics,
-  THullClient,
+  HullMetrics,
+  HullClient,
+  FilterUtilConfiguration,
+  CioMappingUtilSettings,
+  CioServiceClientConfiguration,
+  CioOutboundMapping,
   CioConnectorSettings,
   HullFieldDropdownItem
 } from "./types";
+
+const _ = require("lodash");
 
 const MappingUtil = require("./sync-agent/mapping-util");
 const FilterUtil = require("./sync-agent/filter-util");
@@ -22,7 +32,7 @@ class SyncAgent {
    * @type {THullMetrics}
    * @memberof SyncAgent
    */
-  metricsClient: THullMetrics;
+  metricsClient: HullMetrics;
 
   /**
    * Gets or set the hull-node client.
@@ -30,7 +40,7 @@ class SyncAgent {
    * @type {THullClient}
    * @memberof SyncAgent
    */
-  hullClient: THullClient;
+  hullClient: HullClient;
 
   /**
    * Gets or sets the mapping utility.
@@ -76,19 +86,28 @@ class SyncAgent {
     this.hullClient = reqContext.client;
 
     // Initialize configuration from settings
-    const loadedSettings: CioConnectorSettings = _.get(reqContext, "ship.private_settings");
+    const loadedSettings: CioConnectorSettings = _.get(
+      reqContext,
+      "ship.private_settings"
+    );
     this.configuredSettings = this.ensureSettings(loadedSettings);
-    
+
     // Configure the filter util
     const configFilterUtil: FilterUtilConfiguration = {
-      synchronizedAccountSegments: this.configuredSettings.synchronized_account_segments,
+      synchronizedAccountSegments: this.configuredSettings
+        .synchronized_account_segments,
       accountIdHull: this.configuredSettings.lead_identifier_hull
     };
     this.filterUtil = new FilterUtil(configFilterUtil);
 
     // Configure the mapping util
     const configMappingUtil: CioMappingUtilSettings = {
-      attributeMappings: _.pick(this.configuredSettings, [ "lead_attributes_outbound", "lead_attributes_inbound", "contact_attributes_outbound", "contact_attributes_inbound"]),
+      attributeMappings: _.pick(this.configuredSettings, [
+        "lead_attributes_outbound",
+        "lead_attributes_inbound",
+        "contact_attributes_outbound",
+        "contact_attributes_inbound"
+      ]),
       leadCreationStatusId: this.configuredSettings.lead_status
     };
     this.mappingUtil = new MappingUtil(configMappingUtil);
@@ -105,14 +124,14 @@ class SyncAgent {
 
   /**
    * Returns a list of dropdown items for connector settings
-   * representing the inbound contact fields. 
+   * representing the inbound contact fields.
    *
    * @returns {Array<HullFieldDropdownItem>} The list of dropdown items.
    * @memberof SyncAgent
    */
   getContactFieldOptionsInbound(): Array<HullFieldDropdownItem> {
     const fields = _.filter(CONTACT_FIELDDEFS, { in: true });
-    const opts = _.map(fields, (f) => {
+    const opts = _.map(fields, f => {
       return { value: f.id, label: f.label };
     });
     return opts;
@@ -120,14 +139,14 @@ class SyncAgent {
 
   /**
    * Returns a list of dropdown items for connector settings
-   * representing the outbound contact fields. 
+   * representing the outbound contact fields.
    *
    * @returns {Array<HullFieldDropdownItem>} The list of dropdown items.
    * @memberof SyncAgent
    */
   getContactFieldOptionsOutbound(): Array<HullFieldDropdownItem> {
     const fields = _.filter(CONTACT_FIELDDEFS, { out: true });
-    const opts = _.map(fields, (f) => {
+    const opts = _.map(fields, f => {
       return { value: f.id, label: f.label };
     });
     return opts;
@@ -143,12 +162,28 @@ class SyncAgent {
   ensureSettings(settings: CioConnectorSettings): CioConnectorSettings {
     const hullId = _.get(settings, "lead_identifier_hull", "domain");
     const svcId = _.get(settings, "lead_identifier_service", "url");
-    const leadStatus = _.get(settings, "lead_status", "N/A");
-    const leadAttribsOut: Array<CioOutboundMapping> = _.get(settings, "lead_attributes_outbound", []);
-    const leadAttribsIn: Array<string> = _.get(settings, "lead_attributes_inbound", []);
+    // const leadStatus = _.get(settings, "lead_status", "N/A");
+    const leadAttribsOut: Array<CioOutboundMapping> = _.get(
+      settings,
+      "lead_attributes_outbound",
+      []
+    );
+    const leadAttribsIn: Array<string> = _.get(
+      settings,
+      "lead_attributes_inbound",
+      []
+    );
     // Ensure that the identifier for leads is always present
-    if (_.find(leadAttribsOut, { hull_field_name: hullId, closeio_field_name: svcId }).length === 0) {
-      leadAttribsOut.push({ hull_field_name: hullId, closeio_field_name: svcId });
+    if (
+      _.find(leadAttribsOut, {
+        hull_field_name: hullId,
+        closeio_field_name: svcId
+      }).length === 0
+    ) {
+      leadAttribsOut.push({
+        hull_field_name: hullId,
+        closeio_field_name: svcId
+      });
     }
 
     if (_.indexOf(leadAttribsIn, svcId) === -1) {

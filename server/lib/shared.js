@@ -26,7 +26,7 @@ export interface ListResult {
 }
 
 export interface IUserUpdateEnvelope {
-  message: Object,
+  message: Object;
   currentCloseLead?: Object;
   currentCloseContact?: Object;
   skipReason?: string;
@@ -44,7 +44,7 @@ export interface IFilterUtil {
 }
 
 export interface IAttributesMapper {
-  mapToServiceObject(resource: TResourceType, hullObject: any):any;
+  mapToServiceObject(resource: TResourceType, hullObject: any): any;
   mapToHullAttributeObject(resource: TResourceType, sObject: any): any;
   mapToHullIdentObject(resource: TResourceType, sObject: any): any;
 }
@@ -58,50 +58,95 @@ const SUPPORTED_RESOURCETYPES: Array<TResourceType> = ["Lead", "Contact"];
 
 const CONTACT_FIELDS: Array<Object> = [
   {
-    id: "name", label: "Name", in: true, out: true
+    id: "name",
+    label: "Name",
+    in: true,
+    out: true
   },
   {
-    id: "title", label: "Title", in: true, out: true
+    id: "title",
+    label: "Title",
+    in: true,
+    out: true
   },
   {
-    id: "phones.mobile", label: "Phones > Mobile", in: false, out: true
+    id: "phones.mobile",
+    label: "Phones > Mobile",
+    in: false,
+    out: true
   },
   {
-    id: "phones.office", label: "Phones > Office", in: false, out: true
+    id: "phones.office",
+    label: "Phones > Office",
+    in: false,
+    out: true
   },
   {
-    id: "phones.direct", label: "Phones > Direct", in: false, out: true
+    id: "phones.direct",
+    label: "Phones > Direct",
+    in: false,
+    out: true
   },
   {
-    id: "phones.home", label: "Phones > Home", in: false, out: true
+    id: "phones.home",
+    label: "Phones > Home",
+    in: false,
+    out: true
   },
   {
-    id: "phones.fax", label: "Phones > Fax", in: false, out: true
+    id: "phones.fax",
+    label: "Phones > Fax",
+    in: false,
+    out: true
   },
   {
-    id: "phones.other", label: "Phones > Other", in: false, out: true
+    id: "phones.other",
+    label: "Phones > Other",
+    in: false,
+    out: true
   },
   {
-    id: "emails.office", label: "Emails > Office", in: false, out: true
+    id: "emails.office",
+    label: "Emails > Office",
+    in: false,
+    out: true
   },
   {
-    id: "emails.home", label: "Emails > Home", in: false, out: true
+    id: "emails.home",
+    label: "Emails > Home",
+    in: false,
+    out: true
   },
   {
-    id: "emails.other", label: "Emails > Other", in: false, out: true
+    id: "emails.other",
+    label: "Emails > Other",
+    in: false,
+    out: true
   },
   {
-    id: "urls.url", label: "Url", in: false, out: true
+    id: "urls.url",
+    label: "Url",
+    in: false,
+    out: true
   },
   {
-    id: "phones", label: "Phones", in: true, out: false
+    id: "phones",
+    label: "Phones",
+    in: true,
+    out: false
   },
   {
-    id: "emails", label: "Emails", in: true, out: false
+    id: "emails",
+    label: "Emails",
+    in: true,
+    out: false
   },
   {
-    id: "urls", label: "Urls", in: true, out: false
-  },
+    id: "urls",
+    label: "Urls",
+    in: true,
+    out: false
+  }
 ];
 
 module.exports = {

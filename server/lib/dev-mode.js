@@ -33,25 +33,27 @@ function devMode(app) {
 
   const compiler = webpack({ ...config, entry, plugins });
 
-  app.use(webpackDevMiddleware(compiler, {
-    hot: true,
-    quiet: false,
-    overlay: false,
-    noInfo: false,
-    lazy: false,
-    clientLogLevel: "none",
-    watchContentBase: true,
-    stats: { colors: true },
-    watchOptions: {
-      ignored: /node_modules/
-    },
-    historyApiFallback: {
-      disableDotRule: true
-    },
+  app.use(
+    webpackDevMiddleware(compiler, {
+      hot: true,
+      quiet: false,
+      overlay: false,
+      noInfo: false,
+      lazy: false,
+      clientLogLevel: "none",
+      watchContentBase: true,
+      stats: { colors: true },
+      watchOptions: {
+        ignored: /node_modules/
+      },
+      historyApiFallback: {
+        disableDotRule: true
+      },
 
-    headers: { "Access-Control-Allow-Origin": "http://localhost" },
-    publicPath: config.output.publicPath
-  }));
+      headers: { "Access-Control-Allow-Origin": "http://localhost" },
+      publicPath: config.output.publicPath
+    })
+  );
   app.use(webpackHotMiddleware(compiler));
 }
 

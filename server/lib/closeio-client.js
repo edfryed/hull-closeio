@@ -1,5 +1,11 @@
 /* @flow */
-import type { ILogger, IMetricsClient, ListResult, ILeadStatus } from "./shared";
+/* eslint-disable */
+import type {
+  ILogger,
+  IMetricsClient,
+  ListResult,
+  ILeadStatus
+} from "./shared";
 
 const _ = require("lodash");
 const request = require("request");
@@ -9,11 +15,15 @@ const BASE_URL = "https://app.close.io/api/v1";
 
 /* Helper functions */
 function getInvalidApiKeyError(): Error {
-  return new Error("The API key is either not present or not considerd a valid key because it is less than 5 characters.");
+  return new Error(
+    "The API key is either not present or not considerd a valid key because it is less than 5 characters."
+  );
 }
 
 function getInvalidIdentifierError(minLength: number): Error {
-  return new Error(`Invalid ID: The identifier is not specified or has less than ${minLength} characters.`);
+  return new Error(
+    `Invalid ID: The identifier is not specified or has less than ${minLength} characters.`
+  );
 }
 
 class CloseIoClient {
@@ -52,7 +62,6 @@ class CloseIoClient {
       this.apiKey = apiKey;
     }
   }
-
 
   /**
    * Returns the lead statuses from close.io.
@@ -104,7 +113,6 @@ class CloseIoClient {
     });
   }
 
-
   /**
    * List all leads matching the given search parameters
    *
@@ -115,7 +123,12 @@ class CloseIoClient {
    * @returns {Promise<ListResult>} A list result containing the data and information for pagination.
    * @memberof CloseIoClient
    */
-  listLeads(query: string, fields: string [], limit: number = 100, skip: number = 0): Promise<ListResult> {
+  listLeads(
+    query: string,
+    fields: string[],
+    limit: number = 100,
+    skip: number = 0
+  ): Promise<ListResult> {
     if (!this.hasValidApiKey()) {
       if (this.logger) {
         // TODO: Log proper error - consult with @michaloo
@@ -254,7 +267,12 @@ class CloseIoClient {
    * @returns {Promise<ListResult>} A list result containing the data and information for pagination.
    * @memberof CloseIoClient
    */
-  listContacts(query: string, fields: string [], limit: number = 100, skip: number = 0): Promise<ListResult> {
+  listContacts(
+    query: string,
+    fields: string[],
+    limit: number = 100,
+    skip: number = 0
+  ): Promise<ListResult> {
     if (!this.hasValidApiKey()) {
       if (this.logger) {
         // TODO: Log proper error - consult with @michaloo
@@ -427,7 +445,7 @@ class CloseIoClient {
         let mapped = body;
 
         if (body.data && _.isArray(body.data)) {
-          mapped = _.map(body.data, (f) => {
+          mapped = _.map(body.data, f => {
             f.id = `custom.${f.id}`;
             return f;
           });
@@ -469,7 +487,9 @@ class CloseIoClient {
           }
 
           if (this.logger) {
-            this.logger.debug("connector.auth.success", { status: response.statusCode });
+            this.logger.debug("connector.auth.success", {
+              status: response.statusCode
+            });
           }
           return resolve(true);
         });
@@ -489,7 +509,11 @@ class CloseIoClient {
     if (_.isNil(this.apiKey)) {
       return false;
     }
-    if (_.isString(this.apiKey) && this.apiKey.length && this.apiKey.length > 5) {
+    if (
+      _.isString(this.apiKey) &&
+      this.apiKey.length &&
+      this.apiKey.length > 5
+    ) {
       return true;
     }
     return false;

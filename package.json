@@ -75,12 +75,15 @@
     "rimraf": "^2.6.1",
     "sass-loader": "^7.0.1",
     "style-loader": "^0.20.3",
+    "superagent": "^3.8.3",
+    "superagent-prefix": "^0.0.2",
+    "superagent-throttle": "^0.2.5",
     "webpack": "^3.11.0",
     "webpack-dev-middleware": "^2.0.2",
     "webpack-hot-middleware": "^2.22.1"
   },
   "devDependencies": {
-    "babel-eslint": "^8.0.2",
+    "babel-eslint": "^8.2.6",
     "babel-jest": "^22.4.1",
     "babel-register": "^6.26.0",
     "babel-watch": "^2.0.7",
