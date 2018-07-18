@@ -225,9 +225,11 @@ export type FilterResults<T> = {
 
 export type UserUpdateEnvelope = {
   message: HullUserUpdateMessage,
-  contact: CioContact,
+  cioWriteContact: CioContact, // the contact object we want to use to write to API
+  cioReadContact?: CioContact, // the contact object we have received from the API
+  opsResult?: ConnectorOperationResult,
   skipReason?: string,
-  opsResult?: ConnectorOperationResult
+  error?: string
 };
 
 export type AccountUpdateEnvelope = {

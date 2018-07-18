@@ -205,8 +205,62 @@ class SyncAgent {
   buildUserUpdateEnvelope(message: THullUserUpdateMessage): UserUpdateEnvelope {
     return {
       message,
-      contact: this.mappingUtil.mapToServiceObject("Contact", message.user)
+      cioWriteContact: this.mappingUtil.mapToServiceObject(
+        "Contact",
+        message.user
+      )
     };
+  }
+
+  async sendUserMessages(
+    messages: Array<THullUserUpdateMessage>
+  ): Promise<any> {
+    const envelopes = messages.map(message =>
+      this.buildUserUpdateEnvelope(message)
+    );
+    const filterResults = this.filterUtil.filterUsers(envelopes);
+
+    filterResults.toSkip.forEach(envelope => {
+      this.hullClient
+        .asUser(envelope.message.user)
+        .logger.info("outgoing.user.skip", envelope.skipReason);
+    });
+
+    await Promise.all(
+      filterResults.toUpdate.map(envelope => {
+        return this.serviceClient
+          .putContactEnvelope(envelope)
+          .then(updatedEnvelope => {
+            if (updatedEnvelope.opsResult === "success") {
+              this.hullClient
+                .asUser(envelope.message.user)
+                .logger.info("outgoing.user.success", envelope.cioWriteContact);
+            } else {
+              this.hullClient
+                .asUser(envelope.message.user)
+                .logger.info("outgoing.user.error", envelope.error);
+            }
+          });
+      })
+    );
+
+    await Promise.all(
+      filterResults.toInser.map(envelope => {
+        return this.serviceClient
+          .postContactEnvelope(envelope)
+          .then(updatedEnvelope => {
+            if (updatedEnvelope.opsResult === "success") {
+              this.hullClient
+                .asUser(envelope.message.user)
+                .logger.info("outgoing.user.success", envelope.cioWriteContact);
+            } else {
+              this.hullClient
+                .asUser(envelope.message.user)
+                .logger.info("outgoing.user.error", envelope.error);
+            }
+          });
+      })
+    );
   }
 
   buildAccountUpdateEnvelope(

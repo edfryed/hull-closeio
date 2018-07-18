@@ -1,5 +1,6 @@
 /* @flow */
 import type {
+  UserUpdateEnvelope,
   HullMetrics,
   HullClientLogger,
   CioListResponse,
@@ -241,7 +242,7 @@ class ServiceClient {
    * @returns {Promise<CioContact>} The data of the created close.io object.
    * @memberof ServiceClient
    */
-  createContact(data: CioContact): Promise<CioContact> {
+  postContact(data: CioContact): Promise<CioContact> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -251,6 +252,24 @@ class ServiceClient {
     return this.agent.post("/contact/").send(data);
   }
 
+  postContactEnvelope(
+    envelope: UserUpdateEnvelope
+  ): Promise<UserUpdateEnvelope> {
+    const enrichedEnvelope = _.cloneDeep(envelope);
+    return this.postContact(envelope.cioWriteContact)
+      .then(response => {
+        // $FlowFixMe
+        enrichedEnvelope.cioReadContact = response.body;
+        enrichedEnvelope.opsResult = "success";
+        return enrichedEnvelope;
+      })
+      .catch(error => {
+        enrichedEnvelope.opsResult = "error";
+        enrichedEnvelope.error = error.response.body;
+        return enrichedEnvelope;
+      });
+  }
+
   /**
    * Updates an existing contact in close.io.
    *
@@ -258,7 +277,7 @@ class ServiceClient {
    * @returns {Promise<CioContact>} The data of the updated close.io object.
    * @memberof ServiceClient
    */
-  updateContact(data: CioContact): Promise<CioContact> {
+  putContact(data: CioContact): Promise<CioContact> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -270,6 +289,24 @@ class ServiceClient {
     }
 
     return this.agent.put(`/contact/${data.id}/`).send(data);
+  }
+
+  updateContactEnvelope(
+    envelope: UserUpdateEnvelope
+  ): Promise<UserUpdateEnvelope> {
+    const enrichedEnvelope = _.cloneDeep(envelope);
+    return this.putContact(envelope.cioWriteContact)
+      .then(response => {
+        // $FlowFixMe
+        enrichedEnvelope.cioReadContact = response.body;
+        enrichedEnvelope.opsResult = "success";
+        return enrichedEnvelope;
+      })
+      .catch(error => {
+        enrichedEnvelope.opsResult = "error";
+        enrichedEnvelope.error = error.response.body;
+        return enrichedEnvelope;
+      });
   }
 
   /**
