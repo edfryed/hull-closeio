@@ -2,7 +2,8 @@
 import type {
   THullReqContext,
   THullUserUpdateMessage,
-  THullAccountUpdateMessage
+  THullAccountUpdateMessage,
+  THullConnector
 } from "hull";
 
 import type {
@@ -15,7 +16,10 @@ import type {
   CioConnectorSettings,
   HullFieldDropdownItem,
   UserUpdateEnvelope,
-  AccountUpdateEnvelope
+  AccountUpdateEnvelope,
+  CioListResponse,
+  CioLeadCustomField,
+  CioLeadStatus
 } from "./types";
 
 const _ = require("lodash");
@@ -80,6 +84,22 @@ class SyncAgent {
   serviceClient: ServiceClient;
 
   /**
+   * Gets or sets the cache manager.
+   *
+   * @type {Object}
+   * @memberof SyncAgent
+   */
+  cache: Object;
+
+  /**
+   * Gets or sets the connector.
+   *
+   * @type {THullConnector}
+   * @memberof SyncAgent
+   */
+  connector: THullConnector;
+
+  /**
    * Creates an instance of SyncAgent.
    * @param {THullReqContext} reqContext The request context.
    * @memberof SyncAgent
@@ -88,6 +108,10 @@ class SyncAgent {
     // Initialize hull clients
     this.metricsClient = reqContext.metric;
     this.hullClient = reqContext.client;
+    // Initialize the cache manager
+    this.cache = reqContext.cache;
+    // Initialize the connector
+    this.connector = reqContext.connector;
 
     // Initialize configuration from settings
     const loadedSettings: CioConnectorSettings = _.get(
@@ -158,6 +182,52 @@ class SyncAgent {
   }
 
   /**
+   * Returns a list of dropdown items for connector settings
+   * representing the outbound or inbound lead fields.
+   *
+   * @param {boolean} [inbound=false] Indicates the direction, by default outbound.
+   * @returns {Promise<Array<HullFieldDropdownItem>>} The list of dropdown items.
+   * @memberof SyncAgent
+   */
+  getLeadFields(inbound: boolean = false): Promise<Array<HullFieldDropdownItem>> {
+    if (this.isAuthenticationConfigured() === false) {
+      return Promise.resolve([]);
+    }
+
+    const cacheKey = [this.connector.id, this.connector.updated_at, "leadflds"].join("_");
+
+    return this.cache.wrap(cacheKey, () => {
+      return this.serviceClient.getLeadCustomFields()
+        .then((listResponse: CioListResponse<CioLeadCustomField>) => {
+          const customFields = _.map(listResponse.data, f => {
+            return { value: f.id, label: f.name };
+          });
+          const defaultFields: Array<IDropdownEntry> = [
+            { value: "name", label: "Name" },
+            { value: "url", label: "Url" },
+            { value: "description", label: "Description" }
+          ];
+          if (inbound === true) {
+            defaultFields.push({
+              value: "status_id",
+              label: "Status"
+            });
+          }
+          const opts = _.concat(defaultFields, customFields);
+          return opts;
+        })
+        .catch(err => {
+          this.hullClient.logger.error("connector.metadata.error", {
+            status: err.status,
+            message: err.message,
+            type: "/fields-lead"
+          });
+          return [];
+        });
+    });
+  }
+
+  /**
    * Ensure that all settings have sensible defaults
    *
    * @param {CioConnectorSettings} settings The original settings.
@@ -167,7 +237,7 @@ class SyncAgent {
   normalizeSettings(settings: CioConnectorSettings): CioConnectorSettings {
     const hullId = _.get(settings, "lead_identifier_hull", "domain");
     const svcId = _.get(settings, "lead_identifier_service", "url");
-    // const leadStatus = _.get(settings, "lead_status", "N/A");
+    const leadStatus = _.get(settings, "lead_status", "N/A");
     const leadAttribsOut: Array<CioOutboundMapping> = _.get(
       settings,
       "lead_attributes_outbound",
@@ -200,8 +270,43 @@ class SyncAgent {
     finalSettings.lead_attributes_inbound = leadAttribsIn;
     finalSettings.lead_identifier_hull = hullId;
     finalSettings.lead_identifier_service = svcId;
+    finalSettings.lead_status = leadStatus;
 
     return finalSettings;
+  }
+
+  /**
+   * Returns a list of dropdown items for connector settings
+   * representing the available lead status.
+   *
+   * @returns {Promise<Array<HullFieldDropdownItem>>} The list of dropdown items.
+   * @memberof SyncAgent
+   */
+  getLeadStatus(): Promise<Array<HullFieldDropdownItem>> {
+    if (this.isAuthenticationConfigured() === false) {
+      return Promise.resolve([]);
+    }
+
+    const cacheKey = [this.connector.id, this.connector.updated_at, "leadstatus"].join("_");
+
+    return this.cache.wrap(cacheKey, () => {
+      return this.serviceClient.getLeadStatuses()
+        .then((response: CioListResponse<CioLeadStatus>) => {
+          const status = _.map(response.data, s => {
+            return { value: s.id, label: s.label };
+          });
+          status.unshift({ value: "N/A", label: "(Use default)" });
+          return status;
+        })
+        .catch(err => {
+          this.hullClient.logger.error("connector.metadata.error", {
+            status: err.status,
+            message: err.message,
+            type: "/leadstatus"
+          });
+          return [];
+        });
+    });
   }
 
   /**
@@ -258,6 +363,13 @@ class SyncAgent {
     });
   }
 
+  /**
+   * Utility method to build the envelope for user:update messages.
+   *
+   * @param {THullUserUpdateMessage} message The notification message.
+   * @returns {UserUpdateEnvelope} The envelope.
+   * @memberof SyncAgent
+   */
   buildUserUpdateEnvelope(message: THullUserUpdateMessage): UserUpdateEnvelope {
     return {
       message,
@@ -269,6 +381,13 @@ class SyncAgent {
     };
   }
 
+  /**
+   * Processes the user:update messages and syncs data with close.io.
+   *
+   * @param {Array<THullUserUpdateMessage>} messages The notification messages to process.
+   * @returns {Promise<any>} A promise which wraps the async processing operation.
+   * @memberof SyncAgent
+   */
   async sendUserMessages(
     messages: Array<THullUserUpdateMessage>
   ): Promise<any> {
@@ -320,6 +439,13 @@ class SyncAgent {
     );
   }
 
+  /**
+   * Utility method to build the envelope for account:update messages.
+   *
+   * @param {THullAccountUpdateMessage} message The notification message.
+   * @returns {AccountUpdateEnvelope} The envelope.
+   * @memberof SyncAgent
+   */
   buildAccountUpdateEnvelope(
     message: THullAccountUpdateMessage
   ): AccountUpdateEnvelope {
@@ -328,6 +454,55 @@ class SyncAgent {
       hullAccount: _.cloneDeep(message.account), // TODO: check cache if we need to enrich the object
       cioLeadWrite: this.mappingUtil.mapToServiceObject("Lead", message.account)
     };
+  }
+
+  /**
+   * Processes the account:update messages and syncs data with close.io.
+   *
+   * @param {Array<THullAccountUpdateMessage>} messages The notification messages to process.
+   * @returns {Promise<any>} A promise which wraps the async processing operation.
+   * @memberof SyncAgent
+   */
+  async sendAccountMessages(messages: Array<THullAccountUpdateMessage>): Promise<any> {
+    const envelopes = messages.map(message =>
+      this.buildAccountUpdateEnvelope(message)
+    );
+    const filterResults = this.filterUtil.filterAccounts(envelopes);
+
+    filterResults.toSkip.forEach(envelope => {
+      this.hullClient
+        .asAccounr(envelope.message.account)
+        .logger.info("outgoing.account.skip", envelope.skipReason);
+    });
+
+    await Promise.all(
+      filterResults.toUpdate.map(envelope => {
+        return this.serviceClient
+          .putLeadEnvelope(envelope)
+          .then(updatedEnvelope => {
+            if (updatedEnvelope.opsResult === "success") {
+              this.hullClient
+                .asUser(envelope.message.user)
+                .logger.info("outgoing.user.success", envelope.cioContactWrite);
+            } else {
+              this.hullClient
+                .asUser(envelope.message.user)
+                .logger.info("outgoing.user.error", envelope.error);
+            }
+          });
+      })
+    );
+
+  }
+
+  /**
+   * Checks whether the API key is provided at all and hypothetically valid.
+   *
+   * @returns {boolean} True if the API key is present and hypothetically valid; otherwise false.
+   * @memberof SyncAgent
+   */
+  isAuthenticationConfigured(): boolean {
+    return this.serviceClient.hasValidApiKey();
   }
 }
 

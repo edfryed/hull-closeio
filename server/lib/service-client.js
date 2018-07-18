@@ -2,6 +2,7 @@
 import type { Readable } from "stream";
 import type {
   UserUpdateEnvelope,
+  AccountUpdateEnvelope,
   HullMetrics,
   HullClientLogger,
   CioListResponse,
@@ -184,6 +185,22 @@ class ServiceClient {
     return this.agent.post("/lead/").send(data);
   }
 
+  postLeadEnvelope(envelope: AccountUpdateEnvelope): Promise<AccountUpdateEnvelope> {
+    const enrichedEnvelope = _.cloneDeep(envelope);
+    return this.postLead(envelope.CioLeadWrite)
+      .then(response => {
+        // $FlowFixMe
+        enrichedEnvelope.cioLeadRead = response.body;
+        enrichedEnvelope.opsResult = "success";
+        return enrichedEnvelope;
+      })
+      .catch(error => {
+        enrichedEnvelope.opsResult = "error";
+        enrichedEnvelope.error = error.response.body;
+        return enrichedEnvelope;
+      });
+  }
+
   /**
    * Updates an exisitng lead in close.io.
    *
@@ -203,6 +220,22 @@ class ServiceClient {
     }
 
     return this.agent.put(`/lead/${data.id}/`).send(data);
+  }
+
+  putLeadEnvelope(envelope: AccountUpdateEnvelope): Promise<AccountUpdateEnvelope> {
+    const enrichedEnvelope = _.cloneDeep(envelope);
+    return this.putLead(envelope.CioLeadWrite)
+      .then(response => {
+        // $FlowFixMe
+        enrichedEnvelope.cioLeadRead = response.body;
+        enrichedEnvelope.opsResult = "success";
+        return enrichedEnvelope;
+      })
+      .catch(error => {
+        enrichedEnvelope.opsResult = "error";
+        enrichedEnvelope.error = error.response.body;
+        return enrichedEnvelope;
+      });
   }
 
   /**
@@ -295,7 +328,7 @@ class ServiceClient {
     return this.postContact(envelope.cioContactWrite)
       .then(response => {
         // $FlowFixMe
-        enrichedEnvelope.cioReadContact = response.body;
+        enrichedEnvelope.cioContactRead = response.body;
         enrichedEnvelope.opsResult = "success";
         return enrichedEnvelope;
       })
@@ -334,7 +367,7 @@ class ServiceClient {
     return this.putContact(envelope.cioContactWrite)
       .then(response => {
         // $FlowFixMe
-        enrichedEnvelope.cioReadContact = response.body;
+        enrichedEnvelope.cioContactRead = response.body;
         enrichedEnvelope.opsResult = "success";
         return enrichedEnvelope;
       })

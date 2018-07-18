@@ -36,12 +36,16 @@ function server(app: $Application): $Application {
     })
   );
 
-  app.get("/leadstatuses", cors(), actions.leadStatusList);
+  app.get("/leadstatuses", cors(), actions.fieldsStatus);
 
   app.get("/admin", actions.adminHandler);
-  app.get("/fields-contact-out", cors(), actions.contactSendFields);
-  app.get("/fields-contact-in", cors(), actions.contactFetchFields);
-  app.get("/fields-lead", cors(), actions.leadFields);
+
+  app.get("/fields-contact-out", cors(), actions.fieldsContactOutbound);
+  app.get("/fields-contact-in", cors(), actions.fieldsContactInbound);
+  app.get("/fields-lead-in", cors(), actions.fieldsLeadInbound);
+  app.get("/fields-lead-out", cors(), actions.fieldsLeadOutbound);
+  app.get("/fields-account-ident", cors(), actions.fieldsAccountIdent);
+
   app.all("/status", actions.statusCheck);
 
   return app;

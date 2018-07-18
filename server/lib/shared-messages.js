@@ -56,6 +56,25 @@ const SHARED_MESSAGES = {
       channel: "Operation",
       category: "DataFlow"
     };
+  },
+  STATUS_ERROR_NOAPIKEY: () => {
+    return {
+      id: "StatusNoApiKeyConfigured",
+      message: "Cannot communicate with API because no API key is configured.",
+      level: "Error",
+      channel: "Configuration",
+      category: "Authentication"
+    };
+  },
+  STATUS_WARNING_NOSEGMENTS: () => {
+    return {
+      id: "StatusNoSegmentsWhitelisted",
+      message:
+        "No data will be sent from Hull to close.io due to missing segments configuration.",
+      level: "Warning",
+      channel: "Configuration",
+      category: "DataFlow"
+    };
   }
 };
 
