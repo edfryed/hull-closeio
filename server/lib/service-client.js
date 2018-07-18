@@ -7,8 +7,10 @@ import type {
   CioListResponse,
   CioLeadCustomField,
   CioLeadStatus,
-  CioLead,
-  CioContact,
+  CioLeadWrite,
+  CioLeadRead,
+  CioContactWrite,
+  CioContactRead,
   CioServiceClientConfiguration
 } from "./types";
 
@@ -121,7 +123,7 @@ class ServiceClient {
     query: string,
     limit: number = 100,
     skip: number = 0
-  ): Promise<CioListResponse<CioLead>> {
+  ): Promise<CioListResponse<CioLeadRead>> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -172,7 +174,7 @@ class ServiceClient {
    * @returns {Promise<CioLead>} The data of the created close.io object.
    * @memberof ServiceClient
    */
-  postLead(data: CioLead): Promise<CioLead> {
+  postLead(data: CioLeadWrite): Promise<CioLeadRead> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -189,7 +191,7 @@ class ServiceClient {
    * @returns {Promise<CioLead>} The data of the updated close.io object.
    * @memberof ServiceClient
    */
-  putLead(data: CioLead): Promise<CioLead> {
+  putLead(data: CioLeadWrite): Promise<CioLeadRead> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -255,7 +257,7 @@ class ServiceClient {
     query: string,
     limit: number = 100,
     skip: number = 0
-  ): Promise<CioListResponse<CioContact>> {
+  ): Promise<CioListResponse<CioContactRead>> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -276,7 +278,7 @@ class ServiceClient {
    * @returns {Promise<CioContact>} The data of the created close.io object.
    * @memberof ServiceClient
    */
-  postContact(data: CioContact): Promise<CioContact> {
+  postContact(data: CioContactWrite): Promise<CioContactRead> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -290,7 +292,7 @@ class ServiceClient {
     envelope: UserUpdateEnvelope
   ): Promise<UserUpdateEnvelope> {
     const enrichedEnvelope = _.cloneDeep(envelope);
-    return this.postContact(envelope.cioWriteContact)
+    return this.postContact(envelope.cioContactWrite)
       .then(response => {
         // $FlowFixMe
         enrichedEnvelope.cioReadContact = response.body;
@@ -311,7 +313,7 @@ class ServiceClient {
    * @returns {Promise<CioContact>} The data of the updated close.io object.
    * @memberof ServiceClient
    */
-  putContact(data: CioContact): Promise<CioContact> {
+  putContact(data: CioContactWrite): Promise<CioContactRead> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -329,7 +331,7 @@ class ServiceClient {
     envelope: UserUpdateEnvelope
   ): Promise<UserUpdateEnvelope> {
     const enrichedEnvelope = _.cloneDeep(envelope);
-    return this.putContact(envelope.cioWriteContact)
+    return this.putContact(envelope.cioContactWrite)
       .then(response => {
         // $FlowFixMe
         enrichedEnvelope.cioReadContact = response.body;

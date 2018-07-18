@@ -187,33 +187,50 @@ export type CioEmail = {
   email_lower?: string
 };
 
-export type CioLead = {
+export type CioLeadWrite = {
   id?: string,
   status_id?: string,
-  status_label?: string,
-  tasks?: Array<any>,
-  display_name?: string,
-  addresses?: Array<CioAddress>,
   name: string,
-  date_updated?: Date,
-  html_url?: string,
-  created_by?: string,
-  organization_id?: string,
   url: string,
-  opportunities?: Array<any>,
-  updated_by?: string,
-  date_created?: string,
-  description?: string,
   [string]: CioCustomFieldType
 };
 
-export type CioContact = {
+export type CioLeadRead = {
+  id: string,
+  status_id: string,
+  status_label: string,
+  tasks: Array<any>,
+  display_name: string,
+  addresses: Array<CioAddress>,
+  name: string,
+  date_updated: Date,
+  html_url: string,
+  created_by: string,
+  organization_id: string,
+  url: string,
+  opportunities: Array<any>,
+  updated_by: string,
+  date_created: string,
+  description: string,
+  [string]: CioCustomFieldType
+};
+
+export type CioContactWrite = {
   id?: string,
   lead_id: string,
   name: string,
   title?: string,
   phones?: Array<CioPhone>,
   emails?: Array<CioEmail>
+};
+
+export type CioContactRead = {
+  id: string,
+  lead_id: string,
+  name: string,
+  title: string,
+  phones: Array<CioPhone>,
+  emails: Array<CioEmail>
 };
 
 export type FilterResults<T> = {
@@ -225,8 +242,9 @@ export type FilterResults<T> = {
 
 export type UserUpdateEnvelope = {
   message: HullUserUpdateMessage,
-  cioWriteContact: CioContact, // the contact object we want to use to write to API
-  cioReadContact?: CioContact, // the contact object we have received from the API
+  hullUser: HullUser, // cache enriched version of HullUser
+  cioContactWrite: CioContactWrite, // the contact object we want to use to write to API
+  cioContactRead?: CioContactRead, // the contact object we have received from the API
   opsResult?: ConnectorOperationResult,
   skipReason?: string,
   error?: string
@@ -234,7 +252,9 @@ export type UserUpdateEnvelope = {
 
 export type AccountUpdateEnvelope = {
   message: HullAccountUpdateMessage,
-  lead: CioLead,
+  hullAccount: HullAccount, // cache enriched version of HullAccount
+  cioLeadWrite: CioLeadWrite,
+  cioLeadRead?: CioLeadRead,
   skipReason?: string,
   opsResult?: ConnectorOperationResult
 };

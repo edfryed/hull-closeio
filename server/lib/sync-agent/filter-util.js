@@ -61,7 +61,7 @@ class FilterUtil {
 
     envelopes.forEach((envelope: UserUpdateEnvelope) => {
       // Filter out users without lead
-      if (_.get(envelope, "contact.lead_id", null) === null) {
+      if (envelope.cioContactWrite.lead_id === null) {
         const skipMsg = SHARED_MESSAGES.OPERATION_SKIP_NOLINKEDACCOUNT();
         envelope.skipReason = skipMsg.message;
         envelope.opsResult = "skip";
@@ -81,7 +81,7 @@ class FilterUtil {
       }
 
       // Determine which contacts to update or create
-      if (_.get(envelope, "contact.id", null) === null) {
+      if (envelope.cioContactWrite.id === null) {
         return results.toInsert.push(envelope);
       }
 
@@ -109,7 +109,7 @@ class FilterUtil {
 
     envelopes.forEach((envelope: AccountUpdateEnvelope) => {
       // Filter out all accounts that have no identifier in Hull
-      if (_.get(envelope, `hullAccount.${this.accountIdHull}`, null) === null) {
+      if (envelope.hullAccount[this.accountIdHull] === null) {
         const skipMsg = SHARED_MESSAGES.OPERATION_SKIP_NOACCOUNTIDENT(
           this.accountIdHull
         );

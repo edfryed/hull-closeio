@@ -239,7 +239,8 @@ class SyncAgent {
   buildUserUpdateEnvelope(message: THullUserUpdateMessage): UserUpdateEnvelope {
     return {
       message,
-      cioWriteContact: this.mappingUtil.mapToServiceObject(
+      hullUser: _.cloneDeep(message.user), // TODO: check cache if we need to enrich the object
+      cioContactWrite: this.mappingUtil.mapToServiceObject(
         "Contact",
         message.user
       )
@@ -268,7 +269,7 @@ class SyncAgent {
             if (updatedEnvelope.opsResult === "success") {
               this.hullClient
                 .asUser(envelope.message.user)
-                .logger.info("outgoing.user.success", envelope.cioWriteContact);
+                .logger.info("outgoing.user.success", envelope.cioContactWrite);
             } else {
               this.hullClient
                 .asUser(envelope.message.user)
@@ -286,7 +287,7 @@ class SyncAgent {
             if (updatedEnvelope.opsResult === "success") {
               this.hullClient
                 .asUser(envelope.message.user)
-                .logger.info("outgoing.user.success", envelope.cioWriteContact);
+                .logger.info("outgoing.user.success", envelope.cioContactWrite);
             } else {
               this.hullClient
                 .asUser(envelope.message.user)
@@ -302,7 +303,8 @@ class SyncAgent {
   ): AccountUpdateEnvelope {
     return {
       message,
-      lead: this.mappingUtil.mapToServiceObject("Lead", message.account)
+      hullAccount: _.cloneDeep(message.account), // TODO: check cache if we need to enrich the object
+      cioLeadWrite: this.mappingUtil.mapToServiceObject("Lead", message.account)
     };
   }
 }
