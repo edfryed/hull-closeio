@@ -230,7 +230,29 @@ class SyncAgent {
     const streamOfUpdatedLeads = this.serviceClient.getLeadsStream(since);
 
     return pipeStreamToPromise(streamOfUpdatedLeads, leads => {
-      return Promise.resolve(leads); // TODO: implement saving leads
+      return Promise.all(
+        leads.map(lead => {
+          const hullAccountIdent = this.mappingUtil.mapLeadToHullAccountIdent(
+            lead
+          );
+          const hullAccountAttributes = this.mappingUtil.mapLeadToHullAccountAttributes(
+            lead
+          );
+          const asAccount = this.hullClient.asAccount(hullAccountIdent);
+
+          return asAccount
+            .traits(hullAccountAttributes)
+            .then(() => {
+              asAccount.logger.info(
+                "incoming.account.success",
+                hullAccountAttributes
+              );
+            })
+            .catch(error => {
+              asAccount.logger.error("incoming.account.error", error);
+            });
+        })
+      );
     }).catch(error => {
       this.hullClient.logger.error("incoming.job.error", { reason: error });
     });
