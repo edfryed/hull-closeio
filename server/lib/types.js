@@ -199,7 +199,7 @@ export type CioLead = {
   html_url?: string,
   created_by?: string,
   organization_id?: string,
-  url?: string,
+  url: string,
   opportunities?: Array<any>,
   updated_by?: string,
   date_created?: string,

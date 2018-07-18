@@ -1,6 +1,8 @@
 /* @flow */
 import type { THullUser, THullAccount } from "hull";
 import type {
+  CioContact,
+  CioLead,
   CioObjectType,
   CioAttributesMapping,
   CioOutboundMapping,
@@ -49,7 +51,7 @@ class MappingUtil {
    * @returns {T} The mapped close.io object.
    * @memberof MappingUtil
    */
-  mapToServiceObject<T>(
+  mapToServiceObject<T: CioLead | CioContact>(
     objType: CioObjectType,
     hullObject: THullUser | THullAccount
   ): T {
@@ -85,29 +87,25 @@ class MappingUtil {
     const svcObject = {};
     if (objType === "Lead") {
       // Default properties
-      _.set(svcObject, "name", _.get(hullObject, "name"));
-      _.set(svcObject, "url", _.get(hullObject, "domain"));
+      svcObject.name = hullObject.name;
+      svcObject.url = hullObject.domain;
 
       if (_.get(hullObject, "closeio/id", null) !== null) {
-        _.set(svcObject, "id", _.get(hullObject, "closeio/id"));
+        svcObject.id = hullObject["closeio/id"];
       } else if (
         _.get(hullObject, "closeio/id", null) === null &&
         this.leadCreationStatusId !== "N/A" &&
         this.leadCreationStatusId !== "hull-default"
       ) {
-        _.set(svcObject, "status_id", this.leadCreationStatusId);
+        svcObject.status_id = this.leadCreationStatusId;
       }
     } else if (objType === "Contact") {
       // Default properties
-      _.set(svcObject, "name", _.get(hullObject, "name"));
-      _.set(
-        svcObject,
-        "lead_id",
-        _.get(hullObject, "account.closeio/id", null)
-      );
+      svcObject.name = hullObject.name;
+      svcObject.lead_id = hullObject["account.closeio/id"] || null;
 
       if (_.has(hullObject, "traits_closeio/id")) {
-        _.set(svcObject, "id", _.get(hullObject, "traits_closeio/id"));
+        svcObject.id = hullObject["traits_closeio/id"];
       }
     } else {
       const errDetail = SHARED_MESSAGES.MAPPING_UNSUPPORTEDTYPEOUTBOUND(
@@ -139,15 +137,15 @@ class MappingUtil {
           const arrayAttribName = _.split(svcAttribName, ".")[0];
           const typeValue = _.split(svcAttribName, ".")[1];
           if (!_.has(svcObject, arrayAttribName)) {
-            _.set(svcObject, arrayAttribName, []);
+            svcObject[arrayAttribName] = [];
           }
           const newVal = { type: typeValue };
           _.set(newVal, arrayAttribName.slice(0, -1), hullAttribValue);
           const arrayVal = _.concat(_.get(svcObject, arrayAttribName), newVal);
-          _.set(svcObject, arrayAttribName, arrayVal);
+          svcObject[arrayAttribName] = arrayVal;
         } else {
           // Regular case, just set whatever we get from hull to the field
-          _.set(svcObject, svcAttribName, hullAttribValue);
+          svcObject[svcAttribName] = hullAttribValue;
         }
       }
     });

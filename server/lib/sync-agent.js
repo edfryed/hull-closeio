@@ -64,7 +64,7 @@ class SyncAgent {
    * @type {CioConnectorSettings}
    * @memberof SyncAgent
    */
-  configuredSettings: CioConnectorSettings;
+  normalizedPrivateSettings: CioConnectorSettings;
 
   /**
    * Gets or sets the client to communicate with
@@ -90,25 +90,25 @@ class SyncAgent {
       reqContext,
       "ship.private_settings"
     );
-    this.configuredSettings = this.ensureSettings(loadedSettings);
+    this.normalizedPrivateSettings = this.normalizeSettings(loadedSettings);
 
     // Configure the filter util
     const configFilterUtil: FilterUtilConfiguration = {
-      synchronizedAccountSegments: this.configuredSettings
+      synchronizedAccountSegments: this.normalizedPrivateSettings
         .synchronized_account_segments,
-      accountIdHull: this.configuredSettings.lead_identifier_hull
+      accountIdHull: this.normalizedPrivateSettings.lead_identifier_hull
     };
     this.filterUtil = new FilterUtil(configFilterUtil);
 
     // Configure the mapping util
     const configMappingUtil: CioMappingUtilSettings = {
-      attributeMappings: _.pick(this.configuredSettings, [
+      attributeMappings: _.pick(this.normalizedPrivateSettings, [
         "lead_attributes_outbound",
         "lead_attributes_inbound",
         "contact_attributes_outbound",
         "contact_attributes_inbound"
       ]),
-      leadCreationStatusId: this.configuredSettings.lead_status
+      leadCreationStatusId: this.normalizedPrivateSettings.lead_status
     };
     this.mappingUtil = new MappingUtil(configMappingUtil);
 
@@ -116,7 +116,8 @@ class SyncAgent {
     const configServiceClient: CioServiceClientConfiguration = {
       baseApiUrl: BASE_API_URL,
       metricsClient: this.metricsClient,
-      loggerClient: this.hullClient.logger
+      loggerClient: this.hullClient.logger,
+      apiKey: this.normalizedPrivateSettings.api_key
     };
 
     this.serviceClient = new ServiceClient(configServiceClient);
@@ -159,7 +160,7 @@ class SyncAgent {
    * @returns {CioConnectorSettings} The sanitized settings.
    * @memberof SyncAgent
    */
-  ensureSettings(settings: CioConnectorSettings): CioConnectorSettings {
+  normalizeSettings(settings: CioConnectorSettings): CioConnectorSettings {
     const hullId = _.get(settings, "lead_identifier_hull", "domain");
     const svcId = _.get(settings, "lead_identifier_service", "url");
     // const leadStatus = _.get(settings, "lead_status", "N/A");
@@ -178,7 +179,7 @@ class SyncAgent {
       _.find(leadAttribsOut, {
         hull_field_name: hullId,
         closeio_field_name: svcId
-      }).length === 0
+      }) === undefined
     ) {
       leadAttribsOut.push({
         hull_field_name: hullId,

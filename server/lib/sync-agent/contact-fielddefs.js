@@ -1,4 +1,5 @@
 /* @flow */
+import type { CioContactFieldDefinition } from "../types";
 
 const CONTACT_FIELDDEFS: Array<CioContactFieldDefinition> = [
   {

@@ -161,6 +161,10 @@ class ServiceClient {
       );
     }
 
+    if (data.id === undefined) {
+      return Promise.reject(new Error("Cannot update lead without id"));
+    }
+
     return this.agent.put(`/lead/${data.id}/`).send(data);
   }
 
@@ -259,6 +263,10 @@ class ServiceClient {
       return Promise.reject(
         new TransientError("No API key specified in the Settings.")
       );
+    }
+
+    if (data.id === undefined) {
+      return Promise.reject(new Error("Cannot update contact without id"));
     }
 
     return this.agent.put(`/contact/${data.id}/`).send(data);
