@@ -308,7 +308,7 @@ class MappingUtil {
    */
   getHumanFieldName(field: string): string {
     const fieldIds = _.map(this.leadCustomFields, c => {
-      return c.id;
+      return `custom.${c.id}`;
     });
     let humanName = field;
     if (_.includes(fieldIds, field)) {
