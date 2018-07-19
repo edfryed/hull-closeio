@@ -479,13 +479,20 @@ class SyncAgent {
               combinedContact.lead_id = updatedEnvelope.cioContactWrite.lead_id;
               return this.hullClient
                 .asUser(envelope.message.user)
-                .traits(this.mappingUtil.mapContactToHullUserAttributes(combinedContact))
+                .traits(
+                  this.mappingUtil.mapContactToHullUserAttributes(
+                    combinedContact
+                  )
+                )
                 .then(() => {
                   return this.hullClient
                     .asUser(envelope.message.user)
-                    .logger.info("outgoing.user.success", envelope.cioContactWrite);
+                    .logger.info(
+                      "outgoing.user.success",
+                      envelope.cioContactWrite
+                    );
                 });
-            } 
+            }
             return this.hullClient
               .asUser(envelope.message.user)
               .logger.info("outgoing.user.error", envelope.error);
@@ -503,11 +510,18 @@ class SyncAgent {
               combinedContact.lead_id = updatedEnvelope.cioContactWrite.lead_id;
               return this.hullClient
                 .asUser(envelope.message.user)
-                .traits(this.mappingUtil.mapContactToHullUserAttributes(combinedContact))
+                .traits(
+                  this.mappingUtil.mapContactToHullUserAttributes(
+                    combinedContact
+                  )
+                )
                 .then(() => {
                   return this.hullClient
                     .asUser(envelope.message.user)
-                    .logger.info("outgoing.user.success", envelope.cioContactWrite);
+                    .logger.info(
+                      "outgoing.user.success",
+                      envelope.cioContactWrite
+                    );
                 });
             }
             return this.hullClient
