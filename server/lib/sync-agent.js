@@ -550,12 +550,17 @@ class SyncAgent {
           .then(updatedEnvelope => {
             if (updatedEnvelope.opsResult === "success") {
               this.hullClient
-                .asAccount(envelope.message.user)
-                .logger.info("outgoing.user.success", envelope.cioLeadWrite);
+                .asAccount(envelope.message.account)
+                .traits(this.mappingUtil.mapLeadToHullAccountAttributes(updatedEnvelope.cioLeadRead))
+                .then(() => {
+                  this.hullClient
+                    .asAccount(envelope.message.account)
+                    .logger.info("outgoing.account.success", envelope.cioLeadRead);
+                });
             } else {
               this.hullClient
-                .asAccount(envelope.message.user)
-                .logger.info("outgoing.user.error", envelope.error);
+                .asAccount(envelope.message.account)
+                .logger.info("outgoing.account.error", envelope.error);
             }
           });
       })
@@ -568,12 +573,17 @@ class SyncAgent {
           .then(updatedEnvelope => {
             if (updatedEnvelope.opsResult === "success") {
               this.hullClient
-                .asAccount(envelope.message.user)
-                .logger.info("outgoing.user.success", envelope.cioLeadWrite);
+                .asAccount(envelope.message.account)
+                .traits(this.mappingUtil.mapLeadToHullAccountAttributes(updatedEnvelope.cioLeadRead))
+                .then(() => {
+                  this.hullClient
+                    .asAccount(envelope.message.account)
+                    .logger.info("outgoing.account.success", envelope.cioLeadRead);
+                });
             } else {
               this.hullClient
-                .asAccount(envelope.message.user)
-                .logger.info("outgoing.user.error", envelope.error);
+                .asAccount(envelope.message.account)
+                .logger.info("outgoing.account.error", envelope.error);
             }
           });
       })

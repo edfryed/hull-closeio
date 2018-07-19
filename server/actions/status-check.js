@@ -16,7 +16,7 @@ function statusCheckAction(req: THullRequest, res: $Response): void {
 
     if (syncAgent.isAuthenticationConfigured() === false) {
       status = "error";
-      messages.push(SHARED_MESSAGES.STATUS_ERROR_NOAPIKEY());
+      messages.push(SHARED_MESSAGES.STATUS_ERROR_NOAPIKEY().message);
     }
 
     if (
@@ -25,7 +25,7 @@ function statusCheckAction(req: THullRequest, res: $Response): void {
       )
     ) {
       status = "warning";
-      messages.push(SHARED_MESSAGES.STATUS_WARNING_NOSEGMENTS());
+      messages.push(SHARED_MESSAGES.STATUS_WARNING_NOSEGMENTS().message);
     }
 
     res.json({ status, messages });

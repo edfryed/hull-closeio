@@ -51,7 +51,8 @@
                 "custom.lcf_Xq2gDewoLWRm0fGeembMeSAvLtX434koBAxcySLmJBV",
                 "custom.lcf_mkbFfv07cYOrAofO8djKprdEm3uGUxYTm8qtPdL9MXf",
                 "description",
-                "url"
+                "url",
+                "status_id"
             ],
             "contact_attributes_inbound": [
                 "title",
