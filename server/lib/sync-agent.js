@@ -16,14 +16,12 @@ import type {
   CioConnectorSettings,
   HullFieldDropdownItem,
   UserUpdateEnvelope,
-  AccountUpdateEnvelope,
-  CioLeadCustomField,
-  CioLeadStatus
+  AccountUpdateEnvelope
 } from "./types";
 
 const _ = require("lodash");
 const { DateTime, Duration } = require("luxon");
-const debug = require("debug")("hull-closeio:sync-agent");
+// const debug = require("debug")("hull-closeio:sync-agent");
 
 const MappingUtil = require("./sync-agent/mapping-util");
 const FilterUtil = require("./sync-agent/filter-util");
@@ -124,7 +122,7 @@ class SyncAgent {
     const configFilterUtil: FilterUtilConfiguration = {
       synchronizedAccountSegments: this.normalizedPrivateSettings
         .synchronized_account_segments,
-      accountIdHull: this.normalizedPrivateSettings.lead_identifier_hull
+      leadIdentifierHull: this.normalizedPrivateSettings.lead_identifier_hull
     };
     this.filterUtil = new FilterUtil(configFilterUtil);
 
@@ -173,7 +171,10 @@ class SyncAgent {
       ]),
       leadCreationStatusId: this.normalizedPrivateSettings.lead_status,
       leadStatuses,
-      leadCustomFields
+      leadCustomFields,
+      leadIdentifierHull: this.normalizedPrivateSettings.lead_identifier_hull,
+      leadIdentifierService: this.normalizedPrivateSettings
+        .lead_identifier_service
     };
     this.mappingUtil = new MappingUtil(configMappingUtil);
   }
@@ -360,6 +361,8 @@ class SyncAgent {
       safetyInterval
     );
 
+    this.hullClient.logger.info("incoming.job.start", { since: since.toISO() });
+
     const streamOfUpdatedLeads = this.serviceClient.getLeadsStream(since);
 
     return pipeStreamToPromise(streamOfUpdatedLeads, leads => {
@@ -380,15 +383,42 @@ class SyncAgent {
                 "incoming.account.success",
                 hullAccountAttributes
               );
+              return Promise.all(
+                lead.contacts.map(contact => {
+                  const hullUserIdent = this.mappingUtil.mapContactToHullUserIdent(
+                    contact
+                  );
+                  const hullUserAttributes = this.mappingUtil.mapContactToHullUserAttributes(
+                    contact
+                  );
+                  const asUser = this.hullClient.asUser(hullUserIdent);
+                  return asUser
+                    .traits(hullUserAttributes)
+                    .then(() => {
+                      asUser.logger.info(
+                        "incoming.user.success",
+                        hullUserAttributes
+                      );
+                    })
+                    .catch(error => {
+                      asUser.logger.error("incoming.user.error", error);
+                    });
+                })
+              );
             })
             .catch(error => {
+              console.log(error);
               asAccount.logger.error("incoming.account.error", error);
             });
         })
       );
-    }).catch(error => {
-      this.hullClient.logger.error("incoming.job.error", { reason: error });
-    });
+    })
+      .then(() => {
+        this.hullClient.logger.info("incoming.job.success");
+      })
+      .catch(error => {
+        this.hullClient.logger.error("incoming.job.error", { reason: error });
+      });
   }
 
   /**

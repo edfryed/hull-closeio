@@ -26,7 +26,7 @@ class FilterUtil {
    * @type {string}
    * @memberof FilterUtil
    */
-  accountIdHull: string;
+  leadIdentifierService: string;
 
   /**
    *Creates an instance of FilterUtil.
@@ -35,12 +35,8 @@ class FilterUtil {
    */
   constructor(config: FilterUtilConfiguration) {
     // Configure the util with sensible defaults
-    this.synchronizedAccountSegments = _.get(
-      config,
-      "synchronizedAccountSegments",
-      []
-    );
-    this.accountIdHull = _.get(config, "accountIdHull", "domain");
+    this.synchronizedAccountSegments = config.synchronizedAccountSegments || [];
+    this.leadIdentifierService = config.leadIdentifierService || "domain";
   }
 
   /**
@@ -109,9 +105,9 @@ class FilterUtil {
 
     envelopes.forEach((envelope: AccountUpdateEnvelope) => {
       // Filter out all accounts that have no identifier in Hull
-      if (envelope.hullAccount[this.accountIdHull] === null) {
+      if (envelope.cioLeadWrite[this.leadIdentifierService] === null) {
         const skipMsg = SHARED_MESSAGES.OPERATION_SKIP_NOACCOUNTIDENT(
-          this.accountIdHull
+          this.leadIdentifierService
         );
         envelope.skipReason = skipMsg.message;
         envelope.opsResult = "skip";

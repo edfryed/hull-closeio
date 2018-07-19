@@ -48,6 +48,9 @@ class MappingUtil {
 
   leadCustomFields: Array<CioLeadCustomField>;
 
+  leadIdentifierHull: string;
+  leadIdentifierService: string;
+
   /**
    *Creates an instance of MappingUtil.
    * @param {CioMappingUtilSettings} settings The settings to configure the util.
@@ -58,6 +61,8 @@ class MappingUtil {
     this.leadCreationStatusId = settings.leadCreationStatusId;
     this.leadStatuses = settings.leadStatuses;
     this.leadCustomFields = settings.leadCustomFields;
+    this.leadIdentifierHull = settings.leadIdentifierHull;
+    this.leadIdentifierService = settings.leadIdentifierService;
   }
 
   /**
@@ -186,7 +191,15 @@ class MappingUtil {
 
   mapLeadToHullAccountIdent(lead: CioLeadRead): THullAccountIdent {
     const ident = {};
-    ident.domain = this.normalizeUrl(lead.url);
+    if (
+      this.leadIdentifierHull === "domain" &&
+      typeof lead[this.leadIdentifierService] === "string"
+    ) {
+      ident.domain = this.normalizeUrl(lead[this.leadIdentifierService]);
+    } else if (this.leadIdentifierHull === "external_id") {
+      ident[this.leadIdentifierHull] = lead[this.leadIdentifierService];
+    }
+
     ident.anonymous_id = `closeio:${lead.id}`;
     return ident;
   }
@@ -202,7 +215,7 @@ class MappingUtil {
    * @memberof AttributesMapper
    */
   mapLeadToHullAccountAttributes(lead: CioLeadRead): THullAccountAttributes {
-    const mapping = this.attributeMappings.lead_attributes_inbound;
+    const mapping = this.attributeMappings.lead_attributes_inbound || [];
     const hObject: THullAccountAttributes = this.applyMapping(mapping, lead);
 
     // Ensure that we always set the id from close.io
@@ -210,13 +223,21 @@ class MappingUtil {
       hObject["closeio/id"] = { value: _.get(lead, "id"), operation: "set" };
     }
 
+    const leadStatus = _.find(this.leadStatuses, { id: lead.status_id });
+    if (leadStatus !== undefined) {
+      hObject["closeio/status"] = {
+        value: leadStatus.label,
+        operation: "set"
+      };
+    }
+
     // hObject.domain = { value: _.get(sObject, "url"), operation: "setIfNull" });
     hObject["closeio/created_at"] = {
-      value: _.get(lead, "date_created"),
+      value: lead.date_created,
       operation: "setIfNull"
     };
     hObject["closeio/updated_at"] = {
-      value: _.get(lead, "date_updated"),
+      value: lead.date_updated,
       operation: "set"
     };
 
@@ -224,7 +245,7 @@ class MappingUtil {
   }
 
   mapContactToHullUserAttributes(contact: CioContactRead): THullUserAttributes {
-    const mapping = this.attributeMappings.contact_attributes_inbound;
+    const mapping = this.attributeMappings.contact_attributes_inbound || [];
     const hObject: THullUserAttributes = this.applyMapping(mapping, contact);
 
     // Ensure that we always set the id from close.io

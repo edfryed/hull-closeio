@@ -8,6 +8,7 @@ const actions = require("./actions/index");
 
 function server(app: $Application): $Application {
   app.post("/fetch", actions.fetch);
+  app.post("/fetch-recent-leads", actions.fetch);
 
   app.post(
     "/smart-notifier",

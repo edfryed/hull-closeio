@@ -13,9 +13,9 @@
             <div class="mb-1 media ps-4 pb-1">
               <div class="center-block col-xs-12">
                 <p class="center-block mb-1 text-center">
-                  Fetch all Close.io Objects updated since the last run:
+                  Fetch recently updated Close.io Leads and linked Contacts. When run it just after installing the connector it will fetch last 2 days, otherwise it will refetch recent leads.
                 </p>
-                <div data-href="/fetch" class="center-block btn btn-rounded btn-pill btn-primary">Fetch All Objects</div>
+                <div data-href="/fetch-recent-leads" class="center-block btn btn-rounded btn-pill btn-primary">Fetch Recently Updated Leads</div>
               </div>
             </div>
           </div>
@@ -23,7 +23,7 @@
       </div>
     </div>
     <script>window.hullAuthCompleted = function authCompleted() { window.location.href = window.location.href.replace("&reset=true",""); };</script>
-  
+
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
     <script>
@@ -32,7 +32,7 @@
           var url = $(this).attr('data-href');
           swal({
             title: "Fetch all contacts",
-            text: "You are going to fetch all your Close Leads and Contacts. This can generate a lot of traffic. Are you sure?",
+            text: "You are going to fetch your recent Close.io Leads and linked Contacts. This can generate a lot of traffic. Are you sure?",
             type: "warning",
             showCancelButton: true,
             confirmButtonColor: "#DD6B55",
@@ -47,7 +47,7 @@
         });
       });
     </script>
-  
+
     <style type="text/css" media="screen">
       .check i.icon {
         color: rgba(75, 222, 122, 0.52);

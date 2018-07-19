@@ -263,7 +263,7 @@ export type AccountUpdateEnvelope = {
 
 export type FilterUtilConfiguration = {
   synchronizedAccountSegments: Array<string>,
-  accountIdHull: string
+  leadIdentifierService: string
 };
 
 export type CioServiceClientConfiguration = {
@@ -308,7 +308,9 @@ export type CioMappingUtilSettings = {
   attributeMappings: CioAttributesMapping,
   leadCreationStatusId: string,
   leadStatuses: Array<CioLeadStatus>,
-  leadCustomFields: Array<CioLeadCustomField>
+  leadCustomFields: Array<CioLeadCustomField>,
+  leadIdentifierHull: string,
+  leadIdentifierService: string
 };
 
 export type SuperAgentResponse<BodyType> = {

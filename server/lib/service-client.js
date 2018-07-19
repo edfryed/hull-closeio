@@ -127,7 +127,7 @@ class ServiceClient {
     query: string,
     limit: number = 100,
     skip: number = 0
-  ): Promise<CioListResponse<CioLeadRead>> {
+  ): Promise<SuperAgentResponse<CioListResponse<CioLeadRead>>> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -153,10 +153,13 @@ class ServiceClient {
 
     return promiseToReadableStream(push => {
       return this.getLeads(q, 100, 0).then(res => {
-        push(res.data);
+        push(res.body.data);
         const apiOps = [];
-        if (res.has_more === true) {
-          const totalPages = Math.ceil(res.total_results / 100);
+        if (
+          res.body.has_more === true &&
+          res.body.total_results !== undefined
+        ) {
+          const totalPages = Math.ceil(res.body.total_results / 100);
           for (let index = 1; index < totalPages; index += 1) {
             // eslint-disable-line no-plusplus
             apiOps.push(this.getLeads(q, 100, index));
@@ -164,7 +167,7 @@ class ServiceClient {
         }
         return Promise.all(apiOps).then(results => {
           results.forEach(result => {
-            push(result.data);
+            push(result.body.data);
           });
         });
       });
