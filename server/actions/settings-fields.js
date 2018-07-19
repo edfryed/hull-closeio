@@ -18,24 +18,30 @@ function fieldsContactOutbound(req: THullRequest, res: $Response): $Response {
   });
 }
 
-function fieldsLeadInbound(req: THullRequest, res: $Response): $Response {
+function fieldsLeadInbound(req: THullRequest, res: $Response): void {
   const syncAgent = new SyncAgent(req.hull);
-  return res.json({
-    options: syncAgent.getLeadFields(true)
+  syncAgent.getLeadFields({ type: "inbound" }).then(options => {
+    res.json({ options });
+  }).catch(error => {
+    res.json({ options: [] });
   });
 }
 
-function fieldsLeadOutbound(req: THullRequest, res: $Response): $Response {
+function fieldsLeadOutbound(req: THullRequest, res: $Response): void {
   const syncAgent = new SyncAgent(req.hull);
-  return res.json({
-    options: syncAgent.getLeadFields(false)
+  syncAgent.getLeadFields({ type: "outbound" }).then(options => {
+    res.json({ options });
+  }).catch(error => {
+    res.json({ options: [] });
   });
 }
 
-function fieldsStatus(req: THullRequest, res: $Response): $Response {
+function fieldsStatus(req: THullRequest, res: $Response): void {
   const syncAgent = new SyncAgent(req.hull);
-  return res.json({
-    options: syncAgent.getLeadStatus
+  syncAgent.getLeadStatus().then(options => {
+    res.json({ options });
+  }).catch(error => {
+    res.json({ options: [] });
   });
 }
 

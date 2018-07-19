@@ -18,6 +18,7 @@ import type {
 
 const _ = require("lodash");
 const { DateTime } = require("luxon");
+const debug = require("debug")("hull-closeio:service-client");
 
 const superagent = require("superagent");
 const SuperagentThrottle = require("superagent-throttle");
@@ -99,6 +100,7 @@ class ServiceClient {
       .agent()
       .use(prefixPlugin(this.urlPrefix))
       .use(throttle.plugin())
+      .redirects(0)
       .use(superagentErrorPlugin({ timeout: 10000 }))
       .use(superagentUrlTemplatePlugin())
       .use(
@@ -278,9 +280,9 @@ class ServiceClient {
         new ConfigurationError("No API key specified in the Settings.", {})
       );
     }
-
+    debug("getLeadCustomFields");
     return this.agent
-      .get("/custom_fields/lead")
+      .get("/custom_fields/lead/")
       .query({ _limit: limit, _skip: skip });
   }
 

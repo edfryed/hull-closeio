@@ -13,13 +13,7 @@ function server(app: $Application): $Application {
     "/smart-notifier",
     smartNotifierHandler({
       handlers: {
-        "user:update": actions.userUpdateHandler({
-          flowControl: {
-            type: "next",
-            size: parseInt(process.env.FLOW_CONTROL_SIZE, 10) || 200,
-            in: parseInt(process.env.FLOW_CONTROL_IN, 10) || 5
-          }
-        })
+        "user:update": actions.userUpdate
       }
     })
   );
@@ -31,7 +25,7 @@ function server(app: $Application): $Application {
         maxSize: 200
       },
       handlers: {
-        "user:update": actions.userUpdateHandler()
+        "user:update": actions.userUpdate
       }
     })
   );

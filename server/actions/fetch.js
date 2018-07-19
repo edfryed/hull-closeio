@@ -1,14 +1,13 @@
 /* @flow */
 import type { $Response } from "express";
 
-const { Agent } = require("../lib/agent");
+const SyncAgent = require("../lib/sync-agent");
 
 function fetchAction(req: Object, res: $Response): Promise<any[]> {
-  const { client, ship, metric } = req.hull;
-  const agent = new Agent(client, ship, metric);
+  const syncAgent = new SyncAgent(req.hull);
 
   res.json({ ok: true });
-  return agent.fetchUpdatedLeads();
+  syncAgent.fetchUpdatedLeads();
 }
 
 module.exports = fetchAction;

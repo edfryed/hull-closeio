@@ -7,8 +7,8 @@ const {
   fieldsAccountIdent
 } = require("./settings-fields");
 const statusCheck = require("./status-check");
-const updateUsers = require("./user-update");
-const updateAccounts = require("./account-update");
+const userUpdate = require("./user-update");
+const accountUpdate = require("./account-update");
 const fetch = require("./fetch");
 const adminHandler = require("./admin-handler");
 
@@ -18,8 +18,8 @@ module.exports = {
   fieldsLeadInbound,
   fieldsLeadOutbound,
   statusCheck,
-  updateUsers,
-  updateAccounts,
+  userUpdate,
+  accountUpdate,
   fieldsStatus,
   fetch,
   adminHandler,

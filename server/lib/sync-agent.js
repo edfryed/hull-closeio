@@ -23,6 +23,7 @@ import type {
 
 const _ = require("lodash");
 const { DateTime, Duration } = require("luxon");
+const debug = require("debug")("hull-closeio:sync-agent");
 
 const MappingUtil = require("./sync-agent/mapping-util");
 const FilterUtil = require("./sync-agent/filter-util");
@@ -215,20 +216,14 @@ class SyncAgent {
    * @returns {Promise<Array<HullFieldDropdownItem>>} The list of dropdown items.
    * @memberof SyncAgent
    */
-  getLeadFields(
-    inbound: boolean = false
-  ): Promise<Array<HullFieldDropdownItem>> {
+  getLeadFields({
+    type = "outbound"
+  }: Object): Promise<Array<HullFieldDropdownItem>> {
     if (this.isAuthenticationConfigured() === false) {
       return Promise.resolve([]);
     }
 
-    const cacheKey = [
-      this.connector.id,
-      this.connector.updated_at,
-      "leadflds"
-    ].join("_");
-
-    return this.cache.wrap(cacheKey, () => {
+    return this.cache.wrap(`lead_custom_fields_${type}`, () => {
       return this.serviceClient
         .getLeadCustomFields()
         .then(listResponse => {
@@ -240,7 +235,7 @@ class SyncAgent {
             { value: "url", label: "Url" },
             { value: "description", label: "Description" }
           ];
-          if (inbound === true) {
+          if (type === "inbound") {
             defaultFields.push({
               value: "status_id",
               label: "Status"
