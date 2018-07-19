@@ -1,17 +1,17 @@
 /* @flow */
-import type { TReqContext, THullUserUpdateMessage } from "hull";
+import type { TReqContext, THullAccountUpdateMessage } from "hull";
 
 const SyncAgent = require("../lib/sync-agent");
 const Promise = require("bluebird");
 
-function userUpdate(
+function accountUpdate(
   ctx: TReqContext,
-  messages: Array<THullUserUpdateMessage>
+  messages: Array<THullAccountUpdateMessage>
 ): Promise<*> {
   const syncAgent = new SyncAgent(ctx);
-  return syncAgent.sendUserMessages(messages).catch(err => {
+  return syncAgent.sendAccountMessages(messages).catch(err => {
     console.error(">>>> ERROR <<<<", err); // TODO: Add logger
   });
 }
 
-module.exports = userUpdate;
+module.exports = accountUpdate;

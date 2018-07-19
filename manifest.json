@@ -30,13 +30,6 @@
       "type": "string"
     },
     {
-      "name": "synchronized_segments",
-      "title": "Send *users* as contacts to Close.io when belonging to one of these segments",
-      "type": "array",
-      "default": [],
-      "format": "segment"
-    },
-    {
       "name": "synchronized_account_segments",
       "title": "Send *accounts* as leads to Close.io when belonging to one of these segments",
       "type": "array",
@@ -58,6 +51,26 @@
       "default": "hull-default",
       "options": {
         "loadOptions": "/leadstatuses"
+      } 
+    },
+    {
+      "name": "lead_identifier_hull",
+      "title": "The attribute to uniquely identify an account in Hull",
+      "type": "string",
+      "format": "select",
+      "default": "domain",
+      "options": {
+        "loadOptions": "/fields-account-ident"
+      } 
+    },
+    {
+      "name": "lead_identifier_service",
+      "title": "The field to uniquely identify a lead in close.io",
+      "type": "string",
+      "format": "select",
+      "default": "url",
+      "options": {
+        "loadOptions": "/fields-lead-out"
       } 
     },
     {
@@ -88,7 +101,7 @@
             "title" : "Close.io Field",
             "format" : "select",
             "options" : {
-              "loadOptions" : "/fields-lead"
+              "loadOptions" : "/fields-lead-out"
             }
           }
         },
@@ -104,7 +117,7 @@
       "type" : "array",
       "format" : "select",
       "options" : {
-        "loadOptions" : "/fields-lead"
+        "loadOptions" : "/fields-lead-in"
       }
     },
     {

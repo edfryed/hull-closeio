@@ -18,9 +18,9 @@ const SHARED_MESSAGES = {
       category: "DataTransformation"
     };
   },
-  OPERATION_SKIP_NOACCOUNTIDENT: attribName => {
+  OPERATION_SKIP_NOLEADIDENT: attribName => {
     return {
-      id: "OperationSkipAccountNoHullIdentValue",
+      id: "OperationSkipAccountNoServiceIdentValue",
       message: `The Hull account has no value for the unique identifier attribute '${attribName}'`,
       level: "Information",
       channel: "Operation",
@@ -54,6 +54,25 @@ const SHARED_MESSAGES = {
         "The Hull user is not linked to an account; cannot create a contact in close.io without a lead.",
       level: "Information",
       channel: "Operation",
+      category: "DataFlow"
+    };
+  },
+  STATUS_ERROR_NOAPIKEY: () => {
+    return {
+      id: "StatusNoApiKeyConfigured",
+      message: "Cannot communicate with API because no API key is configured.",
+      level: "Error",
+      channel: "Configuration",
+      category: "Authentication"
+    };
+  },
+  STATUS_WARNING_NOSEGMENTS: () => {
+    return {
+      id: "StatusNoSegmentsWhitelisted",
+      message:
+        "No data will be sent from Hull to close.io due to missing segments configuration.",
+      level: "Warning",
+      channel: "Configuration",
       category: "DataFlow"
     };
   }

@@ -10,6 +10,8 @@ import type {
   HullAccountUpdateMessage
 } from "hull";
 
+import type { Readable } from "stream";
+
 /*
  *** Hull Types. Replace when 0.14.0 is released
  */
@@ -53,6 +55,11 @@ export type HullClientUtils = {
 
 export type HullClientTraitsContext = {
   source: string
+};
+
+export type HullFieldDropdownItem = {
+  value: string,
+  label: string
 };
 
 /**
@@ -158,11 +165,6 @@ export type CioAttributesMapping = {
   contact_attributes_inbound: Array<string>
 };
 
-export type CioMappingUtilSettings = {
-  attributeMappings: CioAttributesMapping,
-  leadCreationStatusId: string
-};
-
 export type ConnectorOperationResult = "success" | "error" | "skip";
 
 export type CioAddress = {
@@ -187,33 +189,50 @@ export type CioEmail = {
   email_lower?: string
 };
 
-export type CioLead = {
+export type CioLeadWrite = {
   id?: string,
   status_id?: string,
-  status_label?: string,
-  tasks?: Array<any>,
-  display_name?: string,
-  addresses?: Array<CioAddress>,
   name: string,
-  date_updated?: Date,
-  html_url?: string,
-  created_by?: string,
-  organization_id?: string,
   url: string,
-  opportunities?: Array<any>,
-  updated_by?: string,
-  date_created?: string,
-  description?: string,
   [string]: CioCustomFieldType
 };
 
-export type CioContact = {
+export type CioLeadRead = {
+  id: string,
+  status_id: string,
+  status_label: string,
+  tasks: Array<any>,
+  display_name: string,
+  addresses: Array<CioAddress>,
+  name: string,
+  date_updated: Date,
+  html_url: string,
+  created_by: string,
+  organization_id: string,
+  url: string,
+  opportunities: Array<any>,
+  updated_by: string,
+  date_created: string,
+  description: string,
+  [string]: CioCustomFieldType
+};
+
+export type CioContactWrite = {
   id?: string,
   lead_id: string,
   name: string,
   title?: string,
   phones?: Array<CioPhone>,
   emails?: Array<CioEmail>
+};
+
+export type CioContactRead = {
+  id: string,
+  lead_id: string,
+  name: string,
+  title: string,
+  phones: Array<CioPhone>,
+  emails: Array<CioEmail>
 };
 
 export type FilterResults<T> = {
@@ -225,8 +244,9 @@ export type FilterResults<T> = {
 
 export type UserUpdateEnvelope = {
   message: HullUserUpdateMessage,
-  cioWriteContact: CioContact, // the contact object we want to use to write to API
-  cioReadContact?: CioContact, // the contact object we have received from the API
+  hullUser: HullUser, // cache enriched version of HullUser
+  cioContactWrite: CioContactWrite, // the contact object we want to use to write to API
+  cioContactRead?: CioContactRead, // the contact object we have received from the API
   opsResult?: ConnectorOperationResult,
   skipReason?: string,
   error?: string
@@ -234,14 +254,16 @@ export type UserUpdateEnvelope = {
 
 export type AccountUpdateEnvelope = {
   message: HullAccountUpdateMessage,
-  lead: CioLead,
+  hullAccount: HullAccount, // cache enriched version of HullAccount
+  cioLeadWrite: CioLeadWrite,
+  cioLeadRead?: CioLeadRead,
   skipReason?: string,
   opsResult?: ConnectorOperationResult
 };
 
 export type FilterUtilConfiguration = {
   synchronizedAccountSegments: Array<string>,
-  accountIdHull: string
+  leadIdentifierHull: string
 };
 
 export type CioServiceClientConfiguration = {
@@ -282,7 +304,36 @@ export type CioContactFieldDefinition = {
   out: boolean
 };
 
-export type HullFieldDropdownItem = {
-  value: string,
-  label: string
+export type CioMappingUtilSettings = {
+  attributeMappings: CioAttributesMapping,
+  leadCreationStatusId: string,
+  leadStatuses: Array<CioLeadStatus>,
+  leadCustomFields: Array<CioLeadCustomField>,
+  leadIdentifierHull: string,
+  leadIdentifierService: string
+};
+
+export type SuperAgentResponse<BodyType> = {
+  ...Readable,
+  body: BodyType,
+  accepted: boolean,
+  badRequest: boolean,
+  charset: string,
+  clientError: boolean,
+  files: any,
+  forbidden: boolean,
+  get: (header: string) => string,
+  header: any,
+  info: boolean,
+  noContent: boolean,
+  notAcceptable: boolean,
+  notFound: boolean,
+  ok: boolean,
+  redirect: boolean,
+  serverError: boolean,
+  status: number,
+  statusType: number,
+  text: string,
+  type: string,
+  unauthorized: boolean
 };

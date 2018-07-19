@@ -1,20 +1,29 @@
 /* @flow */
+import type { Readable } from "stream";
 import type {
   UserUpdateEnvelope,
+  AccountUpdateEnvelope,
   HullMetrics,
   HullClientLogger,
   CioListResponse,
   CioLeadCustomField,
   CioLeadStatus,
-  CioLead,
-  CioContact,
-  CioServiceClientConfiguration
+  CioLeadWrite,
+  CioLeadRead,
+  CioContactWrite,
+  CioContactRead,
+  CioServiceClientConfiguration,
+  SuperAgentResponse
 } from "./types";
 
 const _ = require("lodash");
+const { DateTime } = require("luxon");
+const debug = require("debug")("hull-closeio:service-client");
+
 const superagent = require("superagent");
 const SuperagentThrottle = require("superagent-throttle");
 const prefixPlugin = require("superagent-prefix");
+const promiseToReadableStream = require("./support/promise-to-readable-stream");
 
 const {
   superagentUrlTemplatePlugin,
@@ -91,6 +100,7 @@ class ServiceClient {
       .agent()
       .use(prefixPlugin(this.urlPrefix))
       .use(throttle.plugin())
+      .redirects(0)
       .use(superagentErrorPlugin({ timeout: 10000 }))
       .use(superagentUrlTemplatePlugin())
       .use(
@@ -113,11 +123,11 @@ class ServiceClient {
    * @returns {Promise<CioListResponse<CioLead>>} The list response.
    * @memberof ServiceClient
    */
-  listLeads(
+  getLeads(
     query: string,
     limit: number = 100,
     skip: number = 0
-  ): Promise<CioListResponse<CioLead>> {
+  ): Promise<SuperAgentResponse<CioListResponse<CioLeadRead>>> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -132,13 +142,45 @@ class ServiceClient {
   }
 
   /**
+   * Fetches all updated leads from close.io.
+   *
+   * @returns {Promise<any[]>} The list of updated leads.
+   * @memberof Agent
+   */
+  getLeadsStream(since: DateTime): Readable {
+    const updatedAfter = since.toISODate();
+    const q = `updated >= ${updatedAfter}`;
+    return promiseToReadableStream(push => {
+      return this.getLeads(q, 100, 0).then(res => {
+        push(res.body.data);
+        const apiOps = [];
+        if (
+          res.body.has_more === true &&
+          res.body.total_results !== undefined
+        ) {
+          const totalPages = Math.ceil(res.body.total_results / 100);
+          for (let index = 1; index < totalPages; index += 1) {
+            // eslint-disable-line no-plusplus
+            apiOps.push(this.getLeads(q, 100, index));
+          }
+        }
+        return Promise.all(apiOps).then(results => {
+          results.forEach(result => {
+            push(result.body.data);
+          });
+        });
+      });
+    });
+  }
+
+  /**
    * Creates a new lead in close.io.
    *
    * @param {CioLead} data The close.io object data.
    * @returns {Promise<CioLead>} The data of the created close.io object.
    * @memberof ServiceClient
    */
-  createLead(data: CioLead): Promise<CioLead> {
+  postLead(data: CioLeadWrite): Promise<CioLeadRead> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -148,6 +190,24 @@ class ServiceClient {
     return this.agent.post("/lead/").send(data);
   }
 
+  postLeadEnvelope(
+    envelope: AccountUpdateEnvelope
+  ): Promise<AccountUpdateEnvelope> {
+    const enrichedEnvelope = _.cloneDeep(envelope);
+    return this.postLead(envelope.cioLeadWrite)
+      .then(response => {
+        // $FlowFixMe
+        enrichedEnvelope.cioLeadRead = response.body;
+        enrichedEnvelope.opsResult = "success";
+        return enrichedEnvelope;
+      })
+      .catch(error => {
+        enrichedEnvelope.opsResult = "error";
+        enrichedEnvelope.error = error.response.body;
+        return enrichedEnvelope;
+      });
+  }
+
   /**
    * Updates an exisitng lead in close.io.
    *
@@ -155,7 +215,7 @@ class ServiceClient {
    * @returns {Promise<CioLead>} The data of the updated close.io object.
    * @memberof ServiceClient
    */
-  updateLead(data: CioLead): Promise<CioLead> {
+  putLead(data: CioLeadWrite): Promise<CioLeadRead> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -169,13 +229,33 @@ class ServiceClient {
     return this.agent.put(`/lead/${data.id}/`).send(data);
   }
 
+  putLeadEnvelope(
+    envelope: AccountUpdateEnvelope
+  ): Promise<AccountUpdateEnvelope> {
+    const enrichedEnvelope = _.cloneDeep(envelope);
+    return this.putLead(envelope.cioLeadWrite)
+      .then(response => {
+        // $FlowFixMe
+        enrichedEnvelope.cioLeadRead = response.body;
+        enrichedEnvelope.opsResult = "success";
+        return enrichedEnvelope;
+      })
+      .catch(error => {
+        enrichedEnvelope.opsResult = "error";
+        enrichedEnvelope.error = error.response.body;
+        return enrichedEnvelope;
+      });
+  }
+
   /**
    * List all lead statuses for the organization.
    *
    * @returns {Promise<CioListResponse<CioLeadStatus>>} The list response.
    * @memberof ServiceClient
    */
-  listLeadStatuses(): Promise<CioListResponse<CioLeadStatus>> {
+  getLeadStatuses(): Promise<
+    SuperAgentResponse<CioListResponse<CioLeadStatus>>
+  > {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -193,18 +273,18 @@ class ServiceClient {
    * @returns {Promise<CioListResponse<CioLeadCustomField>>} The list response.
    * @memberof ServiceClient
    */
-  listCustomFields(
+  getLeadCustomFields(
     limit: number = 100,
     skip: number = 0
-  ): Promise<CioListResponse<CioLeadCustomField>> {
+  ): Promise<SuperAgentResponse<CioListResponse<CioLeadCustomField>>> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
       );
     }
-
+    debug("getLeadCustomFields");
     return this.agent
-      .get("/custom_fields/lead")
+      .get("/custom_fields/lead/")
       .query({ _limit: limit, _skip: skip });
   }
 
@@ -217,11 +297,11 @@ class ServiceClient {
    * @returns {Promise<CioListResponse<CioContact>>} The list response.
    * @memberof ServiceClient
    */
-  listContacts(
+  getContacts(
     query: string,
     limit: number = 100,
     skip: number = 0
-  ): Promise<CioListResponse<CioContact>> {
+  ): Promise<CioListResponse<CioContactRead>> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -242,7 +322,7 @@ class ServiceClient {
    * @returns {Promise<CioContact>} The data of the created close.io object.
    * @memberof ServiceClient
    */
-  postContact(data: CioContact): Promise<CioContact> {
+  postContact(data: CioContactWrite): Promise<CioContactRead> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -256,10 +336,10 @@ class ServiceClient {
     envelope: UserUpdateEnvelope
   ): Promise<UserUpdateEnvelope> {
     const enrichedEnvelope = _.cloneDeep(envelope);
-    return this.postContact(envelope.cioWriteContact)
+    return this.postContact(envelope.cioContactWrite)
       .then(response => {
         // $FlowFixMe
-        enrichedEnvelope.cioReadContact = response.body;
+        enrichedEnvelope.cioContactRead = response.body;
         enrichedEnvelope.opsResult = "success";
         return enrichedEnvelope;
       })
@@ -277,7 +357,7 @@ class ServiceClient {
    * @returns {Promise<CioContact>} The data of the updated close.io object.
    * @memberof ServiceClient
    */
-  putContact(data: CioContact): Promise<CioContact> {
+  putContact(data: CioContactWrite): Promise<CioContactRead> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -291,14 +371,14 @@ class ServiceClient {
     return this.agent.put(`/contact/${data.id}/`).send(data);
   }
 
-  updateContactEnvelope(
+  putContactEnvelope(
     envelope: UserUpdateEnvelope
   ): Promise<UserUpdateEnvelope> {
     const enrichedEnvelope = _.cloneDeep(envelope);
-    return this.putContact(envelope.cioWriteContact)
+    return this.putContact(envelope.cioContactWrite)
       .then(response => {
         // $FlowFixMe
-        enrichedEnvelope.cioReadContact = response.body;
+        enrichedEnvelope.cioContactRead = response.body;
         enrichedEnvelope.opsResult = "success";
         return enrichedEnvelope;
       })

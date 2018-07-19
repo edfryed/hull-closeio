@@ -1,32 +1,35 @@
 /* @flow */
-import type { $Request, $Response } from "express";
+import type { $Response } from "express";
+import type { THullRequest } from "hull";
 
 const _ = require("lodash");
-const { Agent } = require("../lib/agent");
+const SyncAgent = require("../lib/sync-agent");
+const SHARED_MESSAGES = require("../lib/shared-messages");
 
-function statusCheckAction(req: $Request, res: $Response): void {
+function statusCheckAction(req: THullRequest, res: $Response): void {
   if (_.has(req, "hull.ship.private_settings")) {
-    const { ship = {}, client = {}, metric } = (req: any).hull;
+    const { client } = req.hull;
+    const connector = req.hull.connector || req.hull.ship;
+    const syncAgent = new SyncAgent(req.hull);
     const messages: Array<string> = [];
     let status: string = "ok";
-    const agent = new Agent(client, ship, metric);
 
-    if (agent.isAuthenticationConfigured() === false) {
+    if (syncAgent.isAuthenticationConfigured() === false) {
       status = "error";
-      messages.push(
-        "API Key is not configured. Connector cannot communicate with external service."
-      );
+      messages.push(SHARED_MESSAGES.STATUS_ERROR_NOAPIKEY().message);
     }
 
-    if (_.isEmpty(_.get(ship, "private_settings.synchronized_segments", []))) {
-      status = "error";
-      messages.push(
-        "No users will be synchronized because no segments are whitelisted."
-      );
+    if (
+      _.isEmpty(
+        _.get(connector, "private_settings.synchronized_account_segments", [])
+      )
+    ) {
+      status = "warning";
+      messages.push(SHARED_MESSAGES.STATUS_WARNING_NOSEGMENTS().message);
     }
 
     res.json({ status, messages });
-    client.put(`${ship.id}/status`, { status, messages });
+    client.put(`${connector.id}/status`, { status, messages });
     return;
   }
 

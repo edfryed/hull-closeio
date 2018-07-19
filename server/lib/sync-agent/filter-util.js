@@ -26,7 +26,7 @@ class FilterUtil {
    * @type {string}
    * @memberof FilterUtil
    */
-  accountIdHull: string;
+  leadIdentifierHull: string;
 
   /**
    *Creates an instance of FilterUtil.
@@ -35,12 +35,8 @@ class FilterUtil {
    */
   constructor(config: FilterUtilConfiguration) {
     // Configure the util with sensible defaults
-    this.synchronizedAccountSegments = _.get(
-      config,
-      "synchronizedAccountSegments",
-      []
-    );
-    this.accountIdHull = _.get(config, "accountIdHull", "domain");
+    this.synchronizedAccountSegments = config.synchronizedAccountSegments || [];
+    this.leadIdentifierHull = config.leadIdentifierHull || "domain";
   }
 
   /**
@@ -61,7 +57,10 @@ class FilterUtil {
 
     envelopes.forEach((envelope: UserUpdateEnvelope) => {
       // Filter out users without lead
-      if (_.get(envelope, "contact.lead_id", null) === null) {
+      if (
+        envelope.cioContactWrite.lead_id === undefined ||
+        envelope.cioContactWrite.lead_id === null
+      ) {
         const skipMsg = SHARED_MESSAGES.OPERATION_SKIP_NOLINKEDACCOUNT();
         envelope.skipReason = skipMsg.message;
         envelope.opsResult = "skip";
@@ -81,13 +80,12 @@ class FilterUtil {
       }
 
       // Determine which contacts to update or create
-      if (_.get(envelope, "contact.id", null) === null) {
+      if (_.get(envelope, "cioContactWrite.id", null) === null) {
         return results.toInsert.push(envelope);
       }
 
       return results.toUpdate.push(envelope);
     });
-
     return results;
   }
 
@@ -109,9 +107,12 @@ class FilterUtil {
 
     envelopes.forEach((envelope: AccountUpdateEnvelope) => {
       // Filter out all accounts that have no identifier in Hull
-      if (_.get(envelope, `hullAccount.${this.accountIdHull}`, null) === null) {
-        const skipMsg = SHARED_MESSAGES.OPERATION_SKIP_NOACCOUNTIDENT(
-          this.accountIdHull
+      if (
+        envelope.hullAccount[this.leadIdentifierHull] === undefined ||
+        envelope.hullAccount[this.leadIdentifierHull] === null
+      ) {
+        const skipMsg = SHARED_MESSAGES.OPERATION_SKIP_NOLEADIDENT(
+          this.leadIdentifierHull
         );
         envelope.skipReason = skipMsg.message;
         envelope.opsResult = "skip";
@@ -132,7 +133,7 @@ class FilterUtil {
       }
 
       // Determine which leads to insert and which ones to update
-      if (_.get(envelope, "lead.id", null) === null) {
+      if (_.get(envelope, "cioLeadWrite.id", null) === null) {
         return results.toInsert.push(envelope);
       }
 
