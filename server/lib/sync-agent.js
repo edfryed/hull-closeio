@@ -232,7 +232,7 @@ class SyncAgent {
         .getLeadCustomFields()
         .then(listResponse => {
           const customFields = listResponse.body.data.map(f => {
-            return { value: f.id, label: f.name };
+            return { value: `custom.${f.id}`, label: f.name };
           });
           const defaultFields: Array<HullFieldDropdownItem> = [
             { value: "name", label: "Name" },
