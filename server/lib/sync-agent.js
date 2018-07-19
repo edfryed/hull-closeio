@@ -549,19 +549,25 @@ class SyncAgent {
           .putLeadEnvelope(envelope)
           .then(updatedEnvelope => {
             if (updatedEnvelope.opsResult === "success") {
-              this.hullClient
+              return this.hullClient
                 .asAccount(envelope.message.account)
-                .traits(this.mappingUtil.mapLeadToHullAccountAttributes(updatedEnvelope.cioLeadRead))
+                .traits(
+                  this.mappingUtil.mapLeadToHullAccountAttributes(
+                    updatedEnvelope.cioLeadRead
+                  )
+                )
                 .then(() => {
-                  this.hullClient
+                  return this.hullClient
                     .asAccount(envelope.message.account)
-                    .logger.info("outgoing.account.success", envelope.cioLeadRead);
+                    .logger.info(
+                      "outgoing.account.success",
+                      envelope.cioLeadWrite
+                    );
                 });
-            } else {
-              this.hullClient
-                .asAccount(envelope.message.account)
-                .logger.info("outgoing.account.error", envelope.error);
             }
+            return this.hullClient
+              .asAccount(envelope.message.account)
+              .logger.info("outgoing.account.error", envelope.error);
           });
       })
     );
@@ -571,20 +577,32 @@ class SyncAgent {
         return this.serviceClient
           .postLeadEnvelope(envelope)
           .then(updatedEnvelope => {
+            console.log(
+              ">>>>",
+              this.mappingUtil.mapLeadToHullAccountAttributes(
+                updatedEnvelope.cioLeadRead
+              )
+            );
             if (updatedEnvelope.opsResult === "success") {
-              this.hullClient
+              return this.hullClient
                 .asAccount(envelope.message.account)
-                .traits(this.mappingUtil.mapLeadToHullAccountAttributes(updatedEnvelope.cioLeadRead))
+                .traits(
+                  this.mappingUtil.mapLeadToHullAccountAttributes(
+                    updatedEnvelope.cioLeadRead
+                  )
+                )
                 .then(() => {
                   this.hullClient
                     .asAccount(envelope.message.account)
-                    .logger.info("outgoing.account.success", envelope.cioLeadRead);
+                    .logger.info(
+                      "outgoing.account.success",
+                      envelope.cioLeadWrite
+                    );
                 });
-            } else {
-              this.hullClient
-                .asAccount(envelope.message.account)
-                .logger.info("outgoing.account.error", envelope.error);
             }
+            return this.hullClient
+              .asAccount(envelope.message.account)
+              .logger.info("outgoing.account.error", envelope.error);
           });
       })
     );
