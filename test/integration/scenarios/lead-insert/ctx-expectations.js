@@ -13,10 +13,10 @@ module.exports = ctxMock => {
 
   const acctTraits = {
     "closeio/id": { operation: "set", value: _.get(apiResponse, "id") },
-    "closeio/name": { value: _.get(acctData, "name") },
+    "closeio/name": { operation: "set", value: _.get(acctData, "name") },
     "closeio/status": { operation: "set", value: "Potential" },
-    "closeio/url": { value: _.get(acctData, "domain") },
-    "closeio/description": { value: _.get(apiResponse, "description") },
+    "closeio/url": { operation: "set", value: _.get(acctData, "domain") },
+    "closeio/description": { operation: "set", value: _.get(apiResponse, "description") },
     "closeio/created_at": {
       operation: "setIfNull",
       value: "2013-02-20T05:30:24.854000+00:00"

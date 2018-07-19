@@ -195,14 +195,6 @@ class MappingUtil {
       hObject["closeio/id"] = { value: _.get(lead, "id"), operation: "set" };
     }
 
-    const leadStatus = _.find(this.leadStatuses, { id: lead.status_id });
-    if (leadStatus !== undefined) {
-      hObject["closeio/status"] = {
-        value: leadStatus.label,
-        operation: "set"
-      };
-    }
-
     // hObject.domain = { value: _.get(sObject, "url"), operation: "setIfNull" });
     hObject["closeio/created_at"] = {
       value: lead.date_created,
@@ -237,44 +229,74 @@ class MappingUtil {
     mapping: Array<string>,
     serviceObject: CioLeadRead | CioContactRead
   ): THullAccountAttributes | THullUserAttributes {
-    return mapping.reduce((hullAttrs, m) => {
-      if (m === "phones" || m === "emails" || m === "urls") {
-        // These are arrays, so we flatten them
-        const arrayVal = _.get(serviceObject, m, []);
-        _.forEach(arrayVal, v => {
-          hullAttrs[`closeio/${m.slice(0, -1)}_${_.get(v, "type")}`] = {
-            value: _.get(v, m.slice(0, -1))
-          };
-        });
-      } else if (m === "addresses") {
-        // Multiple addresses are not supported,
-        // we only store the first one
-        if (_.has(serviceObject, m)) {
-          const addresses = _.get(serviceObject, m, []);
-          if (addresses.length > 0) {
-            const addressData = addresses[0];
-            const attribPrefix = `closeio/address_${_.get(
-              addressData,
-              "label",
-              "office"
-            )}`;
-            _.forIn(addressData, (v, k) => {
-              if (k !== "label") {
-                hullAttrs[`${attribPrefix}_${k}`] = { value: v };
-              }
+    return mapping.reduce(
+      (hullAttrs: THullAccountAttributes | THullUserAttributes, m: string) => {
+        /* eslint-disable no-case-declarations */
+        switch (m) {
+          case "phones":
+          case "emails":
+          case "urls":
+            // These are arrays, so we flatten them
+            const arrayVal = _.get(serviceObject, m, []);
+            _.forEach(arrayVal, v => {
+              hullAttrs[`closeio/${m.slice(0, -1)}_${_.get(v, "type")}`] = {
+                value: _.get(v, m.slice(0, -1)),
+                operation: "set"
+              };
             });
-          }
+            break;
+          case "status_id":
+            if (serviceObject.status_id !== undefined) {
+              const leadStatus = _.find(this.leadStatuses, {
+                id: serviceObject.status_id
+              });
+              if (leadStatus !== undefined) {
+                hullAttrs["closeio/status"] = {
+                  value: leadStatus.label,
+                  operation: "set"
+                };
+              }
+            }
+            break;
+          case "addresses":
+            // Multiple addresses are not supported,
+            // we only store the first one
+            if (_.has(serviceObject, m)) {
+              const addresses = _.get(serviceObject, m, []);
+              if (addresses.length > 0) {
+                const addressData = addresses[0];
+                const attribPrefix = `closeio/address_${_.get(
+                  addressData,
+                  "label",
+                  "office"
+                )}`;
+                _.forIn(addressData, (v, k) => {
+                  if (k !== "label") {
+                    hullAttrs[`${attribPrefix}_${k}`] = {
+                      value: v,
+                      operation: "set"
+                    };
+                  }
+                });
+              }
+            }
+            break;
+          case "opportunities":
+            break;
+          default:
+            // Opps are not supported at the moment
+            if (!_.isNil(_.get(serviceObject, m))) {
+              hullAttrs[`closeio/${this.getHumanFieldName(m)}`] = {
+                value: _.get(serviceObject, m),
+                operation: "set"
+              };
+            }
         }
-      } else if (m !== "opportunities") {
-        // Opps are not supported at the moment
-        if (!_.isNil(_.get(serviceObject, m))) {
-          hullAttrs[`closeio/${this.getHumanFieldName(m)}`] = {
-            value: _.get(serviceObject, m)
-          };
-        }
-      }
-      return hullAttrs;
-    }, {});
+        /* eslint-enable no-case-declarations */
+        return hullAttrs;
+      },
+      {}
+    );
   }
 
   /**
