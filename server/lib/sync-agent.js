@@ -16,14 +16,12 @@ import type {
   CioConnectorSettings,
   HullFieldDropdownItem,
   UserUpdateEnvelope,
-  AccountUpdateEnvelope,
-  CioLeadCustomField,
-  CioLeadStatus
+  AccountUpdateEnvelope
 } from "./types";
 
 const _ = require("lodash");
 const { DateTime, Duration } = require("luxon");
-const debug = require("debug")("hull-closeio:sync-agent");
+// const debug = require("debug")("hull-closeio:sync-agent");
 
 const MappingUtil = require("./sync-agent/mapping-util");
 const FilterUtil = require("./sync-agent/filter-util");
@@ -124,7 +122,7 @@ class SyncAgent {
     const configFilterUtil: FilterUtilConfiguration = {
       synchronizedAccountSegments: this.normalizedPrivateSettings
         .synchronized_account_segments,
-      accountIdHull: this.normalizedPrivateSettings.lead_identifier_hull
+      leadIdentifierHull: this.normalizedPrivateSettings.lead_identifier_hull
     };
     this.filterUtil = new FilterUtil(configFilterUtil);
 
@@ -173,7 +171,10 @@ class SyncAgent {
       ]),
       leadCreationStatusId: this.normalizedPrivateSettings.lead_status,
       leadStatuses,
-      leadCustomFields
+      leadCustomFields,
+      leadIdentifierHull: this.normalizedPrivateSettings.lead_identifier_hull,
+      leadIdentifierService: this.normalizedPrivateSettings
+        .lead_identifier_service
     };
     this.mappingUtil = new MappingUtil(configMappingUtil);
   }

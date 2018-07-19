@@ -20,29 +20,38 @@ function fieldsContactOutbound(req: THullRequest, res: $Response): $Response {
 
 function fieldsLeadInbound(req: THullRequest, res: $Response): void {
   const syncAgent = new SyncAgent(req.hull);
-  syncAgent.getLeadFields({ type: "inbound" }).then(options => {
-    res.json({ options });
-  }).catch(error => {
-    res.json({ options: [] });
-  });
+  syncAgent
+    .getLeadFields({ type: "inbound" })
+    .then(options => {
+      res.json({ options });
+    })
+    .catch(() => {
+      res.json({ options: [] });
+    });
 }
 
 function fieldsLeadOutbound(req: THullRequest, res: $Response): void {
   const syncAgent = new SyncAgent(req.hull);
-  syncAgent.getLeadFields({ type: "outbound" }).then(options => {
-    res.json({ options });
-  }).catch(error => {
-    res.json({ options: [] });
-  });
+  syncAgent
+    .getLeadFields({ type: "outbound" })
+    .then(options => {
+      res.json({ options });
+    })
+    .catch(() => {
+      res.json({ options: [] });
+    });
 }
 
 function fieldsStatus(req: THullRequest, res: $Response): void {
   const syncAgent = new SyncAgent(req.hull);
-  syncAgent.getLeadStatus().then(options => {
-    res.json({ options });
-  }).catch(error => {
-    res.json({ options: [] });
-  });
+  syncAgent
+    .getLeadStatus()
+    .then(options => {
+      res.json({ options });
+    })
+    .catch(() => {
+      res.json({ options: [] });
+    });
 }
 
 function fieldsAccountIdent(req: THullRequest, res: $Response): $Response {
