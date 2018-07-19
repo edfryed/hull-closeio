@@ -34,7 +34,7 @@ describe("FilterUtil", () => {
     const envelope = {
       message: _.get(notifierPayload, "messages[0]"),
       hullAccount: _.get(notifierPayload, "messages[0].account"),
-      lead: {
+      cioLeadWrite: {
         name: _.get(notifierPayload, "messages[0].account.name"),
         "custom.lcf_9TB8XYocaq1GQMK5z7MVyOE7TXS1Cys5VycWwTlRBOZ": _.get(notifierPayload, "messages[0].account.external_id"),
         id: "lead_534219tidgshk452t38tajfk"
@@ -42,7 +42,7 @@ describe("FilterUtil", () => {
     };
     const config = {
       synchronizedAccountSegments: ["59f09bc7f9c5a94af600076d"],
-      accountIdHull: "external_id"
+      leadIdentifierHull: "external_id"
     };
     const util = new FilterUtil(config);
 
@@ -58,14 +58,14 @@ describe("FilterUtil", () => {
     const envelope = {
       message: _.get(notifierPayload, "messages[0]"),
       hullAccount: _.get(notifierPayload, "messages[0].account"),
-      lead: {
+      cioLeadWrite: {
         name: _.get(notifierPayload, "messages[0].account.name"),
         "custom.lcf_9TB8XYocaq1GQMK5z7MVyOE7TXS1Cys5VycWwTlRBOZ": _.get(notifierPayload, "messages[0].account.external_id")
       }
     };
     const config = {
       synchronizedAccountSegments: ["59f09bc7f9c5a94af600076d"],
-      accountIdHull: "external_id"
+      leadIdentifierHull: "external_id"
     };
     const util = new FilterUtil(config);
 
@@ -73,7 +73,7 @@ describe("FilterUtil", () => {
     expect(result.toInsert).toHaveLength(0);
     expect(result.toUpdate).toHaveLength(0);
     expect(result.toSkip).toHaveLength(1);
-    expect(result.toSkip[0].skipReason).toEqual(SHARED_MESSAGES.OPERATION_SKIP_NOACCOUNTIDENT("external_id").message);
+    expect(result.toSkip[0].skipReason).toEqual(SHARED_MESSAGES.OPERATION_SKIP_NOLEADIDENT("external_id").message);
   });
 
   it("should identify a lead to skip if the account is not in a whitelisted segment", () => {
@@ -81,14 +81,14 @@ describe("FilterUtil", () => {
     const envelope = {
       message: _.get(notifierPayload, "messages[0]"),
       hullAccount: _.get(notifierPayload, "messages[0].account"),
-      lead: {
+      cioLeadWrite: {
         name: _.get(notifierPayload, "messages[0].account.name"),
         "custom.lcf_9TB8XYocaq1GQMK5z7MVyOE7TXS1Cys5VycWwTlRBOZ": _.get(notifierPayload, "messages[0].account.external_id")
       }
     };
     const config = {
       synchronizedAccountSegments: ["someSegmentThatDoesntMatch"],
-      accountIdHull: "external_id"
+      leadIdentifierHull: "external_id"
     };
     const util = new FilterUtil(config);
 
@@ -104,14 +104,14 @@ describe("FilterUtil", () => {
     const envelope = {
       message: _.get(notifierPayload, "messages[0]"),
       hullUser: _.get(notifierPayload, "messages[0].user"),
-      contact: {
+      cioContactWrite: {
         name: _.get(notifierPayload, "messages[0].user.name"),
         lead_id: "lead_534219tidgshk452t38tajfk"
       }
     };
     const config = {
       synchronizedAccountSegments: ["59f09bc7f9c5a94af600076d"],
-      accountIdHull: "external_id"
+      leadIdentifierHull: "external_id"
     };
     const util = new FilterUtil(config);
 
@@ -126,7 +126,7 @@ describe("FilterUtil", () => {
     const envelope = {
       message: _.get(notifierPayload, "messages[0]"),
       hullUser: _.get(notifierPayload, "messages[0].user"),
-      contact: {
+      cioContactWrite: {
         name: _.get(notifierPayload, "messages[0].user.name"),
         lead_id: "lead_534219tidgshk452t38tajfk",
         id: "cont_y29g2ohnb3u35hy"
@@ -134,7 +134,7 @@ describe("FilterUtil", () => {
     };
     const config = {
       synchronizedAccountSegments: ["59f09bc7f9c5a94af600076d"],
-      accountIdHull: "external_id"
+      leadIdentifierHull: "external_id"
     };
     const util = new FilterUtil(config);
 
@@ -149,13 +149,13 @@ describe("FilterUtil", () => {
     const envelope = {
       message: _.get(notifierPayload, "messages[0]"),
       hullUser: _.get(notifierPayload, "messages[0].user"),
-      contact: {
+      cioContactWrite: {
         name: _.get(notifierPayload, "messages[0].user.name")
       }
     };
     const config = {
       synchronizedAccountSegments: ["59f09bc7f9c5a94af600076d"],
-      accountIdHull: "external_id"
+      leadIdentifierHull: "external_id"
     };
     const util = new FilterUtil(config);
 
@@ -171,14 +171,14 @@ describe("FilterUtil", () => {
     const envelope = {
       message: _.get(notifierPayload, "messages[0]"),
       hullUser: _.get(notifierPayload, "messages[0].user"),
-      contact: {
+      cioContactWrite: {
         name: _.get(notifierPayload, "messages[0].user.name"),
         lead_id: "lead_534219tidgshk452t38tajfk"
       }
     };
     const config = {
       synchronizedAccountSegments: ["segmentThatDoesntMatchFoo"],
-      accountIdHull: "external_id"
+      leadIdentifierHull: "external_id"
     };
     const util = new FilterUtil(config);
 
