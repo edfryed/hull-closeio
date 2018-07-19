@@ -2,6 +2,7 @@ module.exports = {
   "collectCoverage": true,
   "collectCoverageFrom": [
     "src/**/*.{js,jsx}",
+    "server/**/*.{js,jsx}",
     "!src/dll.js",
     "!src/vendors.js"
   ],
