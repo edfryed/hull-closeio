@@ -97,6 +97,8 @@ class SyncAgent {
    */
   connector: THullConnector;
 
+  helpers: Object;
+
   /**
    * Creates an instance of SyncAgent.
    * @param {THullReqContext} reqContext The request context.
@@ -110,6 +112,7 @@ class SyncAgent {
     this.cache = reqContext.cache;
     // Initialize the connector
     this.connector = reqContext.connector;
+    this.helpers = reqContext.helpers;
 
     // Initialize configuration from settings
     const loadedSettings: CioConnectorSettings = _.get(
@@ -347,7 +350,7 @@ class SyncAgent {
     await this.initialize();
     const safetyInterval = Duration.fromObject({ minutes: 5 });
     let lastSyncAtRaw = parseInt(
-      _.get(this.normalizedPrivateSettings, "private_settings.last_sync_at"),
+      this.normalizedPrivateSettings.last_sync_at,
       10
     );
     if (_.isNaN(lastSyncAtRaw)) {
@@ -414,6 +417,9 @@ class SyncAgent {
       );
     })
       .then(() => {
+        this.helpers.updateSettings({
+          last_sync_at: Math.floor(DateTime.utc().toMillis() / 1000)
+        });
         this.hullClient.logger.info("incoming.job.success");
       })
       .catch(error => {

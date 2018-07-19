@@ -78,35 +78,6 @@ class MappingUtil {
     objType: CioObjectType,
     hullObject: THullUser | THullAccount
   ): T {
-    if (
-      this.attributeMappings === null ||
-      _.get(
-        this.attributeMappings,
-        `${objType.toLowerCase()}_attributes_outbound`,
-        []
-      ).length === 0 ||
-      (_.get(
-        this.attributeMappings,
-        `${objType.toLowerCase()}_attributes_outbound`,
-        []
-      ).length === 1 &&
-        _.keys(
-          _.first(
-            _.get(
-              this.attributeMappings,
-              `${objType.toLowerCase()}_attributes_outbound`,
-              []
-            )
-          )
-        ).length === 0)
-    ) {
-      const errDetail = SHARED_MESSAGES.MAPPING_NOOUTBOUNDFIELDS();
-      throw new LogicError(
-        errDetail.message,
-        "MappingUtil.mapToServiceObject",
-        { objType, hullObject }
-      );
-    }
     const svcObject = {};
     if (objType === "Lead") {
       // Default properties
@@ -142,11 +113,12 @@ class MappingUtil {
     }
 
     // Customized mapping
-    const mappings = _.get(
-      this.attributeMappings,
-      `${objType.toLowerCase()}_attributes_outbound`,
+    const mappings = (
+      this.attributeMappings[`${objType.toLowerCase()}_attributes_outbound`] ||
       []
-    );
+    ).filter(entry => {
+      return entry.hull_field_name && entry.closeio_field_name;
+    });
 
     _.forEach(mappings, (m: CioOutboundMapping) => {
       const hullAttribValue = _.get(hullObject, m.hull_field_name);

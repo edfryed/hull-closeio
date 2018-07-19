@@ -148,9 +148,8 @@ class ServiceClient {
    * @memberof Agent
    */
   getLeadsStream(since: DateTime): Readable {
-    const updatedAfter = since.minus({ days: 1 }).toISODate();
-    const q = `updated > ${updatedAfter}`;
-
+    const updatedAfter = since.toISODate();
+    const q = `updated >= ${updatedAfter}`;
     return promiseToReadableStream(push => {
       return this.getLeads(q, 100, 0).then(res => {
         push(res.body.data);

@@ -14,7 +14,8 @@ function server(app: $Application): $Application {
     "/smart-notifier",
     smartNotifierHandler({
       handlers: {
-        "user:update": actions.userUpdate
+        "user:update": actions.userUpdate,
+        "account:update": actions.accountUpdate
       }
     })
   );
