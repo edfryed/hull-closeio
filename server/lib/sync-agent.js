@@ -17,7 +17,6 @@ import type {
   HullFieldDropdownItem,
   UserUpdateEnvelope,
   AccountUpdateEnvelope,
-  CioListResponse,
   CioLeadCustomField,
   CioLeadStatus
 } from "./types";
@@ -128,18 +127,6 @@ class SyncAgent {
     };
     this.filterUtil = new FilterUtil(configFilterUtil);
 
-    // Configure the mapping util
-    const configMappingUtil: CioMappingUtilSettings = {
-      attributeMappings: _.pick(this.normalizedPrivateSettings, [
-        "lead_attributes_outbound",
-        "lead_attributes_inbound",
-        "contact_attributes_outbound",
-        "contact_attributes_inbound"
-      ]),
-      leadCreationStatusId: this.normalizedPrivateSettings.lead_status
-    };
-    this.mappingUtil = new MappingUtil(configMappingUtil);
-
     // Configure the service client
     const configServiceClient: CioServiceClientConfiguration = {
       baseApiUrl: BASE_API_URL,
@@ -149,6 +136,45 @@ class SyncAgent {
     };
 
     this.serviceClient = new ServiceClient(configServiceClient);
+  }
+
+  isInitialized(): boolean {
+    return this.mappingUtil instanceof MappingUtil;
+  }
+
+  async initialize(): Promise<void> {
+    if (this.isInitialized() === true) {
+      return;
+    }
+
+    const leadStatuses = await this.cache.wrap("raw_lead_status", () => {
+      return this.serviceClient.getLeadStatuses().then(result => {
+        return result.body.data;
+      });
+    });
+
+    const leadCustomFields = await this.cache.wrap(
+      "raw_lead_custom_fields",
+      () => {
+        return this.serviceClient.getLeadCustomFields().then(result => {
+          return result.body.data;
+        });
+      }
+    );
+
+    // Configure the mapping util
+    const configMappingUtil: CioMappingUtilSettings = {
+      attributeMappings: _.pick(this.normalizedPrivateSettings, [
+        "lead_attributes_outbound",
+        "lead_attributes_inbound",
+        "contact_attributes_outbound",
+        "contact_attributes_inbound"
+      ]),
+      leadCreationStatusId: this.normalizedPrivateSettings.lead_status,
+      leadStatuses,
+      leadCustomFields
+    };
+    this.mappingUtil = new MappingUtil(configMappingUtil);
   }
 
   /**
@@ -189,20 +215,27 @@ class SyncAgent {
    * @returns {Promise<Array<HullFieldDropdownItem>>} The list of dropdown items.
    * @memberof SyncAgent
    */
-  getLeadFields(inbound: boolean = false): Promise<Array<HullFieldDropdownItem>> {
+  getLeadFields(
+    inbound: boolean = false
+  ): Promise<Array<HullFieldDropdownItem>> {
     if (this.isAuthenticationConfigured() === false) {
       return Promise.resolve([]);
     }
 
-    const cacheKey = [this.connector.id, this.connector.updated_at, "leadflds"].join("_");
+    const cacheKey = [
+      this.connector.id,
+      this.connector.updated_at,
+      "leadflds"
+    ].join("_");
 
     return this.cache.wrap(cacheKey, () => {
-      return this.serviceClient.getLeadCustomFields()
-        .then((listResponse: CioListResponse<CioLeadCustomField>) => {
-          const customFields = _.map(listResponse.data, f => {
+      return this.serviceClient
+        .getLeadCustomFields()
+        .then(listResponse => {
+          const customFields = listResponse.body.data.map(f => {
             return { value: f.id, label: f.name };
           });
-          const defaultFields: Array<IDropdownEntry> = [
+          const defaultFields: Array<HullFieldDropdownItem> = [
             { value: "name", label: "Name" },
             { value: "url", label: "Url" },
             { value: "description", label: "Description" }
@@ -287,12 +320,11 @@ class SyncAgent {
       return Promise.resolve([]);
     }
 
-    const cacheKey = [this.connector.id, this.connector.updated_at, "leadstatus"].join("_");
-
-    return this.cache.wrap(cacheKey, () => {
-      return this.serviceClient.getLeadStatuses()
-        .then((response: CioListResponse<CioLeadStatus>) => {
-          const status = _.map(response.data, s => {
+    return this.cache.wrap("leadstatus", () => {
+      return this.serviceClient
+        .getLeadStatuses()
+        .then(response => {
+          const status = response.body.data.map(s => {
             return { value: s.id, label: s.label };
           });
           status.unshift({ value: "N/A", label: "(Use default)" });
@@ -315,7 +347,8 @@ class SyncAgent {
    * @returns {Promise<any[]>} The list of updated leads.
    * @memberof Agent
    */
-  fetchUpdatedLeads(): Promise<any> {
+  async fetchUpdatedLeads(): Promise<any> {
+    await this.initialize();
     const safetyInterval = Duration.fromObject({ minutes: 5 });
     let lastSyncAtRaw = parseInt(
       _.get(this.normalizedPrivateSettings, "private_settings.last_sync_at"),
@@ -391,6 +424,7 @@ class SyncAgent {
   async sendUserMessages(
     messages: Array<THullUserUpdateMessage>
   ): Promise<any> {
+    await this.initialize();
     const envelopes = messages.map(message =>
       this.buildUserUpdateEnvelope(message)
     );
@@ -463,7 +497,10 @@ class SyncAgent {
    * @returns {Promise<any>} A promise which wraps the async processing operation.
    * @memberof SyncAgent
    */
-  async sendAccountMessages(messages: Array<THullAccountUpdateMessage>): Promise<any> {
+  async sendAccountMessages(
+    messages: Array<THullAccountUpdateMessage>
+  ): Promise<any> {
+    await this.initialize();
     const envelopes = messages.map(message =>
       this.buildAccountUpdateEnvelope(message)
     );
@@ -471,7 +508,7 @@ class SyncAgent {
 
     filterResults.toSkip.forEach(envelope => {
       this.hullClient
-        .asAccounr(envelope.message.account)
+        .asAccount(envelope.message.account)
         .logger.info("outgoing.account.skip", envelope.skipReason);
     });
 
@@ -482,17 +519,34 @@ class SyncAgent {
           .then(updatedEnvelope => {
             if (updatedEnvelope.opsResult === "success") {
               this.hullClient
-                .asUser(envelope.message.user)
-                .logger.info("outgoing.user.success", envelope.cioContactWrite);
+                .asAccount(envelope.message.user)
+                .logger.info("outgoing.user.success", envelope.cioLeadWrite);
             } else {
               this.hullClient
-                .asUser(envelope.message.user)
+                .asAccount(envelope.message.user)
                 .logger.info("outgoing.user.error", envelope.error);
             }
           });
       })
     );
 
+    await Promise.all(
+      filterResults.toInsert.map(envelope => {
+        return this.serviceClient
+          .postLeadEnvelope(envelope)
+          .then(updatedEnvelope => {
+            if (updatedEnvelope.opsResult === "success") {
+              this.hullClient
+                .asAccount(envelope.message.user)
+                .logger.info("outgoing.user.success", envelope.cioLeadWrite);
+            } else {
+              this.hullClient
+                .asAccount(envelope.message.user)
+                .logger.info("outgoing.user.error", envelope.error);
+            }
+          });
+      })
+    );
   }
 
   /**

@@ -15,7 +15,9 @@ import type {
   CioObjectType,
   CioAttributesMapping,
   CioOutboundMapping,
-  CioMappingUtilSettings
+  CioMappingUtilSettings,
+  CioLeadStatus,
+  CioLeadCustomField
 } from "../types";
 
 const _ = require("lodash");
@@ -42,6 +44,10 @@ class MappingUtil {
    */
   leadCreationStatusId: string;
 
+  leadStatuses: Array<CioLeadStatus>;
+
+  leadCustomFields: Array<CioLeadCustomField>;
+
   /**
    *Creates an instance of MappingUtil.
    * @param {CioMappingUtilSettings} settings The settings to configure the util.
@@ -50,6 +56,8 @@ class MappingUtil {
   constructor(settings: CioMappingUtilSettings) {
     this.attributeMappings = settings.attributeMappings;
     this.leadCreationStatusId = settings.leadCreationStatusId;
+    this.leadStatuses = settings.leadStatuses;
+    this.leadCustomFields = settings.leadCustomFields;
   }
 
   /**
@@ -284,12 +292,12 @@ class MappingUtil {
    * @memberof AttributesMapper
    */
   getHumanFieldName(field: string): string {
-    const fieldIds = _.map(this.customFields, c => {
+    const fieldIds = _.map(this.leadCustomFields, c => {
       return c.id;
     });
     let humanName = field;
     if (_.includes(fieldIds, field)) {
-      const customField = _.find(this.customFields, c => {
+      const customField = _.find(this.leadCustomFields, c => {
         return c.id === field;
       });
       humanName = _.get(customField, "name");

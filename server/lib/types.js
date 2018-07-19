@@ -10,6 +10,8 @@ import type {
   HullAccountUpdateMessage
 } from "hull";
 
+import type { Readable } from "stream";
+
 /*
  *** Hull Types. Replace when 0.14.0 is released
  */
@@ -53,6 +55,11 @@ export type HullClientUtils = {
 
 export type HullClientTraitsContext = {
   source: string
+};
+
+export type HullFieldDropdownItem = {
+  value: string,
+  label: string
 };
 
 /**
@@ -156,11 +163,6 @@ export type CioAttributesMapping = {
   lead_attributes_inbound: Array<string>,
   contact_attributes_outbound: Array<CioOutboundMapping>,
   contact_attributes_inbound: Array<string>
-};
-
-export type CioMappingUtilSettings = {
-  attributeMappings: CioAttributesMapping,
-  leadCreationStatusId: string
 };
 
 export type ConnectorOperationResult = "success" | "error" | "skip";
@@ -302,7 +304,34 @@ export type CioContactFieldDefinition = {
   out: boolean
 };
 
-export type HullFieldDropdownItem = {
-  value: string,
-  label: string
+export type CioMappingUtilSettings = {
+  attributeMappings: CioAttributesMapping,
+  leadCreationStatusId: string,
+  leadStatuses: Array<CioLeadStatus>,
+  leadCustomFields: Array<CioLeadCustomField>
+};
+
+export type SuperAgentResponse<BodyType> = {
+  ...Readable,
+  body: BodyType,
+  accepted: boolean,
+  badRequest: boolean,
+  charset: string,
+  clientError: boolean,
+  files: any,
+  forbidden: boolean,
+  get: (header: string) => string,
+  header: any,
+  info: boolean,
+  noContent: boolean,
+  notAcceptable: boolean,
+  notFound: boolean,
+  ok: boolean,
+  redirect: boolean,
+  serverError: boolean,
+  status: number,
+  statusType: number,
+  text: string,
+  type: string,
+  unauthorized: boolean
 };

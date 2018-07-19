@@ -51,7 +51,7 @@ function fieldsAccountIdent(req: THullRequest, res: $Response): $Response {
         label: "External ID"
       }
     ]
-  })
+  });
 }
 
 module.exports = {

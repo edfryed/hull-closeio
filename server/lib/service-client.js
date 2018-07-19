@@ -12,7 +12,8 @@ import type {
   CioLeadRead,
   CioContactWrite,
   CioContactRead,
-  CioServiceClientConfiguration
+  CioServiceClientConfiguration,
+  SuperAgentResponse
 } from "./types";
 
 const _ = require("lodash");
@@ -185,9 +186,11 @@ class ServiceClient {
     return this.agent.post("/lead/").send(data);
   }
 
-  postLeadEnvelope(envelope: AccountUpdateEnvelope): Promise<AccountUpdateEnvelope> {
+  postLeadEnvelope(
+    envelope: AccountUpdateEnvelope
+  ): Promise<AccountUpdateEnvelope> {
     const enrichedEnvelope = _.cloneDeep(envelope);
-    return this.postLead(envelope.CioLeadWrite)
+    return this.postLead(envelope.cioLeadWrite)
       .then(response => {
         // $FlowFixMe
         enrichedEnvelope.cioLeadRead = response.body;
@@ -222,9 +225,11 @@ class ServiceClient {
     return this.agent.put(`/lead/${data.id}/`).send(data);
   }
 
-  putLeadEnvelope(envelope: AccountUpdateEnvelope): Promise<AccountUpdateEnvelope> {
+  putLeadEnvelope(
+    envelope: AccountUpdateEnvelope
+  ): Promise<AccountUpdateEnvelope> {
     const enrichedEnvelope = _.cloneDeep(envelope);
-    return this.putLead(envelope.CioLeadWrite)
+    return this.putLead(envelope.cioLeadWrite)
       .then(response => {
         // $FlowFixMe
         enrichedEnvelope.cioLeadRead = response.body;
@@ -244,7 +249,9 @@ class ServiceClient {
    * @returns {Promise<CioListResponse<CioLeadStatus>>} The list response.
    * @memberof ServiceClient
    */
-  getLeadStatuses(): Promise<CioListResponse<CioLeadStatus>> {
+  getLeadStatuses(): Promise<
+    SuperAgentResponse<CioListResponse<CioLeadStatus>>
+  > {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
@@ -265,7 +272,7 @@ class ServiceClient {
   getLeadCustomFields(
     limit: number = 100,
     skip: number = 0
-  ): Promise<CioListResponse<CioLeadCustomField>> {
+  ): Promise<SuperAgentResponse<CioListResponse<CioLeadCustomField>>> {
     if (!this.hasValidApiKey()) {
       return Promise.reject(
         new ConfigurationError("No API key specified in the Settings.", {})
