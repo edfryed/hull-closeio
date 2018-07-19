@@ -361,6 +361,8 @@ class SyncAgent {
       safetyInterval
     );
 
+    this.hullClient.logger.info("incoming.job.start", { since: since.toISO() });
+
     const streamOfUpdatedLeads = this.serviceClient.getLeadsStream(since);
 
     return pipeStreamToPromise(streamOfUpdatedLeads, leads => {
@@ -381,15 +383,42 @@ class SyncAgent {
                 "incoming.account.success",
                 hullAccountAttributes
               );
+              return Promise.all(
+                lead.contacts.map(contact => {
+                  const hullUserIdent = this.mappingUtil.mapContactToHullUserIdent(
+                    contact
+                  );
+                  const hullUserAttributes = this.mappingUtil.mapContactToHullUserAttributes(
+                    contact
+                  );
+                  const asUser = this.hullClient.asUser(hullUserIdent);
+                  return asUser
+                    .traits(hullUserAttributes)
+                    .then(() => {
+                      asUser.logger.info(
+                        "incoming.user.success",
+                        hullUserAttributes
+                      );
+                    })
+                    .catch(error => {
+                      asUser.logger.error("incoming.user.error", error);
+                    });
+                })
+              );
             })
             .catch(error => {
+              console.log(error);
               asAccount.logger.error("incoming.account.error", error);
             });
         })
       );
-    }).catch(error => {
-      this.hullClient.logger.error("incoming.job.error", { reason: error });
-    });
+    })
+      .then(() => {
+        this.hullClient.logger.info("incoming.job.success");
+      })
+      .catch(error => {
+        this.hullClient.logger.error("incoming.job.error", { reason: error });
+      });
   }
 
   /**

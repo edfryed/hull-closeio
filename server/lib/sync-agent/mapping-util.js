@@ -191,7 +191,6 @@ class MappingUtil {
 
   mapLeadToHullAccountIdent(lead: CioLeadRead): THullAccountIdent {
     const ident = {};
-
     if (
       this.leadIdentifierHull === "domain" &&
       typeof lead[this.leadIdentifierService] === "string"
@@ -216,7 +215,7 @@ class MappingUtil {
    * @memberof AttributesMapper
    */
   mapLeadToHullAccountAttributes(lead: CioLeadRead): THullAccountAttributes {
-    const mapping = this.attributeMappings.lead_attributes_inbound;
+    const mapping = this.attributeMappings.lead_attributes_inbound || [];
     const hObject: THullAccountAttributes = this.applyMapping(mapping, lead);
 
     // Ensure that we always set the id from close.io
@@ -246,7 +245,7 @@ class MappingUtil {
   }
 
   mapContactToHullUserAttributes(contact: CioContactRead): THullUserAttributes {
-    const mapping = this.attributeMappings.contact_attributes_inbound;
+    const mapping = this.attributeMappings.contact_attributes_inbound || [];
     const hObject: THullUserAttributes = this.applyMapping(mapping, contact);
 
     // Ensure that we always set the id from close.io
