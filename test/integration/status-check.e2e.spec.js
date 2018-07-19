@@ -85,9 +85,7 @@ describe("statusCheckAction", () => {
     statusCheckAction(req, responseMock);
     expect(jsonMock.mock.calls[0][0]).toEqual({
       status: "warning",
-      messages: [
-        SHARED_MESSAGES.STATUS_WARNING_NOSEGMENTS().message
-      ]
+      messages: [SHARED_MESSAGES.STATUS_WARNING_NOSEGMENTS().message]
     });
   });
 
@@ -130,9 +128,7 @@ describe("statusCheckAction", () => {
     statusCheckAction(req, responseMock);
     expect(jsonMock.mock.calls[0][0]).toEqual({
       status: "error",
-      messages: [
-        SHARED_MESSAGES.STATUS_ERROR_NOAPIKEY().message
-      ]
+      messages: [SHARED_MESSAGES.STATUS_ERROR_NOAPIKEY().message]
     });
   });
 

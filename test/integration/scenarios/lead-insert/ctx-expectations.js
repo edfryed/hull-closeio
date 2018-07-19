@@ -14,11 +14,17 @@ module.exports = ctxMock => {
   const acctTraits = {
     "closeio/id": { operation: "set", value: _.get(apiResponse, "id") },
     "closeio/name": { value: _.get(acctData, "name") },
-    "closeio/status": { value: "Potential" },
+    "closeio/status": { operation: "set", value: "Potential" },
     "closeio/url": { value: _.get(acctData, "domain") },
     "closeio/description": { value: _.get(apiResponse, "description") },
-    "closeio/created_at": { "operation": "setIfNull", "value": "2013-02-20T05:30:24.854000+00:00" },
-    "closeio/updated_at": { "operation": "set", "value": "2013-02-20T05:30:24.854000+00:00" }
+    "closeio/created_at": {
+      operation: "setIfNull",
+      value: "2013-02-20T05:30:24.854000+00:00"
+    },
+    "closeio/updated_at": {
+      operation: "set",
+      value: "2013-02-20T05:30:24.854000+00:00"
+    }
   };
 
   expect(ctxMock.client.traits.mock.calls[0][0]).toEqual(acctTraits);

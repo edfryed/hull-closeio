@@ -16,8 +16,8 @@ module.exports = nock => {
   nock("https://app.close.io/")
     .get(/\/api\/v1\/status\/lead\//)
     .reply(200, payloadStatus);
-  
-    nock("https://app.close.io/")
+
+  nock("https://app.close.io/")
     .get(/\/api\/v1\/custom_fields\/lead\//)
     .reply(200, payloadFields);
 };
