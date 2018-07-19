@@ -475,19 +475,20 @@ class SyncAgent {
           .putContactEnvelope(envelope)
           .then(updatedEnvelope => {
             if (updatedEnvelope.opsResult === "success") {
-              this.hullClient
+              const combinedContact = updatedEnvelope.cioContactRead || {};
+              combinedContact.lead_id = updatedEnvelope.cioContactWrite.lead_id;
+              return this.hullClient
                 .asUser(envelope.message.user)
-                .traits(this.mappingUtil.mapContactToHullUserAttributes(envelope.cioContactWrite))
+                .traits(this.mappingUtil.mapContactToHullUserAttributes(combinedContact))
                 .then(() => {
-                  this.hullClient
+                  return this.hullClient
                     .asUser(envelope.message.user)
                     .logger.info("outgoing.user.success", envelope.cioContactWrite);
                 });
-            } else {
-              this.hullClient
-                .asUser(envelope.message.user)
-                .logger.info("outgoing.user.error", envelope.error);
-            }
+            } 
+            return this.hullClient
+              .asUser(envelope.message.user)
+              .logger.info("outgoing.user.error", envelope.error);
           });
       })
     );
@@ -498,19 +499,20 @@ class SyncAgent {
           .postContactEnvelope(envelope)
           .then(updatedEnvelope => {
             if (updatedEnvelope.opsResult === "success") {
-              this.hullClient
+              const combinedContact = updatedEnvelope.cioContactRead || {};
+              combinedContact.lead_id = updatedEnvelope.cioContactWrite.lead_id;
+              return this.hullClient
                 .asUser(envelope.message.user)
-                .traits(this.mappingUtil.mapContactToHullUserAttributes(envelope.cioContactWrite))
+                .traits(this.mappingUtil.mapContactToHullUserAttributes(combinedContact))
                 .then(() => {
-                  this.hullClient
+                  return this.hullClient
                     .asUser(envelope.message.user)
                     .logger.info("outgoing.user.success", envelope.cioContactWrite);
                 });
-            } else {
-              this.hullClient
-                .asUser(envelope.message.user)
-                .logger.info("outgoing.user.error", envelope.error);
             }
+            return this.hullClient
+              .asUser(envelope.message.user)
+              .logger.info("outgoing.user.error", envelope.error);
           });
       })
     );

@@ -14,18 +14,13 @@ module.exports = ctxMock => {
   const usrTraits = {
     "closeio/id": { operation: "set", value: _.get(apiResponse, "id") },
     "closeio/name": { operation: "set", value: _.get(usrData, "name") },
-    "closeio/email": { operation: "set", value: _.get(usrData, "email") },
-    "closeio/description": {
+    "closeio/email_office": {
       operation: "set",
-      value: _.get(apiResponse, "description")
+      value: _.get(usrData, "email")
     },
-    "closeio/created_at": {
-      operation: "setIfNull",
-      value: "2013-03-07T23:23:21.495000+00:00"
-    },
-    "closeio/updated_at": {
+    "closeio/lead_id": {
       operation: "set",
-      value: "2013-03-07T23:23:21.495000+00:00"
+      value: "lead_QyNaWw4fdSwxl5Mc5daMFf3Y27PpIcH0awPbC9l7uyo"
     }
   };
 
@@ -60,10 +55,10 @@ module.exports = ctxMock => {
     1,
     [
       "method:POST",
-      "url:https://app.close.io/api/v1/lead/",
+      "url:https://app.close.io/api/v1/contact/",
       "status:200",
       "statusGroup:2xx",
-      "endpoint:POST https://app.close.io/api/v1/lead/"
+      "endpoint:POST https://app.close.io/api/v1/contact/"
     ]
   ]);
 

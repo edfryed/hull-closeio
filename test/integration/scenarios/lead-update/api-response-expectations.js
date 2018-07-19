@@ -10,7 +10,7 @@ module.exports = nock => {
   _.set(respPayload, "url", "madkudu.com");
   _.set(respPayload, "contacts", []);
   nock("https://app.close.io/")
-    .post(/\/api\/v1\/lead\//)
+    .put(/\/api\/v1\/lead\//)
     .reply(200, respPayload);
 
   nock("https://app.close.io/")

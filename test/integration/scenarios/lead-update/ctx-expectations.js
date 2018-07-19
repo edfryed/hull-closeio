@@ -65,11 +65,11 @@ module.exports = ctxMock => {
     "ship.service_api.call",
     1,
     [
-      "method:POST",
-      "url:https://app.close.io/api/v1/lead/",
+      "method:PUT",
+      "url:https://app.close.io/api/v1/lead/lead_70jZ5hiVt5X31MZ3vJ0R0GJMqJEihkoF7TtSVFbN2ty/",
       "status:200",
       "statusGroup:2xx",
-      "endpoint:POST https://app.close.io/api/v1/lead/"
+      "endpoint:PUT https://app.close.io/api/v1/lead/lead_70jZ5hiVt5X31MZ3vJ0R0GJMqJEihkoF7TtSVFbN2ty/"
     ]
   ]);
 
