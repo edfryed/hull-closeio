@@ -77,13 +77,12 @@ class FilterUtil {
       }
 
       // Determine which contacts to update or create
-      if (envelope.cioContactWrite.id === null) {
+      if (_.get(envelope, "cioContactWrite.id", null) === null) {
         return results.toInsert.push(envelope);
       }
 
       return results.toUpdate.push(envelope);
     });
-
     return results;
   }
 

@@ -46,4 +46,24 @@ describe("SyncAgent", () => {
       });
     });
   });
+
+  describe("sendUserMessages", () => {
+    const scenariosToRun = ["contact-insert"];
+    scenariosToRun.forEach(scenarioName => {
+      test(`${scenarioName}`, () => {
+        const notifierPayload = require(`./scenarios/${scenarioName}/notifier-payload`)();
+        ctxMock.connector = notifierPayload.connector;
+        ctxMock.ship = notifierPayload.connector;
+
+        const syncAgent = new SyncAgent(ctxMock);
+
+        require(`./scenarios/${scenarioName}/api-response-expectations`)(nock);
+
+        return syncAgent.sendUserMessages(notifierPayload.messages).then(() => {
+          require(`./scenarios/${scenarioName}/ctx-expectations`)(ctxMock);
+          expect(nock.isDone()).toBe(true);
+        });
+      });
+    });
+  });
 });

@@ -96,7 +96,7 @@ class MappingUtil {
     } else if (objType === "Contact") {
       // Default properties
       svcObject.name = hullObject.name;
-      svcObject.lead_id = hullObject["account.closeio/id"] || null;
+      svcObject.lead_id = hullObject.account["closeio/id"] || null;
 
       if (_.has(hullObject, "traits_closeio/id")) {
         svcObject.id = hullObject["traits_closeio/id"];

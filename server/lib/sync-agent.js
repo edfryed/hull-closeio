@@ -435,12 +435,14 @@ class SyncAgent {
    * @memberof SyncAgent
    */
   buildUserUpdateEnvelope(message: THullUserUpdateMessage): UserUpdateEnvelope {
+    const combinedUser = _.cloneDeep(message.user);
+    combinedUser.account = _.cloneDeep(message.account);
     return {
       message,
-      hullUser: _.cloneDeep(message.user), // TODO: check cache if we need to enrich the object
+      hullUser: combinedUser, // TODO: check cache if we need to enrich the object
       cioContactWrite: this.mappingUtil.mapToServiceObject(
         "Contact",
-        message.user
+        combinedUser
       )
     };
   }
@@ -475,7 +477,12 @@ class SyncAgent {
             if (updatedEnvelope.opsResult === "success") {
               this.hullClient
                 .asUser(envelope.message.user)
-                .logger.info("outgoing.user.success", envelope.cioContactWrite);
+                .traits(this.mappingUtil.mapContactToHullUserAttributes(envelope.cioContactWrite))
+                .then(() => {
+                  this.hullClient
+                    .asUser(envelope.message.user)
+                    .logger.info("outgoing.user.success", envelope.cioContactWrite);
+                });
             } else {
               this.hullClient
                 .asUser(envelope.message.user)
@@ -493,7 +500,12 @@ class SyncAgent {
             if (updatedEnvelope.opsResult === "success") {
               this.hullClient
                 .asUser(envelope.message.user)
-                .logger.info("outgoing.user.success", envelope.cioContactWrite);
+                .traits(this.mappingUtil.mapContactToHullUserAttributes(envelope.cioContactWrite))
+                .then(() => {
+                  this.hullClient
+                    .asUser(envelope.message.user)
+                    .logger.info("outgoing.user.success", envelope.cioContactWrite);
+                });
             } else {
               this.hullClient
                 .asUser(envelope.message.user)
