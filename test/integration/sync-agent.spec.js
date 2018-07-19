@@ -26,7 +26,7 @@ describe("SyncAgent", () => {
   });
 
   describe("sendAccountMessages", () => {
-    const scenariosToRun = ["lead-insert"];
+    const scenariosToRun = ["lead-insert", "lead-update"];
     scenariosToRun.forEach(scenarioName => {
       test(`${scenarioName}`, () => {
         const notifierPayload = require(`./scenarios/${scenarioName}/notifier-payload`)();
