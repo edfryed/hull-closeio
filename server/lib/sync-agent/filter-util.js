@@ -26,7 +26,7 @@ class FilterUtil {
    * @type {string}
    * @memberof FilterUtil
    */
-  leadIdentifierService: string;
+  leadIdentifierHull: string;
 
   /**
    *Creates an instance of FilterUtil.
@@ -36,7 +36,7 @@ class FilterUtil {
   constructor(config: FilterUtilConfiguration) {
     // Configure the util with sensible defaults
     this.synchronizedAccountSegments = config.synchronizedAccountSegments || [];
-    this.leadIdentifierService = config.leadIdentifierService || "domain";
+    this.leadIdentifierHull = config.leadIdentifierHull || "domain";
   }
 
   /**
@@ -57,7 +57,10 @@ class FilterUtil {
 
     envelopes.forEach((envelope: UserUpdateEnvelope) => {
       // Filter out users without lead
-      if (envelope.cioContactWrite.lead_id === null) {
+      if (
+        envelope.cioContactWrite.lead_id === undefined ||
+        envelope.cioContactWrite.lead_id === null
+      ) {
         const skipMsg = SHARED_MESSAGES.OPERATION_SKIP_NOLINKEDACCOUNT();
         envelope.skipReason = skipMsg.message;
         envelope.opsResult = "skip";
@@ -104,9 +107,12 @@ class FilterUtil {
 
     envelopes.forEach((envelope: AccountUpdateEnvelope) => {
       // Filter out all accounts that have no identifier in Hull
-      if (envelope.cioLeadWrite[this.leadIdentifierService] === null) {
-        const skipMsg = SHARED_MESSAGES.OPERATION_SKIP_NOACCOUNTIDENT(
-          this.leadIdentifierService
+      if (
+        envelope.hullAccount[this.leadIdentifierHull] === undefined ||
+        envelope.hullAccount[this.leadIdentifierHull] === null
+      ) {
+        const skipMsg = SHARED_MESSAGES.OPERATION_SKIP_NOLEADIDENT(
+          this.leadIdentifierHull
         );
         envelope.skipReason = skipMsg.message;
         envelope.opsResult = "skip";
@@ -127,7 +133,7 @@ class FilterUtil {
       }
 
       // Determine which leads to insert and which ones to update
-      if (_.get(envelope, "lead.id", null) === null) {
+      if (_.get(envelope, "cioLeadWrite.id", null) === null) {
         return results.toInsert.push(envelope);
       }
 

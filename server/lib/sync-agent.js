@@ -589,12 +589,6 @@ class SyncAgent {
         return this.serviceClient
           .postLeadEnvelope(envelope)
           .then(updatedEnvelope => {
-            console.log(
-              ">>>>",
-              this.mappingUtil.mapLeadToHullAccountAttributes(
-                updatedEnvelope.cioLeadRead
-              )
-            );
             if (updatedEnvelope.opsResult === "success") {
               return this.hullClient
                 .asAccount(envelope.message.account)

@@ -18,9 +18,9 @@ const SHARED_MESSAGES = {
       category: "DataTransformation"
     };
   },
-  OPERATION_SKIP_NOACCOUNTIDENT: attribName => {
+  OPERATION_SKIP_NOLEADIDENT: attribName => {
     return {
-      id: "OperationSkipAccountNoHullIdentValue",
+      id: "OperationSkipAccountNoServiceIdentValue",
       message: `The Hull account has no value for the unique identifier attribute '${attribName}'`,
       level: "Information",
       channel: "Operation",

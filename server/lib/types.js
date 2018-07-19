@@ -263,7 +263,7 @@ export type AccountUpdateEnvelope = {
 
 export type FilterUtilConfiguration = {
   synchronizedAccountSegments: Array<string>,
-  leadIdentifierService: string
+  leadIdentifierHull: string
 };
 
 export type CioServiceClientConfiguration = {
