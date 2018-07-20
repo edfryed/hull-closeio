@@ -203,7 +203,10 @@ class MappingUtil {
       hObject["closeio/name"].value &&
       typeof hObject["closeio/name"].value === "string"
     ) {
-      hObject.name = { value: hObject["closeio/name"].value, operation: "setIfNull" };
+      hObject.name = {
+        value: hObject["closeio/name"].value,
+        operation: "setIfNull"
+      };
     }
     hObject["closeio/created_at"] = {
       value: lead.date_created,
@@ -231,7 +234,10 @@ class MappingUtil {
       hObject["closeio/name"].value &&
       typeof hObject["closeio/name"].value === "string"
     ) {
-      hObject.name = { value: hObject["closeio/name"].value, operation: "setIfNull" };
+      hObject.name = {
+        value: hObject["closeio/name"].value,
+        operation: "setIfNull"
+      };
     }
 
     hObject["closeio/lead_id"] = {
@@ -330,12 +336,11 @@ class MappingUtil {
     let humanName = field;
     if (_.includes(fieldIds, field)) {
       const customField = _.find(this.leadCustomFields, c => {
-        return c.id === field;
+        return `custom.${c.id}` === field;
       });
       humanName = _.get(customField, "name");
-    } else {
-      debug("cannot find custom field", field);
     }
+    debug("getHumanFieldName", field, humanName);
     return _.snakeCase(humanName);
   }
 

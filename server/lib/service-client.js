@@ -138,8 +138,7 @@ class ServiceClient {
       query,
       _limit: limit,
       _skip: skip
-    })
-    .catch(err => console.log(">>> ERROR", err));
+    });
   }
 
   /**

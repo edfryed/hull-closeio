@@ -67,7 +67,7 @@ describe("SyncAgent", () => {
     });
   });
 
-  describe.only("fetchUpdatedLeads", () => {
+  describe("fetchUpdatedLeads", () => {
     const scenariosToRun = ["fetch-leads"];
     scenariosToRun.forEach(scenarioName => {
       test(`${scenarioName}`, () => {

@@ -1,74 +1,124 @@
-// const _ = require("lodash");
-// const notifierPayload = _.cloneDeep(
-//   require("../../fixtures/notifier-payloads/user-update.json")
-// );
-// const apiResponse = _.cloneDeep(
-//   require("../../fixtures/api-responses/contact-post.json")
-// );
+const payloadLeads = require("../../fixtures/api-responses/list-leads.json");
+
 module.exports = ctxMock => {
-  console.log("CTX-EXPECTATIONS");
-  console.log(ctxMock.client.asAccount.mock.calls[0]);
-  console.log(ctxMock.client.account.mock.calls[0]);
-  console.log(ctxMock.client.traits.mock.calls[0]);
-  console.log(ctxMock.client.asUser.mock.calls[0]);
-  // expect(ctxMock.client.asUser.mock.calls[0]).toEqual([usrData]);
+  const customFieldIdWithExternalId = "custom.lcf_9TB8XYocaq1GQMK5z7MVyOE7TXS1Cys5VycWwTlRBOZ";
+  const leadData = payloadLeads.data[0];
+  const expectedAccountIdent = {
+    external_id: leadData[customFieldIdWithExternalId],
+    anonymous_id: `closeio:${leadData.id}`
+  };
+  const accountTraits = {
+    name: {
+      value: leadData.name,
+      operation: "setIfNull"
+    },
+    "closeio/name": {
+      value: leadData.name,
+      operation: "set"
+    },
+    "closeio/accounting_software": {
+      value: leadData.custom["Accounting Software"],
+      operation: "set"
+    },
+    "closeio/company_id": {
+      value: leadData.custom["Company ID"],
+      operation: "set"
+    },
+    "closeio/customer_success": {
+      value: leadData.custom["Customer Success"],
+      operation: "set"
+    },
+    "closeio/fit_score": {
+      value: leadData.custom["Fit Score"],
+      operation: "set"
+    },
+    "closeio/ft_es": {
+      value: leadData.custom["FTEs"],
+      operation: "set"
+    },
+    "closeio/industry": {
+      value: leadData.custom["Industry"],
+      operation: "set"
+    },
+    "closeio/onboarding_manager": {
+      value: leadData.custom["Onboarding Manager"],
+      operation: "set"
+    },
+    "closeio/onboarding_use_case": {
+      value: leadData.custom["Onboarding use case"],
+      operation: "set"
+    },
+    "closeio/reason_of_loss": {
+      value: leadData.custom["Reason of Loss"],
+      operation: "set"
+    },
+    "closeio/salesloft": {
+      value: leadData.custom["Salesloft"],
+      operation: "set"
+    },
+    "closeio/description": {
+      value: leadData.description,
+      operation: "set"
+    },
+    "closeio/url": {
+      value: leadData.url,
+      operation: "set"
+    },
+    "closeio/id": {
+      value: leadData.id,
+      operation: "set"
+    },
+    "closeio/created_at": {
+      value: leadData.date_created,
+      operation: "setIfNull"
+    },
+    "closeio/updated_at": {
+      value: leadData.date_updated,
+      operation: "set"
+    }
+  };
+  expect(ctxMock.client.asAccount.mock.calls[0]).toEqual([expectedAccountIdent]);
+  expect(ctxMock.client.traits.mock.calls[0]).toEqual([accountTraits]);
 
-  // const usrTraits = {
-  //   "closeio/id": { operation: "set", value: _.get(apiResponse, "id") },
-  //   "closeio/name": { operation: "set", value: _.get(usrData, "name") },
-  //   "closeio/email_office": {
-  //     operation: "set",
-  //     value: _.get(usrData, "email")
-  //   },
-  //   "closeio/lead_id": {
-  //     operation: "set",
-  //     value: "lead_QyNaWw4fdSwxl5Mc5daMFf3Y27PpIcH0awPbC9l7uyo"
-  //   }
-  // };
+  expect(ctxMock.client.account.mock.calls[0]).toEqual([expectedAccountIdent]);
+  expect(ctxMock.client.account.mock.calls[1]).toEqual([expectedAccountIdent]);
 
-  // expect(ctxMock.client.traits.mock.calls[0][0]).toEqual(usrTraits);
+  const firstContactData = leadData.contacts[0];
 
-  // expect(ctxMock.metric.increment.mock.calls).toHaveLength(3);
-  // expect(ctxMock.metric.increment.mock.calls).toHaveLength(3);
-  // expect(ctxMock.metric.increment.mock.calls[0]).toEqual([
-  //   "ship.service_api.call",
-  //   1,
-  //   [
-  //     "method:GET",
-  //     "url:https://app.close.io/api/v1/status/lead/",
-  //     "status:200",
-  //     "statusGroup:2xx",
-  //     "endpoint:GET https://app.close.io/api/v1/status/lead/"
-  //   ]
-  // ]);
-  // expect(ctxMock.metric.increment.mock.calls[1]).toEqual([
-  //   "ship.service_api.call",
-  //   1,
-  //   [
-  //     "method:GET",
-  //     "url:https://app.close.io/api/v1/custom_fields/lead/",
-  //     "status:200",
-  //     "statusGroup:2xx",
-  //     "endpoint:GET https://app.close.io/api/v1/custom_fields/lead/"
-  //   ]
-  // ]);
-  // expect(ctxMock.metric.increment.mock.calls[2]).toEqual([
-  //   "ship.service_api.call",
-  //   1,
-  //   [
-  //     "method:POST",
-  //     "url:https://app.close.io/api/v1/contact/",
-  //     "status:200",
-  //     "statusGroup:2xx",
-  //     "endpoint:POST https://app.close.io/api/v1/contact/"
-  //   ]
-  // ]);
-
-  // expect(ctxMock.client.logger.debug.mock.calls).toHaveLength(3); // debug calls from super-agent
-  // expect(ctxMock.client.logger.error.mock.calls).toHaveLength(0);
-
-  // expect(ctxMock.client.logger.info.mock.calls).toHaveLength(1);
-  // expect(ctxMock.client.logger.info.mock.calls[0][0]).toEqual(
-  //   "outgoing.user.success"
-  // );
+  const firstUserIdent = {
+    email: firstContactData.emails[0].email,
+    anonymous_id: `closeio:${firstContactData.id}`
+  };
+  expect(ctxMock.client.asUser.mock.calls[0]).toEqual([firstUserIdent]);
+  const firstUserTraits = {
+    name: {
+      value: firstContactData.name,
+      operation: "setIfNull"
+    },
+    "closeio/title": {
+      value: firstContactData.title,
+      operation: "set"
+    },
+    "closeio/phone_office": {
+      value: firstContactData.phones[0].phone,
+      operation: "set"
+    },
+    "closeio/email_office": {
+      value: firstContactData.emails[0].email,
+      operation: "set"
+    },
+    "closeio/name": {
+      value: firstContactData.name,
+      operation: "set"
+    },
+    "closeio/id": {
+      value: firstContactData.id,
+      operation: "set"
+    },
+    "closeio/lead_id": {
+      value: firstContactData.lead_id,
+      operation: "set"
+    }
+  };
+  expect(ctxMock.client.traits.mock.calls[1]).toEqual([firstUserTraits]);
 };
