@@ -133,12 +133,13 @@ class ServiceClient {
         new ConfigurationError("No API key specified in the Settings.", {})
       );
     }
-
+    debug("getLeads", query);
     return this.agent.get("/lead/").query({
       query,
       _limit: limit,
       _skip: skip
-    });
+    })
+    .catch(err => console.log(">>> ERROR", err));
   }
 
   /**

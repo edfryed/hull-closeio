@@ -22,6 +22,7 @@ import type {
 
 const _ = require("lodash");
 const { URL } = require("url");
+const debug = require("debug")("hull-closeio:mapping-util");
 
 const SHARED_MESSAGES = require("../shared-messages");
 const { LogicError } = require("hull/lib/errors");
@@ -163,6 +164,7 @@ class MappingUtil {
 
   mapLeadToHullAccountIdent(lead: CioLeadRead): THullAccountIdent {
     const ident = {};
+
     if (
       this.leadIdentifierHull === "domain" &&
       typeof lead[this.leadIdentifierService] === "string"
@@ -196,6 +198,13 @@ class MappingUtil {
     }
 
     // hObject.domain = { value: _.get(sObject, "url"), operation: "setIfNull" });
+    if (
+      hObject["closeio/name"] &&
+      hObject["closeio/name"].value &&
+      typeof hObject["closeio/name"].value === "string"
+    ) {
+      hObject.name = { value: hObject["closeio/name"].value, operation: "setIfNull" };
+    }
     hObject["closeio/created_at"] = {
       value: lead.date_created,
       operation: "setIfNull"
@@ -215,6 +224,14 @@ class MappingUtil {
     // Ensure that we always set the id from close.io
     if (_.has(contact, "id")) {
       hObject["closeio/id"] = { value: _.get(contact, "id"), operation: "set" };
+    }
+
+    if (
+      hObject["closeio/name"] &&
+      hObject["closeio/name"].value &&
+      typeof hObject["closeio/name"].value === "string"
+    ) {
+      hObject.name = { value: hObject["closeio/name"].value, operation: "setIfNull" };
     }
 
     hObject["closeio/lead_id"] = {
@@ -282,9 +299,9 @@ class MappingUtil {
             }
             break;
           case "opportunities":
+            // Opportunities are not supported at the moment
             break;
           default:
-            // Opps are not supported at the moment
             if (!_.isNil(_.get(serviceObject, m))) {
               hullAttrs[`closeio/${this.getHumanFieldName(m)}`] = {
                 value: _.get(serviceObject, m),
@@ -316,6 +333,8 @@ class MappingUtil {
         return c.id === field;
       });
       humanName = _.get(customField, "name");
+    } else {
+      debug("cannot find custom field", field);
     }
     return _.snakeCase(humanName);
   }
