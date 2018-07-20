@@ -159,9 +159,9 @@ class ServiceClient {
           res.body.total_results !== undefined
         ) {
           const totalPages = Math.ceil(res.body.total_results / 100);
-          for (let index = 1; index < totalPages; index += 1) {
+          for (let page = 1; page < totalPages; page += 1) {
             // eslint-disable-line no-plusplus
-            apiOps.push(this.getLeads(q, 100, index));
+            apiOps.push(this.getLeads(q, 100, page * 100));
           }
         }
         return Promise.all(apiOps).then(results => {
