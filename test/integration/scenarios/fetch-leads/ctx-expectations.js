@@ -5,6 +5,7 @@ module.exports = ctxMock => {
   const leadData = payloadLeads.data[0];
   const expectedAccountIdent = {
     external_id: leadData[customFieldIdWithExternalId],
+    domain: leadData.url.replace("http://", ""),
     anonymous_id: `closeio:${leadData.id}`
   };
   const accountTraits = {

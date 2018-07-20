@@ -172,6 +172,9 @@ class MappingUtil {
       ident.domain = this.normalizeUrl(lead[this.leadIdentifierService]);
     } else if (this.leadIdentifierHull === "external_id") {
       ident[this.leadIdentifierHull] = lead[this.leadIdentifierService];
+      if (typeof lead.url === "string") {
+        ident.domain = this.normalizeUrl(lead.url);
+      }
     }
 
     ident.anonymous_id = `closeio:${lead.id}`;
