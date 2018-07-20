@@ -14,6 +14,7 @@ module.exports = ctxMock => {
   const usrTraits = {
     "closeio/id": { operation: "set", value: _.get(apiResponse, "id") },
     "closeio/name": { operation: "set", value: _.get(usrData, "name") },
+    "name": { operation: "setIfNull", value: _.get(usrData, "name") },
     "closeio/email_office": {
       operation: "set",
       value: _.get(usrData, "email")

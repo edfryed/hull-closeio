@@ -22,6 +22,11 @@ class ContextMock {
         return cb();
       })
     };
+    this.helpers = {
+      updateSettings: () => {
+        return Promise.resolve(this.connector);
+      }
+    }
   }
 }
 

@@ -369,6 +369,9 @@ class SyncAgent {
     const streamOfUpdatedLeads = this.serviceClient.getLeadsStream(since);
 
     return pipeStreamToPromise(streamOfUpdatedLeads, leads => {
+      this.hullClient.logger.info("incoming.job.progress", {
+        leads: leads.length
+      });
       return Promise.all(
         leads.map(lead => {
           const hullAccountIdent = this.mappingUtil.mapLeadToHullAccountIdent(
@@ -396,6 +399,7 @@ class SyncAgent {
                   );
                   const asUser = this.hullClient.asUser(hullUserIdent);
                   return asUser
+                    .account(hullAccountIdent)
                     .traits(hullUserAttributes)
                     .then(() => {
                       asUser.logger.info(
