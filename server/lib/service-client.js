@@ -190,22 +190,24 @@ class ServiceClient {
     return this.agent.post("/lead/").send(data);
   }
 
-  postLeadEnvelope(
-    envelope: AccountUpdateEnvelope
-  ): Promise<AccountUpdateEnvelope> {
-    const enrichedEnvelope = _.cloneDeep(envelope);
-    return this.postLead(envelope.cioLeadWrite)
-      .then(response => {
-        // $FlowFixMe
-        enrichedEnvelope.cioLeadRead = response.body;
-        enrichedEnvelope.opsResult = "success";
-        return enrichedEnvelope;
+  postLeadEnvelopes(
+    envelopes: Array<AccountUpdateEnvelope>
+  ): Promise<Array<AccountUpdateEnvelope>> {
+    return Promise.all(
+      envelopes.map(envelope => {
+        const enrichedEnvelope = _.cloneDeep(envelope);
+        return this.postLead(envelope.cioLeadWrite)
+          .then(response => {
+            // $FlowFixMe
+            enrichedEnvelope.cioLeadRead = response.body;
+            return enrichedEnvelope;
+          })
+          .catch(error => {
+            enrichedEnvelope.error = error.response.body;
+            return enrichedEnvelope;
+          });
       })
-      .catch(error => {
-        enrichedEnvelope.opsResult = "error";
-        enrichedEnvelope.error = error.response.body;
-        return enrichedEnvelope;
-      });
+    );
   }
 
   /**
@@ -229,22 +231,24 @@ class ServiceClient {
     return this.agent.put(`/lead/${data.id}/`).send(data);
   }
 
-  putLeadEnvelope(
-    envelope: AccountUpdateEnvelope
-  ): Promise<AccountUpdateEnvelope> {
-    const enrichedEnvelope = _.cloneDeep(envelope);
-    return this.putLead(envelope.cioLeadWrite)
-      .then(response => {
-        // $FlowFixMe
-        enrichedEnvelope.cioLeadRead = response.body;
-        enrichedEnvelope.opsResult = "success";
-        return enrichedEnvelope;
+  putLeadEnvelopes(
+    envelopes: Array<AccountUpdateEnvelope>
+  ): Promise<Array<AccountUpdateEnvelope>> {
+    return Promise.all(
+      envelopes.map(envelope => {
+        const enrichedEnvelope = _.cloneDeep(envelope);
+        return this.putLead(envelope.cioLeadWrite)
+          .then(response => {
+            // $FlowFixMe
+            enrichedEnvelope.cioLeadRead = response.body;
+            return enrichedEnvelope;
+          })
+          .catch(error => {
+            enrichedEnvelope.error = error.response.body;
+            return enrichedEnvelope;
+          });
       })
-      .catch(error => {
-        enrichedEnvelope.opsResult = "error";
-        enrichedEnvelope.error = error.response.body;
-        return enrichedEnvelope;
-      });
+    );
   }
 
   /**
@@ -332,22 +336,24 @@ class ServiceClient {
     return this.agent.post("/contact/").send(data);
   }
 
-  postContactEnvelope(
-    envelope: UserUpdateEnvelope
-  ): Promise<UserUpdateEnvelope> {
-    const enrichedEnvelope = _.cloneDeep(envelope);
-    return this.postContact(envelope.cioContactWrite)
-      .then(response => {
-        // $FlowFixMe
-        enrichedEnvelope.cioContactRead = response.body;
-        enrichedEnvelope.opsResult = "success";
-        return enrichedEnvelope;
+  postContactEnvelopes(
+    envelopes: Array<UserUpdateEnvelope>
+  ): Promise<Array<UserUpdateEnvelope>> {
+    return Promise.all(
+      envelopes.map(envelope => {
+        const enrichedEnvelope = _.cloneDeep(envelope);
+        return this.postContact(envelope.cioContactWrite)
+          .then(response => {
+            // $FlowFixMe
+            enrichedEnvelope.cioContactRead = response.body;
+            return enrichedEnvelope;
+          })
+          .catch(error => {
+            enrichedEnvelope.error = error.response.body;
+            return enrichedEnvelope;
+          });
       })
-      .catch(error => {
-        enrichedEnvelope.opsResult = "error";
-        enrichedEnvelope.error = error.response.body;
-        return enrichedEnvelope;
-      });
+    );
   }
 
   /**
@@ -371,22 +377,24 @@ class ServiceClient {
     return this.agent.put(`/contact/${data.id}/`).send(data);
   }
 
-  putContactEnvelope(
-    envelope: UserUpdateEnvelope
-  ): Promise<UserUpdateEnvelope> {
-    const enrichedEnvelope = _.cloneDeep(envelope);
-    return this.putContact(envelope.cioContactWrite)
-      .then(response => {
-        // $FlowFixMe
-        enrichedEnvelope.cioContactRead = response.body;
-        enrichedEnvelope.opsResult = "success";
-        return enrichedEnvelope;
+  putContactEnvelopes(
+    envelopes: Array<UserUpdateEnvelope>
+  ): Promise<Array<UserUpdateEnvelope>> {
+    return Promise.all(
+      envelopes.map(envelope => {
+        const enrichedEnvelope = _.cloneDeep(envelope);
+        return this.putContact(envelope.cioContactWrite)
+          .then(response => {
+            // $FlowFixMe
+            enrichedEnvelope.cioContactRead = response.body;
+            return enrichedEnvelope;
+          })
+          .catch(error => {
+            enrichedEnvelope.error = error.response.body;
+            return enrichedEnvelope;
+          });
       })
-      .catch(error => {
-        enrichedEnvelope.opsResult = "error";
-        enrichedEnvelope.error = error.response.body;
-        return enrichedEnvelope;
-      });
+    );
   }
 
   /**

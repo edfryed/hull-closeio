@@ -17,15 +17,14 @@ import type {
   CioOutboundMapping,
   CioMappingUtilSettings,
   CioLeadStatus,
-  CioLeadCustomField
+  CioLeadCustomField,
+  AccountUpdateEnvelope,
+  UserUpdateEnvelope
 } from "../types";
 
 const _ = require("lodash");
 const { URL } = require("url");
 const debug = require("debug")("hull-closeio:mapping-util");
-
-const SHARED_MESSAGES = require("../shared-messages");
-const { LogicError } = require("hull/lib/errors");
 
 class MappingUtil {
   /**
@@ -66,53 +65,50 @@ class MappingUtil {
     this.leadIdentifierService = settings.leadIdentifierService;
   }
 
-  /**
-   * Maps a hull object to the specified close.io object.
-   *
-   * @template T The type of close.io object.
-   * @param {CioObjectType} objType The close.io object type.
-   * @param {(THullUser | THullAccount)} hullObject The hull object.
-   * @returns {T} The mapped close.io object.
-   * @memberof MappingUtil
-   */
-  mapToServiceObject<T: CioLeadWrite | CioContactWrite>(
-    objType: CioObjectType,
-    hullObject: THullUser | THullAccount
-  ): T {
-    const svcObject = {};
-    if (objType === "Lead") {
-      // Default properties
-      svcObject.name = hullObject.name;
-      svcObject.url = hullObject.domain;
+  mapHullAccountToLead(envelope: AccountUpdateEnvelope): CioLeadWrite {
+    const hullObject = envelope.hullAccount;
+    const svcObject: CioLeadWrite = {};
+    // Default properties
+    svcObject.name = hullObject.name;
+    svcObject.url = hullObject.domain;
 
-      if (_.get(hullObject, "closeio/id", null) !== null) {
-        svcObject.id = hullObject["closeio/id"];
-      } else if (
-        _.get(hullObject, "closeio/id", null) === null &&
-        this.leadCreationStatusId !== "N/A" &&
-        this.leadCreationStatusId !== "hull-default"
-      ) {
-        svcObject.status_id = this.leadCreationStatusId;
-      }
-    } else if (objType === "Contact") {
-      // Default properties
-      svcObject.name = hullObject.name;
-      svcObject.lead_id = hullObject.account["closeio/id"] || null;
-
-      if (_.has(hullObject, "traits_closeio/id")) {
-        svcObject.id = hullObject["traits_closeio/id"];
-      }
-    } else {
-      const errDetail = SHARED_MESSAGES.MAPPING_UNSUPPORTEDTYPEOUTBOUND(
-        objType
-      );
-      throw new LogicError(
-        errDetail.message,
-        "MappingUtil.mapToServiceObject",
-        { objType, hullObject }
-      );
+    if (_.get(hullObject, "closeio/id", null) !== null) {
+      svcObject.id = hullObject["closeio/id"];
+    } else if (envelope.cachedCioLeadReadId !== null) {
+      svcObject.id = envelope.cachedCioLeadReadId;
+    } else if (
+      _.get(hullObject, "closeio/id", null) === null &&
+      this.leadCreationStatusId !== "N/A" &&
+      this.leadCreationStatusId !== "hull-default"
+    ) {
+      svcObject.status_id = this.leadCreationStatusId;
     }
+    const customFields = this.mapCustomFields("Lead", hullObject, svcObject);
+    return {
+      ...svcObject,
+      ...customFields
+    };
+  }
 
+  mapHullUserToContact(envelope: UserUpdateEnvelope): CioContactWrite {
+    const hullObject = envelope.hullUser;
+    const svcObject: CioContactWrite = {};
+    // Default properties
+    svcObject.name = hullObject.name;
+    svcObject.lead_id = hullObject.account["closeio/id"] || null;
+
+    if (_.has(hullObject, "traits_closeio/id")) {
+      svcObject.id = hullObject["traits_closeio/id"];
+    }
+    return this.mapCustomFields("Contact", hullObject, svcObject);
+  }
+
+  mapCustomFields(
+    objType: CioObjectType,
+    hullObject: THullAccount | THullUser,
+    svcObject: CioLeadWrite | CioContactWrite
+  ): CioLeadWrite | CioContactWrite {
+    const modifiedSvcObject = _.cloneDeep(svcObject);
     // Customized mapping
     const mappings = (
       this.attributeMappings[`${objType.toLowerCase()}_attributes_outbound`] ||
@@ -132,21 +128,23 @@ class MappingUtil {
         ) {
           const arrayAttribName = _.split(svcAttribName, ".")[0];
           const typeValue = _.split(svcAttribName, ".")[1];
-          if (!_.has(svcObject, arrayAttribName)) {
-            svcObject[arrayAttribName] = [];
+          if (!_.has(modifiedSvcObject, arrayAttribName)) {
+            modifiedSvcObject[arrayAttribName] = [];
           }
           const newVal = { type: typeValue };
           _.set(newVal, arrayAttribName.slice(0, -1), hullAttribValue);
-          const arrayVal = _.concat(_.get(svcObject, arrayAttribName), newVal);
-          svcObject[arrayAttribName] = arrayVal;
+          const arrayVal = _.concat(
+            _.get(modifiedSvcObject, arrayAttribName),
+            newVal
+          );
+          modifiedSvcObject[arrayAttribName] = arrayVal;
         } else {
           // Regular case, just set whatever we get from hull to the field
-          svcObject[svcAttribName] = hullAttribValue;
+          modifiedSvcObject[svcAttribName] = hullAttribValue;
         }
       }
     });
-
-    return svcObject;
+    return modifiedSvcObject;
   }
 
   mapContactToHullUserIdent(contact: CioContactRead): THullUserIdent {
