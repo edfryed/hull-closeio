@@ -1,5 +1,5 @@
 /* @flow */
-// import type { THullUserUpdateMessage, THullUser } from "hull";
+import type { THullUserUpdateMessage, THullAccountUpdateMessage } from "hull";
 import type {
   UserUpdateEnvelope,
   AccountUpdateEnvelope,
@@ -162,6 +162,56 @@ class FilterUtil {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Deduplicates messages by user.id and joins all events into a single message.
+   *
+   * @param {Array<THullUserUpdateMessage>} messages The list of messages to deduplicate.
+   * @returns {Array<THullUserUpdateMessage>} A list of unique messages.
+   * @memberof FilterUtil
+   */
+  deduplicateUserUpdateMessages(
+    messages: Array<THullUserUpdateMessage>
+  ): Array<THullUserUpdateMessage> {
+    return _.chain(messages)
+      .groupBy("user.id")
+      .map(
+        (
+          groupedMessages: Array<THullUserUpdateMessage>
+        ): THullUserUpdateMessage => {
+          const dedupedMessage = _.cloneDeep(
+            _.last(_.sortBy(groupedMessages, ["user.indexed_at"]))
+          );
+          const hashedEvents = {};
+          groupedMessages.forEach((m: THullUserUpdateMessage) => {
+            _.get(m, "events", []).forEach((e: Object) => {
+              _.set(hashedEvents, e.event_id, e);
+            });
+          });
+          dedupedMessage.events = _.values(hashedEvents);
+          return dedupedMessage;
+        }
+      )
+      .value();
+  }
+
+  deduplicateAccountUpdateMessages(
+    messages: Array<THullAccountUpdateMessage>
+  ): Array<THullAccountUpdateMessage> {
+    return _.chain(messages)
+      .groupBy("account.id")
+      .map(
+        (
+          groupedMessages: Array<THullUserUpdateMessage>
+        ): THullUserUpdateMessage => {
+          const dedupedMessage = _.cloneDeep(
+            _.last(_.sortBy(groupedMessages, ["account.indexed_at"]))
+          );
+          return dedupedMessage;
+        }
+      )
+      .value();
   }
 }
 
