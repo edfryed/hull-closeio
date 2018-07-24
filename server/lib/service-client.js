@@ -109,6 +109,18 @@ class ServiceClient {
           metric: this.metricsClient
         })
       )
+      .on("response", res => {
+        const limit = _.get(res.header, "x-rate-limit-limit");
+        const remaining = _.get(res.header, "x-rate-limit-remaining");
+        // const reset = _.get(res.header, "x-rate-limit-reset");
+        if (remaining !== undefined) {
+          this.metricsClient.value("ship.service_api.remaining", remaining);
+        }
+
+        if (limit !== undefined) {
+          this.metricsClient.value("ship.service_api.limit", limit);
+        }
+      })
       .set({ "Content-Type": "application/json" })
       .auth(this.apiKey, "")
       .ok(res => res.status === 200); // we reject the promise for all non 200 responses
