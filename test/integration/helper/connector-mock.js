@@ -19,7 +19,13 @@ class ContextMock {
     };
     this.cache = {
       wrap: jest.fn((key, cb) => {
-        return cb();
+        return Promise.resolve(cb());
+      }),
+      get: jest.fn(() => {
+        return Promise.resolve();
+      }),
+      set: jest.fn(() => {
+        return Promise.resolve();
       })
     };
     this.helpers = {

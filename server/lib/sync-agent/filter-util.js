@@ -107,10 +107,7 @@ class FilterUtil {
 
     envelopes.forEach((envelope: AccountUpdateEnvelope) => {
       // Filter out all accounts that have no identifier in Hull
-      if (
-        envelope.hullAccount[this.leadIdentifierHull] === undefined ||
-        envelope.hullAccount[this.leadIdentifierHull] === null
-      ) {
+      if (_.isNil(envelope.hullAccount[this.leadIdentifierHull])) {
         const skipMsg = SHARED_MESSAGES.OPERATION_SKIP_NOLEADIDENT(
           this.leadIdentifierHull
         );
@@ -133,7 +130,7 @@ class FilterUtil {
       }
 
       // Determine which leads to insert and which ones to update
-      if (_.get(envelope, "cioLeadWrite.id", null) === null) {
+      if (_.isNil(envelope.cioLeadWrite && envelope.cioLeadWrite.id)) {
         return results.toInsert.push(envelope);
       }
 

@@ -1,7 +1,5 @@
 const MappingUtil = require("../../server/lib/sync-agent/mapping-util");
 
-const { LogicError } = require("hull/lib/errors");
-
 describe("MappingUtil", () => {
   test("should initialize mappings and lead creation status if appropriate settings are passed", () => {
     const settings = {
@@ -36,7 +34,7 @@ describe("MappingUtil", () => {
   });
 
   test("should map an account object to a lead", () => {
-    const hullAcct = {
+    const hullAccount = {
       created_at: "2017-10-25T10:06:00Z",
       domain: "hullsfdc.io",
       employees: 2,
@@ -73,13 +71,13 @@ describe("MappingUtil", () => {
     };
 
     const expectedCloseObject = {
-      name: hullAcct.name,
-      url: hullAcct.domain
+      name: hullAccount.name,
+      url: hullAccount.domain
     };
 
     const util = new MappingUtil(settings);
 
-    const svcObject = util.mapToServiceObject("Lead", hullAcct);
+    const svcObject = util.mapHullAccountToLead({ hullAccount });
 
     expect(svcObject).toEqual(expectedCloseObject);
   });
@@ -147,7 +145,7 @@ describe("MappingUtil", () => {
 
     const util = new MappingUtil(settings);
 
-    const svcObject = util.mapToServiceObject("Contact", hullUser);
+    const svcObject = util.mapHullUserToContact({ hullUser });
 
     expect(svcObject).toEqual(expectedCloseObject);
   });
