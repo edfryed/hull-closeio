@@ -32,16 +32,16 @@
       "type": "string"
     },
     {
-      "name": "synchronized_segments",
-      "title": "Send users to Close.io when belonging to one of these segments",
+      "name": "synchronized_account_segments",
+      "title": "Send *accounts* as leads to Close.io when belonging to one of these segments",
       "type": "array",
       "default": [],
-      "format": "segment"
+      "format": "accountSegment"
     },
     {
       "name": "synchronized_segments_hero",
       "type": "string",
-      "headerTemplate": "The above list of segments is a whitelist. You need to *explicitely specify one or more segments* for which users and events shall be sent to Close.io.<br>If you do not specify any segment, no user or event will be sent to Close.io.",
+      "headerTemplate": "The above lists of segments are whitelists. You need to *explicitely specify one or more segments* for which users or accounts and events shall be sent to Close.io.<br>If you do not specify any segment, no user, account or event will be sent to Close.io.",
       "format": "information",
       "title": "Whitelisted Segments"
     },
@@ -53,6 +53,26 @@
       "default": "hull-default",
       "options": {
         "loadOptions": "/leadstatuses"
+      } 
+    },
+    {
+      "name": "lead_identifier_hull",
+      "title": "The attribute to uniquely identify an account in Hull",
+      "type": "string",
+      "format": "select",
+      "default": "domain",
+      "options": {
+        "loadOptions": "/fields-account-ident"
+      } 
+    },
+    {
+      "name": "lead_identifier_service",
+      "title": "The field to uniquely identify a lead in close.io",
+      "type": "string",
+      "format": "select",
+      "default": "url",
+      "options": {
+        "loadOptions": "/fields-lead-out"
       } 
     },
     {
@@ -68,7 +88,7 @@
       "type": "array",
       "format": "table",
       "default": [
-        { "hull_field_name": "account.name", "closeio_field_name": "name" }
+        { "hull_field_name": "name", "closeio_field_name": "name" }
       ],
       "items": {
         "type": "object",
@@ -83,7 +103,7 @@
             "title" : "Close.io Field",
             "format" : "select",
             "options" : {
-              "loadOptions" : "/fields-lead"
+              "loadOptions" : "/fields-lead-out"
             }
           }
         },
@@ -99,7 +119,7 @@
       "type" : "array",
       "format" : "select",
       "options" : {
-        "loadOptions" : "/fields-lead"
+        "loadOptions" : "/fields-lead-in"
       }
     },
     {

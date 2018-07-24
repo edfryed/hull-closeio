@@ -68,6 +68,16 @@ function getListCustomFieldsReponseBody() {
         date_created: "2014-11-07T05:06:09.413000+00:00",
         date_updated: "2014-11-10T20:51:12.636000+00:00",
         organization_id: "orga_vfvFDAKGLybddKDJn8n7ElZZ3qyRF3QI8fJxTSAYr5X"
+      },
+      {
+        id: "lcf_bA7SU4vqaefQLuK5UjZMVpbfHK4SVujTJ9unKCIlTvI",
+        name: "Sub-Industry",
+        type: "text",
+        created_by: "user_asdflkjlkdsg3FHYQcUwV7tbwZRpe3sA215Ftv8OvbU",
+        updated_by: "user_asdflkjlkdsg3FHYQcUwV7tbwZRpe3sA215Ftv8OvbU",
+        date_created: "2014-11-07T05:06:09.413000+00:00",
+        date_updated: "2014-11-10T20:51:12.636000+00:00",
+        organization_id: "orga_vfvFDAKGLybddKDJn8n7ElZZ3qyRF3QI8fJxTSAYr5X"
       }
     ]
   };
