@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.2.0
+- TBD
+
 ## v0.1.6
 
 - [bugfix] Fix handling of custom lead creation status
