@@ -1,7 +1,9 @@
 # Changelog
 
 ## v0.2.0
-- TBD
+- [maintenance] apply connector template
+- [feature] add fetching recently updated leads
+- [bugfix] fix handling custom fields
 
 ## v0.1.6
 
