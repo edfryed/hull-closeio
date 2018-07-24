@@ -438,17 +438,23 @@ class SyncAgent {
    * @returns {UserUpdateEnvelope} The envelope.
    * @memberof SyncAgent
    */
-  buildUserUpdateEnvelope(message: THullUserUpdateMessage): UserUpdateEnvelope {
+  async buildUserUpdateEnvelope(
+    message: THullUserUpdateMessage
+  ): Promise<UserUpdateEnvelope> {
     const combinedUser = _.cloneDeep(message.user);
     combinedUser.account = _.cloneDeep(message.account);
-    return {
-      message,
-      hullUser: combinedUser, // TODO: check cache if we need to enrich the object
-      cioContactWrite: this.mappingUtil.mapToServiceObject(
-        "Contact",
-        combinedUser
-      )
-    };
+
+    const cachedCioContactReadId = await this.cache.get(message.user.id);
+    const envelope = {};
+    envelope.message = message;
+    envelope.hullUser = combinedUser;
+    envelope.cioContactRead = null;
+    envelope.cachedCioContactReadId = cachedCioContactReadId || null;
+    envelope.skipReason = null;
+    envelope.error = null;
+
+    envelope.cioContactWrite = this.mappingUtil.mapHullUserToContact(envelope);
+    return envelope;
   }
 
   /**
@@ -462,8 +468,8 @@ class SyncAgent {
     messages: Array<THullUserUpdateMessage>
   ): Promise<any> {
     await this.initialize();
-    const envelopes = messages.map(message =>
-      this.buildUserUpdateEnvelope(message)
+    const envelopes = await Promise.all(
+      messages.map(message => this.buildUserUpdateEnvelope(message))
     );
     const filterResults = this.filterUtil.filterUsers(envelopes);
 
@@ -473,65 +479,69 @@ class SyncAgent {
         .logger.info("outgoing.user.skip", envelope.skipReason);
     });
 
-    await Promise.all(
-      filterResults.toUpdate.map(envelope => {
-        return this.serviceClient
-          .putContactEnvelope(envelope)
-          .then(updatedEnvelope => {
-            if (updatedEnvelope.opsResult === "success") {
-              const combinedContact = updatedEnvelope.cioContactRead || {};
-              combinedContact.lead_id = updatedEnvelope.cioContactWrite.lead_id;
-              return this.hullClient
-                .asUser(envelope.message.user)
-                .traits(
-                  this.mappingUtil.mapContactToHullUserAttributes(
-                    combinedContact
-                  )
-                )
-                .then(() => {
-                  return this.hullClient
-                    .asUser(envelope.message.user)
-                    .logger.info(
-                      "outgoing.user.success",
-                      envelope.cioContactWrite
-                    );
-                });
-            }
-            return this.hullClient
-              .asUser(envelope.message.user)
-              .logger.info("outgoing.user.error", envelope.error);
-          });
-      })
+    const updatedEnvelopes = await this.serviceClient.putContactEnvelopes(
+      filterResults.toUpdate
     );
 
     await Promise.all(
-      filterResults.toInsert.map(envelope => {
-        return this.serviceClient
-          .postContactEnvelope(envelope)
-          .then(updatedEnvelope => {
-            if (updatedEnvelope.opsResult === "success") {
-              const combinedContact = updatedEnvelope.cioContactRead || {};
-              combinedContact.lead_id = updatedEnvelope.cioContactWrite.lead_id;
-              return this.hullClient
-                .asUser(envelope.message.user)
-                .traits(
-                  this.mappingUtil.mapContactToHullUserAttributes(
-                    combinedContact
-                  )
-                )
-                .then(() => {
-                  return this.hullClient
-                    .asUser(envelope.message.user)
-                    .logger.info(
-                      "outgoing.user.success",
-                      envelope.cioContactWrite
-                    );
-                });
-            }
-            return this.hullClient
-              .asUser(envelope.message.user)
-              .logger.info("outgoing.user.error", envelope.error);
-          });
+      updatedEnvelopes.map(async updatedEnvelope => {
+        try {
+          if (updatedEnvelope.cioContactRead === null) {
+            throw new Error(updatedEnvelope.error || "Unkown error");
+          }
+          const combinedContact = updatedEnvelope.cioContactRead;
+          combinedContact.lead_id = updatedEnvelope.cioContactWrite.lead_id;
+          await this.hullClient
+            .asUser(updatedEnvelope.message.user)
+            .traits(
+              this.mappingUtil.mapContactToHullUserAttributes(combinedContact)
+            );
+          return this.hullClient
+            .asUser(updatedEnvelope.message.user)
+            .logger.info(
+              "outgoing.user.success",
+              updatedEnvelope.cioContactWrite
+            );
+        } catch (error) {
+          return this.hullClient
+            .asUser(updatedEnvelope.message.user)
+            .logger.info("outgoing.user.error", error);
+        }
+      })
+    );
+
+    const insertedEnvelopes = await this.serviceClient.postContactEnvelopes(
+      filterResults.toInsert
+    );
+
+    await Promise.all(
+      insertedEnvelopes.map(async insertedEnvelope => {
+        try {
+          if (insertedEnvelope.cioContactRead === null) {
+            throw new Error(insertedEnvelope.error || "Unkown error");
+          }
+          const combinedContact = insertedEnvelope.cioContactRead;
+          combinedContact.lead_id = insertedEnvelope.cioContactWrite.lead_id;
+          await this.hullClient
+            .asUser(insertedEnvelope.message.user)
+            .traits(
+              this.mappingUtil.mapContactToHullUserAttributes(combinedContact)
+            );
+          await this.cache.set(
+            insertedEnvelope.message.id,
+            insertedEnvelope.cioContactRead.id
+          );
+          return this.hullClient
+            .asUser(insertedEnvelope.message.user)
+            .logger.info(
+              "outgoing.user.success",
+              insertedEnvelope.cioContactWrite
+            );
+        } catch (error) {
+          return this.hullClient
+            .asUser(insertedEnvelope.message.user)
+            .logger.info("outgoing.user.error", error);
+        }
       })
     );
   }
@@ -543,14 +553,20 @@ class SyncAgent {
    * @returns {AccountUpdateEnvelope} The envelope.
    * @memberof SyncAgent
    */
-  buildAccountUpdateEnvelope(
+  async buildAccountUpdateEnvelope(
     message: THullAccountUpdateMessage
-  ): AccountUpdateEnvelope {
-    return {
-      message,
-      hullAccount: _.cloneDeep(message.account), // TODO: check cache if we need to enrich the object
-      cioLeadWrite: this.mappingUtil.mapToServiceObject("Lead", message.account)
-    };
+  ): Promise<AccountUpdateEnvelope> {
+    const cachedCioLeadReadId = await this.cache.get(message.id);
+    const envelope = {};
+    envelope.message = message;
+    envelope.hullAccount = _.cloneDeep(message.account);
+    envelope.cachedCioLeadReadId = cachedCioLeadReadId || null;
+    envelope.cioLeadRead = null;
+    envelope.skipReason = null;
+    envelope.error = null;
+
+    envelope.cioLeadWrite = this.mappingUtil.mapHullAccountToLead(envelope);
+    return envelope;
   }
 
   /**
@@ -564,8 +580,8 @@ class SyncAgent {
     messages: Array<THullAccountUpdateMessage>
   ): Promise<any> {
     await this.initialize();
-    const envelopes = messages.map(message =>
-      this.buildAccountUpdateEnvelope(message)
+    const envelopes = await Promise.all(
+      messages.map(message => this.buildAccountUpdateEnvelope(message))
     );
     const filterResults = this.filterUtil.filterAccounts(envelopes);
 
@@ -575,61 +591,69 @@ class SyncAgent {
         .logger.info("outgoing.account.skip", envelope.skipReason);
     });
 
-    await Promise.all(
-      filterResults.toUpdate.map(envelope => {
-        return this.serviceClient
-          .putLeadEnvelope(envelope)
-          .then(updatedEnvelope => {
-            if (updatedEnvelope.opsResult === "success") {
-              return this.hullClient
-                .asAccount(envelope.message.account)
-                .traits(
-                  this.mappingUtil.mapLeadToHullAccountAttributes(
-                    updatedEnvelope.cioLeadRead
-                  )
-                )
-                .then(() => {
-                  return this.hullClient
-                    .asAccount(envelope.message.account)
-                    .logger.info(
-                      "outgoing.account.success",
-                      envelope.cioLeadWrite
-                    );
-                });
-            }
-            return this.hullClient
-              .asAccount(envelope.message.account)
-              .logger.info("outgoing.account.error", envelope.error);
-          });
-      })
+    const updatedEnvelopes = await this.serviceClient.putLeadEnvelopes(
+      filterResults.toUpdate
     );
 
     await Promise.all(
-      filterResults.toInsert.map(envelope => {
-        return this.serviceClient
-          .postLeadEnvelope(envelope)
-          .then(updatedEnvelope => {
-            if (updatedEnvelope.opsResult === "success") {
-              return this.hullClient
-                .asAccount(envelope.message.account)
-                .traits(
-                  this.mappingUtil.mapLeadToHullAccountAttributes(
-                    updatedEnvelope.cioLeadRead
-                  )
-                )
-                .then(() => {
-                  this.hullClient
-                    .asAccount(envelope.message.account)
-                    .logger.info(
-                      "outgoing.account.success",
-                      envelope.cioLeadWrite
-                    );
-                });
-            }
-            return this.hullClient
-              .asAccount(envelope.message.account)
-              .logger.info("outgoing.account.error", envelope.error);
-          });
+      updatedEnvelopes.map(async updatedEnvelope => {
+        try {
+          if (updatedEnvelope.error !== null) {
+            throw new Error(updatedEnvelope.error);
+          }
+          await this.hullClient
+            .asAccount(updatedEnvelope.message.account)
+            .traits(
+              this.mappingUtil.mapLeadToHullAccountAttributes(
+                updatedEnvelope.cioLeadRead
+              )
+            );
+          return this.hullClient
+            .asAccount(updatedEnvelope.message.account)
+            .logger.info(
+              "outgoing.account.success",
+              updatedEnvelope.cioLeadWrite
+            );
+        } catch (error) {
+          return this.hullClient
+            .asAccount(updatedEnvelope.message.account)
+            .logger.info("outgoing.account.error", error);
+        }
+      })
+    );
+
+    const insertedEnvelopes = await this.serviceClient.postLeadEnvelopes(
+      filterResults.toInsert
+    );
+
+    await Promise.all(
+      insertedEnvelopes.map(async insertedEnvelope => {
+        try {
+          if (insertedEnvelope.error !== null) {
+            throw new Error(insertedEnvelope.error);
+          }
+          await this.hullClient
+            .asAccount(insertedEnvelope.message.account)
+            .traits(
+              this.mappingUtil.mapLeadToHullAccountAttributes(
+                insertedEnvelope.cioLeadRead
+              )
+            );
+          await this.cache.set(
+            insertedEnvelope.message.id,
+            insertedEnvelope.cioLeadRead.id
+          );
+          return this.hullClient
+            .asAccount(insertedEnvelope.message.account)
+            .logger.info(
+              "outgoing.account.success",
+              insertedEnvelope.cioLeadWrite
+            );
+        } catch (error) {
+          return this.hullClient
+            .asAccount(insertedEnvelope.message.account)
+            .logger.info("outgoing.account.error", insertedEnvelope.error);
+        }
       })
     );
   }

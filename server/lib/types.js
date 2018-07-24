@@ -155,7 +155,8 @@ export type CioConnectorSettings = {
   contact_attributes_outbound: Array<CioOutboundMapping>,
   contact_attributes_inbound: Array<string>,
   lead_identifier_hull: string,
-  lead_identifier_service: string
+  lead_identifier_service: string,
+  last_sync_at: string
 };
 
 export type CioAttributesMapping = {
@@ -164,8 +165,6 @@ export type CioAttributesMapping = {
   contact_attributes_outbound: Array<CioOutboundMapping>,
   contact_attributes_inbound: Array<string>
 };
-
-export type ConnectorOperationResult = "success" | "error" | "skip";
 
 export type CioAddress = {
   label: string,
@@ -244,21 +243,22 @@ export type FilterResults<T> = {
 
 export type UserUpdateEnvelope = {
   message: HullUserUpdateMessage,
-  hullUser: HullUser, // cache enriched version of HullUser
+  hullUser: HullUser, // an object taken from message.user but we need to mix in `account` property there
   cioContactWrite: CioContactWrite, // the contact object we want to use to write to API
-  cioContactRead?: CioContactRead, // the contact object we have received from the API
-  opsResult?: ConnectorOperationResult,
-  skipReason?: string,
-  error?: string
+  cioContactRead: CioContactRead | null, // the contact object we have received from the API
+  cachedCioContactReadId: string | null,
+  skipReason: string | null,
+  error: string | null
 };
 
 export type AccountUpdateEnvelope = {
   message: HullAccountUpdateMessage,
-  hullAccount: HullAccount, // cache enriched version of HullAccount
+  hullAccount: HullAccount, // an object taken from message, to make it work the same as for UserUpdateEnvelope
   cioLeadWrite: CioLeadWrite,
-  cioLeadRead?: CioLeadRead,
-  skipReason?: string,
-  opsResult?: ConnectorOperationResult
+  cioLeadRead: CioLeadRead | null,
+  cachedCioLeadReadId: string | null,
+  skipReason: string | null,
+  error: string | null
 };
 
 export type FilterUtilConfiguration = {
