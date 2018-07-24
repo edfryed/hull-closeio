@@ -462,7 +462,10 @@ class SyncAgent {
     messages: Array<THullUserUpdateMessage>
   ): Promise<any> {
     await this.initialize();
-    const envelopes = messages.map(message =>
+    const deduplicatedMessages = this.filterUtil.deduplicateUserUpdateMessages(
+      messages
+    );
+    const envelopes = deduplicatedMessages.map(message =>
       this.buildUserUpdateEnvelope(message)
     );
     const filterResults = this.filterUtil.filterUsers(envelopes);
@@ -564,7 +567,10 @@ class SyncAgent {
     messages: Array<THullAccountUpdateMessage>
   ): Promise<any> {
     await this.initialize();
-    const envelopes = messages.map(message =>
+    const deduplicatedMessages = this.filterUtil.deduplicateAccountUpdateMessages(
+      messages
+    );
+    const envelopes = deduplicatedMessages.map(message =>
       this.buildAccountUpdateEnvelope(message)
     );
     const filterResults = this.filterUtil.filterAccounts(envelopes);
