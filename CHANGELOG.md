@@ -2,7 +2,7 @@
 
 ## v0.2.0
 - [maintenance] apply connector template
-- [feature] add fetching recently updated leads
+- [feature] add fetching recently updated leads and linking contacts/users to accounts
 - [bugfix] fix handling custom fields
 
 ## v0.1.6
