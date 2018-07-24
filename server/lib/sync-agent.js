@@ -399,8 +399,10 @@ class SyncAgent {
                   );
                   const asUser = this.hullClient.asUser(hullUserIdent);
                   return asUser
-                    .account(hullAccountIdent)
                     .traits(hullUserAttributes)
+                    .then(() => {
+                      return asUser.account(hullAccountIdent).traits({});
+                    })
                     .then(() => {
                       asUser.logger.info(
                         "incoming.user.success",
