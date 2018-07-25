@@ -399,8 +399,10 @@ class SyncAgent {
                   );
                   const asUser = this.hullClient.asUser(hullUserIdent);
                   return asUser
-                    .account(hullAccountIdent)
                     .traits(hullUserAttributes)
+                    .then(() => {
+                      return asUser.account(hullAccountIdent).traits({});
+                    })
                     .then(() => {
                       asUser.logger.info(
                         "incoming.user.success",
@@ -468,8 +470,11 @@ class SyncAgent {
     messages: Array<THullUserUpdateMessage>
   ): Promise<any> {
     await this.initialize();
+    const deduplicatedMessages = this.filterUtil.deduplicateUserUpdateMessages(
+      messages
+    );
     const envelopes = await Promise.all(
-      messages.map(message => this.buildUserUpdateEnvelope(message))
+      deduplicatedMessages.map(message => this.buildUserUpdateEnvelope(message))
     );
     const filterResults = this.filterUtil.filterUsers(envelopes);
 
@@ -580,8 +585,13 @@ class SyncAgent {
     messages: Array<THullAccountUpdateMessage>
   ): Promise<any> {
     await this.initialize();
+    const deduplicatedMessages = this.filterUtil.deduplicateAccountUpdateMessages(
+      messages
+    );
     const envelopes = await Promise.all(
-      messages.map(message => this.buildAccountUpdateEnvelope(message))
+      deduplicatedMessages.map(message =>
+        this.buildAccountUpdateEnvelope(message)
+      )
     );
     const filterResults = this.filterUtil.filterAccounts(envelopes);
 
