@@ -22,12 +22,20 @@ import type {
 const _ = require("lodash");
 const { DateTime, Duration } = require("luxon");
 // const debug = require("debug")("hull-closeio:sync-agent");
+const {
+  pipeStreamToPromise,
+  promiseToTransformStream,
+  settingsUpdate
+} = require("hull/lib/utils");
+const ImportS3Stream = require("hull/lib/utils/import-s3-stream");
+
+const promisePipe = require("promisepipe");
+const AWS = require("aws-sdk");
 
 const MappingUtil = require("./sync-agent/mapping-util");
 const FilterUtil = require("./sync-agent/filter-util");
 const ServiceClient = require("./service-client");
 const CONTACT_FIELDDEFS = require("./sync-agent/contact-fielddefs");
-const pipeStreamToPromise = require("./support/pipe-stream-to-promise");
 
 const BASE_API_URL = "https://app.close.io/api/v1";
 
@@ -97,7 +105,7 @@ class SyncAgent {
    */
   connector: THullConnector;
 
-  helpers: Object;
+  s3Bucket: string;
 
   /**
    * Creates an instance of SyncAgent.
@@ -112,13 +120,10 @@ class SyncAgent {
     this.cache = reqContext.cache;
     // Initialize the connector
     this.connector = reqContext.connector;
-    this.helpers = reqContext.helpers;
 
     // Initialize configuration from settings
-    const loadedSettings: CioConnectorSettings = _.get(
-      reqContext,
-      "ship.private_settings"
-    );
+    const loadedSettings: CioConnectorSettings =
+      reqContext.connector.private_settings;
     this.normalizedPrivateSettings = this.normalizeSettings(loadedSettings);
 
     // Configure the filter util
@@ -138,6 +143,8 @@ class SyncAgent {
     };
 
     this.serviceClient = new ServiceClient(configServiceClient);
+    this.s3Bucket = process.env.AWS_S3_BUCKET;
+    this.settingsUpdate = settingsUpdate.bind(null, reqContext);
   }
 
   isInitialized(): boolean {
@@ -423,12 +430,13 @@ class SyncAgent {
       );
     })
       .then(() => {
-        this.helpers.updateSettings({
+        return this.settingsUpdate({
           last_sync_at: Math.floor(DateTime.utc().toMillis() / 1000)
         });
-        this.hullClient.logger.info("incoming.job.success");
       })
+      .then(() => this.hullClient.logger.info("incoming.job.success"))
       .catch(error => {
+        console.log(error);
         this.hullClient.logger.error("incoming.job.error", { reason: error });
       });
   }
@@ -666,6 +674,123 @@ class SyncAgent {
         }
       })
     );
+  }
+
+  async triggerLeadsExport() {
+    const result = await this.serviceClient.postExportLead();
+    const exportId = result.body.id;
+    await this.settingsUpdate({
+      pending_export_id: exportId,
+      handle_leads_export_interval: "5"
+    });
+  }
+
+  async handleLeadsExport() {
+    this.hullClient.logger.info("incoming.job.start");
+    if (!this.normalizedPrivateSettings.pending_export_id) {
+      this.hullClient.logger.info("incoming.job.skip", {
+        reason: "No pending export id"
+      });
+      return Promise.resolve();
+    }
+    await this.initialize();
+    let leadsExportStream;
+    try {
+      leadsExportStream = await this.serviceClient.getExportLeadStream(
+        this.normalizedPrivateSettings.pending_export_id
+      );
+    } catch (error) {
+      this.hullClient.logger.info("incoming.job.skip", { reason: error });
+      return Promise.resolve();
+    }
+
+    const transformLeads = promiseToTransformStream(lead => {
+      const leadToImport = this.mappingUtil.mapLeadToHullAccountImportObject(
+        lead
+      );
+      if (leadToImport === null) {
+        return Promise.resolve();
+      }
+      return Promise.resolve(leadToImport);
+    });
+
+    const transformContacts = promiseToTransformStream(
+      (lead, encoding, push) => {
+        const leadToImport = this.mappingUtil.mapLeadToHullAccountImportObject(
+          lead
+        );
+        if (leadToImport === null) {
+          return Promise.resolve();
+        }
+        lead.contacts.forEach(contact => {
+          const contactToImport = this.mappingUtil.mapContactToHullUserImportObject(
+            leadToImport,
+            contact
+          );
+          if (contactToImport === null) {
+            return null;
+          }
+          return push(contactToImport);
+        });
+        return Promise.resolve();
+      }
+    );
+
+    const importS3StreamAccounts = new ImportS3Stream(
+      {
+        hullClient: this.hullClient,
+        s3: new AWS.S3()
+      },
+      {
+        s3Bucket: this.s3Bucket,
+        importType: "accounts",
+        emitEvent: false,
+        notify: false,
+        s3KeyTemplate: `hull-closeio/${
+          this.connector.id
+        }/accounts/<%= partIndex %>.json`
+      }
+    );
+
+    const importS3StreamUsers = new ImportS3Stream(
+      {
+        hullClient: this.hullClient,
+        s3: new AWS.S3()
+      },
+      {
+        s3Bucket: this.s3Bucket,
+        importType: "users",
+        emitEvent: false,
+        notify: false,
+        s3KeyTemplate: `hull-closeio/${
+          this.connector.id
+        }/users/<%= partIndex %>.json`
+      }
+    );
+
+    const promises = [
+      promisePipe(leadsExportStream, transformLeads, importS3StreamAccounts),
+      promisePipe(leadsExportStream, transformContacts, importS3StreamUsers)
+    ];
+
+    return Promise.all(promises)
+      .then(() => {
+        this.hullClient.logger.info("incoming.job.success", {
+          accounts: importS3StreamAccounts.importResults.map(result =>
+            _.pick(result, "settings.size", "job_id")
+          ),
+          contacts: importS3StreamUsers.importResults.map(result =>
+            _.pick(result, "settings.size", "job_id")
+          )
+        });
+        return this.settingsUpdate({
+          handle_leads_export_interval: "720",
+          pending_export_id: null
+        });
+      })
+      .catch(error => {
+        this.hullClient.logger.info("incoming.job.error", error);
+      });
   }
 
   /**

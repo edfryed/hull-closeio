@@ -179,6 +179,54 @@ class MappingUtil {
     return ident;
   }
 
+  mapLeadToHullAccountImportObject(lead: CioLeadRead): Object | null {
+    const transformedLead = _.cloneDeep(lead);
+    _.mapKeys(transformedLead.custom, (value, key) => {
+      const customFieldDef = _.find(this.leadCustomFields, { name: key });
+      if (customFieldDef) {
+        transformedLead[`custom.${customFieldDef.id}`] = value;
+      }
+    });
+    console.log("mapLeadToHullAccountImportObject", transformedLead);
+    const leadIdent = this.mapLeadToHullAccountIdent(transformedLead);
+    const leadAttributes = this.mapLeadToHullAccountAttributes(transformedLead);
+
+    if (!leadIdent.external_id && !leadIdent.domain) {
+      return null;
+    }
+
+    const leadToImport = {};
+    leadToImport.traits = leadAttributes;
+    if (leadIdent.external_id) {
+      leadToImport.external_id = leadIdent.external_id;
+    }
+
+    if (leadIdent.domain) {
+      leadToImport.domain = leadIdent.domain;
+    }
+    console.log(">>> leadToImport", leadToImport);
+    return leadToImport;
+  }
+
+  mapContactToHullUserImportObject(
+    leadToImport: Object,
+    contact: CioContactRead
+  ): Object | null {
+    const contactIdent = this.mapContactToHullUserIdent(contact);
+    const contactAttributes = this.mapContactToHullUserAttributes(contact);
+
+    if (!contactIdent.email || !leadToImport.external_id) {
+      return null;
+    }
+
+    const contactToImport = {};
+    contactToImport.traits = contactAttributes;
+    contactToImport.account_id = leadToImport.external_id;
+    contactToImport.email = contactIdent.email;
+
+    return contactToImport;
+  }
+
   /**
    * Maps a close.io object to an object of traits that can be sent to
    * the Hull platform.
