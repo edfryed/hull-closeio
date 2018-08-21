@@ -1,31 +1,17 @@
 /* @flow */
-const _ = require("lodash");
+import type { TReqContext, THullUserUpdateMessage } from "hull";
+
+const SyncAgent = require("../lib/sync-agent");
 const Promise = require("bluebird");
 
-const { Agent } = require("../lib/agent");
-
-function userUpdateHandlerFactory(options: Object = {}): Function {
-  const {
-    flowControl = null
-  } = options;
-  return function userUpdateHandler(ctx: Object, messages: Array<Object>): Promise {
-    if (ctx.smartNotifierResponse && flowControl) {
-      ctx.smartNotifierResponse.setFlowControl(flowControl);
-    }
-    const agent = new Agent(ctx.client, ctx.ship, ctx.metric);
-    const enrichedMessages = messages
-      .map((m) => {
-        if (!_.has(m.user, "account")) {
-          m.user.account = _.get(m, "account");
-        }
-        return m;
-      });
-
-    if (enrichedMessages.length > 0) {
-      return agent.sendUserMessages(enrichedMessages);
-    }
-    return Promise.resolve();
-  };
+function userUpdate(
+  ctx: TReqContext,
+  messages: Array<THullUserUpdateMessage>
+): Promise<*> {
+  const syncAgent = new SyncAgent(ctx);
+  return syncAgent.sendUserMessages(messages).catch(err => {
+    console.error(">>>> ERROR <<<<", err); // TODO: Add logger
+  });
 }
 
-module.exports = userUpdateHandlerFactory;
+module.exports = userUpdate;

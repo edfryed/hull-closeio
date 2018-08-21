@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.0
+- [maintenance] apply connector template
+- [feature] add fetching recently updated leads and linking contacts/users to accounts
+- [bugfix] fix handling custom fields
+
 ## v0.1.6
 
 - [bugfix] Fix handling of custom lead creation status

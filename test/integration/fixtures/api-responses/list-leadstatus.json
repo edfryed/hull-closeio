@@ -1,0 +1,25 @@
+{
+    "has_more": false,
+    "data": [
+        {
+            "organization_id": "orga_AhlASqO37spMANye0ASl1vld19XXvYbSexJc7vvnkby",
+            "id": "stat_1ZdiZqcSIkoGVnNOyxiEY58eTGQmFNG3LPlEVQ4V7Nk",
+            "label": "Potential"
+        },
+        {
+            "organization_id": "orga_AhlASqO37spMANye0ASl1vld19XXvYbSexJc7vvnkby",
+            "id": "stat_2ZdiZqcSIkoGVnNOyxiEY58eTGQmFNG3LPlEVQ4V7Nk",
+            "label": "Bad Fit"
+        },
+        {
+            "organization_id": "orga_AhlASqO37spMANye0ASl1vld19XXvYbSexJc7vvnkby",
+            "id": "stat_3ZdiZqcSIkoGVnNOyxiEY58eTGQmFNG3LPlEVQ4V7Nk",
+            "label": "Qualified"
+        },
+        {
+            "organization_id": "orga_AhlASqO37spMANye0ASl1vld19XXvYbSexJc7vvnkby",
+            "id": "stat_8ZdiZqcSIkoGVnNOyxiEY58eTGQmFNG3LPlEVQ4V7Nk",
+            "label": "Not Serious"
+        }
+    ]
+}

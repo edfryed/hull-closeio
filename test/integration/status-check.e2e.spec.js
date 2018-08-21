@@ -1,14 +1,14 @@
 /* global describe, test, expect */
 
 const statusCheckAction = require("../../server/actions/status-check");
-
+const SHARED_MESSAGES = require("../../server/lib/shared-messages");
 const { ShipMock } = require("../helper/shipmock");
 
 describe("statusCheckAction", () => {
   test("should return status ok if connector is properly configured", () => {
     const private_settings = {
       api_key: "1234567abcd=",
-      synchronized_segments: ["leads"]
+      synchronized_account_segments: ["leads"]
     };
 
     const metricClientMock = {};
@@ -45,11 +45,11 @@ describe("statusCheckAction", () => {
     expect(jsonMock.mock.calls[0][0]).toEqual({ status: "ok", messages: [] });
   });
 
-  test("should return status error if connector has no synchronized_segments", () => {
+  test("should return status warning if connector has no synchronized_segments", () => {
     const private_settings = {
       api_username: "sven+dev@hull.io",
       api_key: "1234567abcd=",
-      synchronized_segments: []
+      synchronized_account_segments: []
     };
 
     const metricClientMock = {};
@@ -83,13 +83,16 @@ describe("statusCheckAction", () => {
     };
 
     statusCheckAction(req, responseMock);
-    expect(jsonMock.mock.calls[0][0]).toEqual({ status: "error", messages: ["No users will be synchronized because no segments are whitelisted."] });
+    expect(jsonMock.mock.calls[0][0]).toEqual({
+      status: "warning",
+      messages: [SHARED_MESSAGES.STATUS_WARNING_NOSEGMENTS().message]
+    });
   });
 
   test("should return status error if connector has no proper auth", () => {
     const private_settings = {
       api_key: null,
-      synchronized_segments: ["leads"]
+      synchronized_account_segments: ["leads"]
     };
 
     const metricClientMock = {};
@@ -123,7 +126,10 @@ describe("statusCheckAction", () => {
     };
 
     statusCheckAction(req, responseMock);
-    expect(jsonMock.mock.calls[0][0]).toEqual({ status: "error", messages: ["API Key is not configured. Connector cannot communicate with external service."] });
+    expect(jsonMock.mock.calls[0][0]).toEqual({
+      status: "error",
+      messages: [SHARED_MESSAGES.STATUS_ERROR_NOAPIKEY().message]
+    });
   });
 
   test("should return status 404 if no private settings are present", () => {
@@ -159,11 +165,14 @@ describe("statusCheckAction", () => {
       url: "https://hull-closeio.herokuapp.com/",
       hull: {
         client: clientMock,
-        ship: { }
+        ship: {}
       }
     };
 
     statusCheckAction(req, responseMock);
-    expect(jsonMock.mock.calls[0][0]).toEqual({ status: 404, messages: ["Request doesn't contain data about the connector"] });
+    expect(jsonMock.mock.calls[0][0]).toEqual({
+      status: 404,
+      messages: ["Request doesn't contain data about the connector"]
+    });
   });
 });

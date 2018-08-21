@@ -1,18 +1,27 @@
-const adminHandler = require("./admin-handler");
-const contactFieldsActions = require("./contact-fields");
-const fetch = require("./fetch");
-const leadFields = require("./lead-fields");
-const leadStatusList = require("./schema-leadstatus");
+const {
+  fieldsContactInbound,
+  fieldsContactOutbound,
+  fieldsLeadInbound,
+  fieldsLeadOutbound,
+  fieldsStatus,
+  fieldsAccountIdent
+} = require("./settings-fields");
 const statusCheck = require("./status-check");
-const userUpdateHandler = require("./user-update");
+const userUpdate = require("./user-update");
+const accountUpdate = require("./account-update");
+const fetch = require("./fetch");
+const adminHandler = require("./admin-handler");
 
 module.exports = {
-  adminHandler,
-  contactSendFields: contactFieldsActions.contactSendFieldsAction,
-  contactFetchFields: contactFieldsActions.contactFetchFieldsAction,
-  fetch,
-  leadFields,
-  leadStatusList,
+  fieldsContactInbound,
+  fieldsContactOutbound,
+  fieldsLeadInbound,
+  fieldsLeadOutbound,
   statusCheck,
-  userUpdateHandler
+  userUpdate,
+  accountUpdate,
+  fieldsStatus,
+  fetch,
+  adminHandler,
+  fieldsAccountIdent
 };
