@@ -171,7 +171,9 @@ class ServiceClient {
     // https://en.wikipedia.org/wiki/ISO_8601
     // use toLocalString instead, with TIME_24_WITH_SECONDS (only time and seconds, no time offset)
     // from what I can tell CloseIO ignores time offsets anyway
-    const updatedAfterTime = utcSince.toLocaleString(DateTime.TIME_24_WITH_SECONDS);
+    const updatedAfterTime = utcSince.toLocaleString(
+      DateTime.TIME_24_WITH_SECONDS
+    );
 
     // CloseIO understands the T notation
     const q = `updated >= ${updatedAfter}T${updatedAfterTime}`;
