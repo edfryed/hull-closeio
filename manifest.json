@@ -180,13 +180,13 @@
   "schedules": [
     {
       "url": "/fetch",
-      "type": "cron",
-      "value": "*/5 * * * *"
+      "type": "interval",
+      "value": "5"
     },
     {
       "url": "/status",
-      "type": "cron",
-      "value": "*/30 * * * *"
+      "type": "interval",
+      "value": "30"
     },
     {
       "url": "/handle-leads-export",

@@ -162,8 +162,20 @@ class ServiceClient {
    * @memberof Agent
    */
   getLeadsStream(since: DateTime): Readable {
-    const updatedAfter = since.toISODate();
-    const q = `updated >= ${updatedAfter}`;
+    // converting into utc because that is how the dates are exposed in the CloseIO api
+    const utcSince: DateTime = since.toUTC();
+    const updatedAfter = utcSince.toISODate();
+
+    // also be careful not to use toISOTime() because the API does not process the time correctly with the standard appended Z notation
+    // Z is used to denote utc when there is no offset specified (ISO 8601)
+    // https://en.wikipedia.org/wiki/ISO_8601
+    // use toLocalString instead, with TIME_24_WITH_SECONDS (only time and seconds, no time offset)
+    // from what I can tell CloseIO ignores time offsets anyway
+    const updatedAfterTime = utcSince.toLocaleString(DateTime.TIME_24_WITH_SECONDS);
+
+    // CloseIO understands the T notation
+    const q = `updated >= ${updatedAfter}T${updatedAfterTime}`;
+
     return promiseToReadableStream(push => {
       return this.getLeads(q, 100, 0).then(res => {
         push(res.body.data);
