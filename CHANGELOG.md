@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.1
+- [maintenance] upgraded hull-node to 0.14
+- [feature] added ability to pull addresses of different types, first one of each type only
+- [feature] handle export intervals
+
 ## v0.2.0
 - [maintenance] apply connector template
 - [feature] add fetching recently updated leads and linking contacts/users to accounts

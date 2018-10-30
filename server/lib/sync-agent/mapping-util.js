@@ -179,6 +179,52 @@ class MappingUtil {
     return ident;
   }
 
+  mapLeadToHullAccountImportObject(lead: CioLeadRead): Object | null {
+    const transformedLead = _.cloneDeep(lead);
+    _.mapKeys(transformedLead.custom, (value, key) => {
+      const customFieldDef = _.find(this.leadCustomFields, { name: key });
+      if (customFieldDef) {
+        transformedLead[`custom.${customFieldDef.id}`] = value;
+      }
+    });
+    const leadIdent = this.mapLeadToHullAccountIdent(transformedLead);
+    const leadAttributes = this.mapLeadToHullAccountAttributes(transformedLead);
+
+    if (!leadIdent.external_id && !leadIdent.domain) {
+      return null;
+    }
+
+    const leadToImport = {};
+    leadToImport.traits = leadAttributes;
+    if (leadIdent.external_id) {
+      leadToImport.accountId = leadIdent.external_id;
+    }
+
+    if (leadIdent.domain) {
+      leadToImport.traits.domain = leadIdent.domain;
+    }
+    return leadToImport;
+  }
+
+  mapContactToHullUserImportObject(
+    leadToImport: Object,
+    contact: CioContactRead
+  ): Object | null {
+    const contactIdent = this.mapContactToHullUserIdent(contact);
+    const contactAttributes = this.mapContactToHullUserAttributes(contact);
+
+    if (!contactIdent.email || !leadToImport.external_id) {
+      return null;
+    }
+
+    const contactToImport = {};
+    contactToImport.traits = contactAttributes;
+    contactToImport.accountId = leadToImport.external_id;
+    contactToImport.traits.email = contactIdent.email;
+
+    return contactToImport;
+  }
+
   /**
    * Maps a close.io object to an object of traits that can be sent to
    * the Hull platform.
@@ -283,17 +329,23 @@ class MappingUtil {
             }
             break;
           case "addresses":
-            // Multiple addresses are not supported,
-            // we only store the first one
             if (_.has(serviceObject, m)) {
               const addresses = _.get(serviceObject, m, []);
-              if (addresses.length > 0) {
-                const addressData = addresses[0];
-                const attribPrefix = `closeio/address_${_.get(
-                  addressData,
-                  "label",
-                  "office"
-                )}`;
+              const processedLabels = [];
+              // Loop through the addresses putting the pieces into attributes
+              _.forEach(addresses, addressData => {
+                const thisLabel = _.get(addressData, "label", "office");
+
+                // Do not store more 1 type of address
+                // this is a known issue with the current approach
+                // https://github.com/hull/hull-connectors-issues/issues/78
+                if (processedLabels.includes(thisLabel)) {
+                  return;
+                }
+
+                processedLabels.push(thisLabel);
+
+                const attribPrefix = `closeio/address_${thisLabel}`;
                 _.forIn(addressData, (v, k) => {
                   if (k !== "label") {
                     hullAttrs[`${attribPrefix}_${k}`] = {
@@ -302,7 +354,7 @@ class MappingUtil {
                     };
                   }
                 });
-              }
+              });
             }
             break;
           case "opportunities":
