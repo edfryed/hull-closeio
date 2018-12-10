@@ -1,6 +1,6 @@
 {
-  "name": "Hull-Closeio",
-  "description": "Automate customer interactions with your close.io CRM",
+  "name": "Close.io",
+  "description": "Two-Way Sync with Close.io Leads & Contacts",
   "source": "closeio",
   "logo": "logo.png",
   "picture": "picture.png",
